@@ -1,0 +1,36 @@
+Package compiler;
+
+
+Helpers
+  sp = ' ';
+  lf = 0x000a;
+  cr = 0x000d;
+  ff = 0x000c;
+  ht = 0x0009; 
+  line_terminator = lf | cr | cr lf;
+  white_space = (sp | ht | ff | line_terminator)*;
+  
+
+Tokens
+  white_space	= white_space;
+  if = 'i''f';
+  else = 'e''l''s''e';
+  lpar = '(';
+  rpar = ')';
+  char = ['a' .. 'z']+;
+  
+
+Ignored Tokens
+  white_space;
+
+Productions 
+	program =
+		{if} selection_statement;
+
+	selection_statement =
+		{one} if lpar condition rpar else selection_statement |
+		{two} if lpar condition rpar;
+		
+	condition = 
+		char;
+		

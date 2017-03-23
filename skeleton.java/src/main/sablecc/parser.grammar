@@ -9,10 +9,52 @@ Helpers
   ht = 0x0009; 
   line_terminator = lf | cr | cr lf;
   white_space = (sp | ht | ff | line_terminator)*;
+  
 
 Tokens
-  white_space = white_space;
-
+  white_space	= white_space;
+  
+  lpar 	= '(';
+  rpar 	= ')';
+  chars	= ['a' .. 'z'];
+  num	= ['0' .. '9'];
+  
+  and	= 'a''n''d';
+  or	= 'o''r'; 
+  int	= 'i''n''t';
+  then	= 't''h''e''n';
+  char	= 'c''h''a''r';
+  mod	= 'm''o''d';
+  var	= 'v''a''r';
+  div	= 'd''i''v';
+  not	= 'n''o''t';
+  while = 'w''h''i''l''e';
+  do	= 'd''o';
+  if	= 'i''f';
+  else	= 'e''l''s''e';
+  fun	= 'f''u''n';
+  retrun= 'r''e''t''u''r''n';
+  ref	= 'r''e''f';
+  nothing = 'n''o''t''h''i''n''g';
+   
+  
 Ignored Tokens
   white_space;
 
+Productions 
+	program =
+		{vars} variable
+		;
+		
+	variable = 
+		{var_start_char}	var vars
+		;
+	vars =
+		{var_start_chars}	chars+ | 
+		{var_num} 			num | 
+		{var_chars} 		chars |
+		{loop_vars} 			vars
+		;
+	
+	
+	
