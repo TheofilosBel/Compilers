@@ -75,37 +75,25 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAVarsProgram(AVarsProgram node)
+    public void caseAOneProgram(AOneProgram node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAVarStartCharVariable(AVarStartCharVariable node)
+    public void caseATwoVariableDefinition(ATwoVariableDefinition node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAVarStartCharsVars(AVarStartCharsVars node)
+    public void caseATIntType(ATIntType node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAVarNumVars(AVarNumVars node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAVarCharsVars(AVarCharsVars node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseALoopVarsVars(ALoopVarsVars node)
+    public void caseATCharType(ATCharType node)
     {
         defaultCase(node);
     }
@@ -129,13 +117,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTChars(TChars node)
+    public void caseTDeftype(TDeftype node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTNum(TNum node)
+    public void caseTCmdEnd(TCmdEnd node)
     {
         defaultCase(node);
     }
@@ -238,6 +226,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTNothing(TNothing node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTVariable(TVariable node)
     {
         defaultCase(node);
     }

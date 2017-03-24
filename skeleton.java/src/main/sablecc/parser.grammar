@@ -2,6 +2,7 @@ Package compiler;
 
 
 Helpers
+
   sp = ' ';
   lf = 0x000a;
   cr = 0x000d;
@@ -10,14 +11,20 @@ Helpers
   line_terminator = lf | cr | cr lf;
   white_space = (sp | ht | ff | line_terminator)*;
   
-
+  underscore = '_';
+  letter = ['a' .. 'z'];
+  digit	= ['0' .. '9'];
+  namepart = letter ( letter | digit )*;
+  
+  
 Tokens
+
   white_space	= white_space;
   
   lpar 	= '(';
   rpar 	= ')';
-  chars	= ['a' .. 'z'];
-  num	= ['0' .. '9'];
+  deftype = ':';
+  cmd_end	= ';';
   
   and	= 'a''n''d';
   or	= 'o''r'; 
@@ -36,24 +43,27 @@ Tokens
   retrun= 'r''e''t''u''r''n';
   ref	= 'r''e''f';
   nothing = 'n''o''t''h''i''n''g';
-   
+
+  variable = namepart ( underscore namepart)*;
+ 
   
 Ignored Tokens
   white_space;
 
-Productions 
+Productions
+ 
 	program =
-		{vars} variable
+		{one} variable_definition+
 		;
 		
-	variable = 
-		{var_start_char}	var vars
+	
+	variable_definition = 
+		{two} 	var variable deftype type cmd_end
 		;
-	vars =
-		{var_start_chars}	chars+ | 
-		{var_num} 			num | 
-		{var_chars} 		chars |
-		{loop_vars} 			vars
+
+	type = 
+		{t_int} int |
+		{t_char} char 
 		;
 	
 	

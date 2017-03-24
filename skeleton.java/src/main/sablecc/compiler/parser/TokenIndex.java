@@ -22,13 +22,13 @@ class TokenIndex extends AnalysisAdapter
     }
 
     @Override
-    public void caseTChars(@SuppressWarnings("unused") TChars node)
+    public void caseTDeftype(@SuppressWarnings("unused") TDeftype node)
     {
         this.index = 2;
     }
 
     @Override
-    public void caseTNum(@SuppressWarnings("unused") TNum node)
+    public void caseTCmdEnd(@SuppressWarnings("unused") TCmdEnd node)
     {
         this.index = 3;
     }
@@ -136,8 +136,14 @@ class TokenIndex extends AnalysisAdapter
     }
 
     @Override
-    public void caseEOF(@SuppressWarnings("unused") EOF node)
+    public void caseTVariable(@SuppressWarnings("unused") TVariable node)
     {
         this.index = 21;
+    }
+
+    @Override
+    public void caseEOF(@SuppressWarnings("unused") EOF node)
+    {
+        this.index = 22;
     }
 }

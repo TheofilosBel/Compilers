@@ -12,18 +12,16 @@ public interface Analysis extends Switch
     void setOut(Node node, Object o);
 
     void caseStart(Start node);
-    void caseAVarsProgram(AVarsProgram node);
-    void caseAVarStartCharVariable(AVarStartCharVariable node);
-    void caseAVarStartCharsVars(AVarStartCharsVars node);
-    void caseAVarNumVars(AVarNumVars node);
-    void caseAVarCharsVars(AVarCharsVars node);
-    void caseALoopVarsVars(ALoopVarsVars node);
+    void caseAOneProgram(AOneProgram node);
+    void caseATwoVariableDefinition(ATwoVariableDefinition node);
+    void caseATIntType(ATIntType node);
+    void caseATCharType(ATCharType node);
 
     void caseTWhiteSpace(TWhiteSpace node);
     void caseTLpar(TLpar node);
     void caseTRpar(TRpar node);
-    void caseTChars(TChars node);
-    void caseTNum(TNum node);
+    void caseTDeftype(TDeftype node);
+    void caseTCmdEnd(TCmdEnd node);
     void caseTAnd(TAnd node);
     void caseTOr(TOr node);
     void caseTInt(TInt node);
@@ -41,5 +39,6 @@ public interface Analysis extends Switch
     void caseTRetrun(TRetrun node);
     void caseTRef(TRef node);
     void caseTNothing(TNothing node);
+    void caseTVariable(TVariable node);
     void caseEOF(EOF node);
 }

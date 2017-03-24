@@ -36,137 +36,107 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outStart(node);
     }
 
-    public void inAVarsProgram(AVarsProgram node)
+    public void inAOneProgram(AOneProgram node)
     {
         defaultIn(node);
     }
 
-    public void outAVarsProgram(AVarsProgram node)
+    public void outAOneProgram(AOneProgram node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAVarsProgram(AVarsProgram node)
+    public void caseAOneProgram(AOneProgram node)
     {
-        inAVarsProgram(node);
+        inAOneProgram(node);
+        {
+            List<PVariableDefinition> copy = new ArrayList<PVariableDefinition>(node.getVariableDefinition());
+            Collections.reverse(copy);
+            for(PVariableDefinition e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outAOneProgram(node);
+    }
+
+    public void inATwoVariableDefinition(ATwoVariableDefinition node)
+    {
+        defaultIn(node);
+    }
+
+    public void outATwoVariableDefinition(ATwoVariableDefinition node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseATwoVariableDefinition(ATwoVariableDefinition node)
+    {
+        inATwoVariableDefinition(node);
+        if(node.getCmdEnd() != null)
+        {
+            node.getCmdEnd().apply(this);
+        }
+        if(node.getType() != null)
+        {
+            node.getType().apply(this);
+        }
+        if(node.getDeftype() != null)
+        {
+            node.getDeftype().apply(this);
+        }
         if(node.getVariable() != null)
         {
             node.getVariable().apply(this);
-        }
-        outAVarsProgram(node);
-    }
-
-    public void inAVarStartCharVariable(AVarStartCharVariable node)
-    {
-        defaultIn(node);
-    }
-
-    public void outAVarStartCharVariable(AVarStartCharVariable node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseAVarStartCharVariable(AVarStartCharVariable node)
-    {
-        inAVarStartCharVariable(node);
-        if(node.getVars() != null)
-        {
-            node.getVars().apply(this);
         }
         if(node.getVar() != null)
         {
             node.getVar().apply(this);
         }
-        outAVarStartCharVariable(node);
+        outATwoVariableDefinition(node);
     }
 
-    public void inAVarStartCharsVars(AVarStartCharsVars node)
+    public void inATIntType(ATIntType node)
     {
         defaultIn(node);
     }
 
-    public void outAVarStartCharsVars(AVarStartCharsVars node)
+    public void outATIntType(ATIntType node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAVarStartCharsVars(AVarStartCharsVars node)
+    public void caseATIntType(ATIntType node)
     {
-        inAVarStartCharsVars(node);
+        inATIntType(node);
+        if(node.getInt() != null)
         {
-            List<TChars> copy = new ArrayList<TChars>(node.getChars());
-            Collections.reverse(copy);
-            for(TChars e : copy)
-            {
-                e.apply(this);
-            }
+            node.getInt().apply(this);
         }
-        outAVarStartCharsVars(node);
+        outATIntType(node);
     }
 
-    public void inAVarNumVars(AVarNumVars node)
+    public void inATCharType(ATCharType node)
     {
         defaultIn(node);
     }
 
-    public void outAVarNumVars(AVarNumVars node)
+    public void outATCharType(ATCharType node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAVarNumVars(AVarNumVars node)
+    public void caseATCharType(ATCharType node)
     {
-        inAVarNumVars(node);
-        if(node.getNum() != null)
+        inATCharType(node);
+        if(node.getChar() != null)
         {
-            node.getNum().apply(this);
+            node.getChar().apply(this);
         }
-        outAVarNumVars(node);
-    }
-
-    public void inAVarCharsVars(AVarCharsVars node)
-    {
-        defaultIn(node);
-    }
-
-    public void outAVarCharsVars(AVarCharsVars node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseAVarCharsVars(AVarCharsVars node)
-    {
-        inAVarCharsVars(node);
-        if(node.getChars() != null)
-        {
-            node.getChars().apply(this);
-        }
-        outAVarCharsVars(node);
-    }
-
-    public void inALoopVarsVars(ALoopVarsVars node)
-    {
-        defaultIn(node);
-    }
-
-    public void outALoopVarsVars(ALoopVarsVars node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseALoopVarsVars(ALoopVarsVars node)
-    {
-        inALoopVarsVars(node);
-        if(node.getVars() != null)
-        {
-            node.getVars().apply(this);
-        }
-        outALoopVarsVars(node);
+        outATCharType(node);
     }
 }

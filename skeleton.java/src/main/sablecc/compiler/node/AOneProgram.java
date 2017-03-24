@@ -6,59 +6,59 @@ import java.util.*;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AVarsProgram extends PProgram
+public final class AOneProgram extends PProgram
 {
-    private final LinkedList<PVariable> _variable_ = new LinkedList<PVariable>();
+    private final LinkedList<PVariableDefinition> _variableDefinition_ = new LinkedList<PVariableDefinition>();
 
-    public AVarsProgram()
+    public AOneProgram()
     {
         // Constructor
     }
 
-    public AVarsProgram(
-        @SuppressWarnings("hiding") List<?> _variable_)
+    public AOneProgram(
+        @SuppressWarnings("hiding") List<?> _variableDefinition_)
     {
         // Constructor
-        setVariable(_variable_);
+        setVariableDefinition(_variableDefinition_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AVarsProgram(
-            cloneList(this._variable_));
+        return new AOneProgram(
+            cloneList(this._variableDefinition_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAVarsProgram(this);
+        ((Analysis) sw).caseAOneProgram(this);
     }
 
-    public LinkedList<PVariable> getVariable()
+    public LinkedList<PVariableDefinition> getVariableDefinition()
     {
-        return this._variable_;
+        return this._variableDefinition_;
     }
 
-    public void setVariable(List<?> list)
+    public void setVariableDefinition(List<?> list)
     {
-        for(PVariable e : this._variable_)
+        for(PVariableDefinition e : this._variableDefinition_)
         {
             e.parent(null);
         }
-        this._variable_.clear();
+        this._variableDefinition_.clear();
 
         for(Object obj_e : list)
         {
-            PVariable e = (PVariable) obj_e;
+            PVariableDefinition e = (PVariableDefinition) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
             }
 
             e.parent(this);
-            this._variable_.add(e);
+            this._variableDefinition_.add(e);
         }
     }
 
@@ -66,14 +66,14 @@ public final class AVarsProgram extends PProgram
     public String toString()
     {
         return ""
-            + toString(this._variable_);
+            + toString(this._variableDefinition_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._variable_.remove(child))
+        if(this._variableDefinition_.remove(child))
         {
             return;
         }
@@ -85,13 +85,13 @@ public final class AVarsProgram extends PProgram
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<PVariable> i = this._variable_.listIterator(); i.hasNext();)
+        for(ListIterator<PVariableDefinition> i = this._variableDefinition_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PVariable) newChild);
+                    i.set((PVariableDefinition) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;
