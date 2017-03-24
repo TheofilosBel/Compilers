@@ -5,22 +5,22 @@ package compiler.node;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ATwoVariableDefinition extends PVariableDefinition
+public final class ADefVariableDefinition extends PVariableDefinition
 {
     private TVar _var_;
-    private TVariable _variable_;
+    private PSetOfVariables _setOfVariables_;
     private TDeftype _deftype_;
     private PType _type_;
     private TCmdEnd _cmdEnd_;
 
-    public ATwoVariableDefinition()
+    public ADefVariableDefinition()
     {
         // Constructor
     }
 
-    public ATwoVariableDefinition(
+    public ADefVariableDefinition(
         @SuppressWarnings("hiding") TVar _var_,
-        @SuppressWarnings("hiding") TVariable _variable_,
+        @SuppressWarnings("hiding") PSetOfVariables _setOfVariables_,
         @SuppressWarnings("hiding") TDeftype _deftype_,
         @SuppressWarnings("hiding") PType _type_,
         @SuppressWarnings("hiding") TCmdEnd _cmdEnd_)
@@ -28,7 +28,7 @@ public final class ATwoVariableDefinition extends PVariableDefinition
         // Constructor
         setVar(_var_);
 
-        setVariable(_variable_);
+        setSetOfVariables(_setOfVariables_);
 
         setDeftype(_deftype_);
 
@@ -41,9 +41,9 @@ public final class ATwoVariableDefinition extends PVariableDefinition
     @Override
     public Object clone()
     {
-        return new ATwoVariableDefinition(
+        return new ADefVariableDefinition(
             cloneNode(this._var_),
-            cloneNode(this._variable_),
+            cloneNode(this._setOfVariables_),
             cloneNode(this._deftype_),
             cloneNode(this._type_),
             cloneNode(this._cmdEnd_));
@@ -52,7 +52,7 @@ public final class ATwoVariableDefinition extends PVariableDefinition
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseATwoVariableDefinition(this);
+        ((Analysis) sw).caseADefVariableDefinition(this);
     }
 
     public TVar getVar()
@@ -80,16 +80,16 @@ public final class ATwoVariableDefinition extends PVariableDefinition
         this._var_ = node;
     }
 
-    public TVariable getVariable()
+    public PSetOfVariables getSetOfVariables()
     {
-        return this._variable_;
+        return this._setOfVariables_;
     }
 
-    public void setVariable(TVariable node)
+    public void setSetOfVariables(PSetOfVariables node)
     {
-        if(this._variable_ != null)
+        if(this._setOfVariables_ != null)
         {
-            this._variable_.parent(null);
+            this._setOfVariables_.parent(null);
         }
 
         if(node != null)
@@ -102,7 +102,7 @@ public final class ATwoVariableDefinition extends PVariableDefinition
             node.parent(this);
         }
 
-        this._variable_ = node;
+        this._setOfVariables_ = node;
     }
 
     public TDeftype getDeftype()
@@ -185,7 +185,7 @@ public final class ATwoVariableDefinition extends PVariableDefinition
     {
         return ""
             + toString(this._var_)
-            + toString(this._variable_)
+            + toString(this._setOfVariables_)
             + toString(this._deftype_)
             + toString(this._type_)
             + toString(this._cmdEnd_);
@@ -201,9 +201,9 @@ public final class ATwoVariableDefinition extends PVariableDefinition
             return;
         }
 
-        if(this._variable_ == child)
+        if(this._setOfVariables_ == child)
         {
-            this._variable_ = null;
+            this._setOfVariables_ = null;
             return;
         }
 
@@ -238,9 +238,9 @@ public final class ATwoVariableDefinition extends PVariableDefinition
             return;
         }
 
-        if(this._variable_ == oldChild)
+        if(this._setOfVariables_ == oldChild)
         {
-            setVariable((TVariable) newChild);
+            setSetOfVariables((PSetOfVariables) newChild);
             return;
         }
 

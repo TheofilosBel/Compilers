@@ -182,34 +182,46 @@ public class Parser
 			push(goTo(0), list, false);
 		    }
 		    break;
-                    case 1: /* reduce ATwoVariableDefinition */
+                    case 1: /* reduce ADefVariableDefinition */
 		    {
 			ArrayList<Object> list = new1();
 			push(goTo(1), list, false);
 		    }
 		    break;
-                    case 2: /* reduce ATIntType */
+                    case 2: /* reduce AMultiSetSetOfVariables */
 		    {
 			ArrayList<Object> list = new2();
 			push(goTo(2), list, false);
 		    }
 		    break;
-                    case 3: /* reduce ATCharType */
+                    case 3: /* reduce ASingleSetSetOfVariables */
 		    {
 			ArrayList<Object> list = new3();
 			push(goTo(2), list, false);
 		    }
 		    break;
-                    case 4: /* reduce ATerminal$VariableDefinition */
+                    case 4: /* reduce ATIntType */
 		    {
 			ArrayList<Object> list = new4();
-			push(goTo(3), list, true);
+			push(goTo(3), list, false);
 		    }
 		    break;
-                    case 5: /* reduce ANonTerminal$VariableDefinition */
+                    case 5: /* reduce ATCharType */
 		    {
 			ArrayList<Object> list = new5();
-			push(goTo(3), list, true);
+			push(goTo(3), list, false);
+		    }
+		    break;
+                    case 6: /* reduce ATerminal$VariableDefinition */
+		    {
+			ArrayList<Object> list = new6();
+			push(goTo(4), list, true);
+		    }
+		    break;
+                    case 7: /* reduce ANonTerminal$VariableDefinition */
+		    {
+			ArrayList<Object> list = new7();
+			push(goTo(4), list, true);
 		    }
 		    break;
                     }
@@ -260,7 +272,7 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new1() /* reduce ATwoVariableDefinition */
+    ArrayList<Object> new1() /* reduce ADefVariableDefinition */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
@@ -273,17 +285,17 @@ public class Parser
         {
             // Block
         TVar tvarNode2;
-        TVariable tvariableNode3;
+        PSetOfVariables psetofvariablesNode3;
         TDeftype tdeftypeNode4;
         PType ptypeNode5;
         TCmdEnd tcmdendNode6;
         tvarNode2 = (TVar)nodeArrayList1.get(0);
-        tvariableNode3 = (TVariable)nodeArrayList2.get(0);
+        psetofvariablesNode3 = (PSetOfVariables)nodeArrayList2.get(0);
         tdeftypeNode4 = (TDeftype)nodeArrayList3.get(0);
         ptypeNode5 = (PType)nodeArrayList4.get(0);
         tcmdendNode6 = (TCmdEnd)nodeArrayList5.get(0);
 
-        pvariabledefinitionNode1 = new ATwoVariableDefinition(tvarNode2, tvariableNode3, tdeftypeNode4, ptypeNode5, tcmdendNode6);
+        pvariabledefinitionNode1 = new ADefVariableDefinition(tvarNode2, psetofvariablesNode3, tdeftypeNode4, ptypeNode5, tcmdendNode6);
         }
 	nodeList.add(pvariabledefinitionNode1);
         return nodeList;
@@ -292,7 +304,53 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new2() /* reduce ATIntType */
+    ArrayList<Object> new2() /* reduce AMultiSetSetOfVariables */
+    {
+        @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
+
+        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList3 = pop();
+        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList2 = pop();
+        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
+        PSetOfVariables psetofvariablesNode1;
+        {
+            // Block
+        TVariable tvariableNode2;
+        TComma tcommaNode3;
+        PSetOfVariables psetofvariablesNode4;
+        tvariableNode2 = (TVariable)nodeArrayList1.get(0);
+        tcommaNode3 = (TComma)nodeArrayList2.get(0);
+        psetofvariablesNode4 = (PSetOfVariables)nodeArrayList3.get(0);
+
+        psetofvariablesNode1 = new AMultiSetSetOfVariables(tvariableNode2, tcommaNode3, psetofvariablesNode4);
+        }
+	nodeList.add(psetofvariablesNode1);
+        return nodeList;
+    }
+
+
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    ArrayList<Object> new3() /* reduce ASingleSetSetOfVariables */
+    {
+        @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
+
+        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
+        PSetOfVariables psetofvariablesNode1;
+        {
+            // Block
+        TVariable tvariableNode2;
+        tvariableNode2 = (TVariable)nodeArrayList1.get(0);
+
+        psetofvariablesNode1 = new ASingleSetSetOfVariables(tvariableNode2);
+        }
+	nodeList.add(psetofvariablesNode1);
+        return nodeList;
+    }
+
+
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    ArrayList<Object> new4() /* reduce ATIntType */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
@@ -312,7 +370,7 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new3() /* reduce ATCharType */
+    ArrayList<Object> new5() /* reduce ATCharType */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
@@ -332,7 +390,7 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new4() /* reduce ATerminal$VariableDefinition */
+    ArrayList<Object> new6() /* reduce ATerminal$VariableDefinition */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
@@ -354,7 +412,7 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new5() /* reduce ANonTerminal$VariableDefinition */
+    ArrayList<Object> new7() /* reduce ANonTerminal$VariableDefinition */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
@@ -384,24 +442,28 @@ public class Parser
 
     private static int[][][] actionTable;
 /*      {
-			{{-1, ERROR, 0}, {10, SHIFT, 1}, },
-			{{-1, ERROR, 1}, {21, SHIFT, 5}, },
-			{{-1, ERROR, 2}, {22, ACCEPT, -1}, },
-			{{-1, REDUCE, 4}, },
-			{{-1, REDUCE, 0}, {10, SHIFT, 1}, },
-			{{-1, ERROR, 5}, {2, SHIFT, 7}, },
-			{{-1, REDUCE, 5}, },
-			{{-1, ERROR, 7}, {6, SHIFT, 8}, {8, SHIFT, 9}, },
+			{{-1, ERROR, 0}, {11, SHIFT, 1}, },
+			{{-1, ERROR, 1}, {22, SHIFT, 5}, },
+			{{-1, ERROR, 2}, {24, ACCEPT, -1}, },
+			{{-1, REDUCE, 6}, },
+			{{-1, REDUCE, 0}, {11, SHIFT, 1}, },
+			{{-1, REDUCE, 3}, {4, SHIFT, 8}, },
+			{{-1, ERROR, 6}, {2, SHIFT, 9}, },
+			{{-1, REDUCE, 7}, },
+			{{-1, ERROR, 8}, {22, SHIFT, 5}, },
+			{{-1, ERROR, 9}, {7, SHIFT, 11}, {9, SHIFT, 12}, },
 			{{-1, REDUCE, 2}, },
-			{{-1, REDUCE, 3}, },
-			{{-1, ERROR, 10}, {3, SHIFT, 11}, },
+			{{-1, REDUCE, 4}, },
+			{{-1, REDUCE, 5}, },
+			{{-1, ERROR, 13}, {3, SHIFT, 14}, },
 			{{-1, REDUCE, 1}, },
         };*/
     private static int[][][] gotoTable;
 /*      {
 			{{-1, 2}, },
-			{{-1, 3}, {4, 6}, },
-			{{-1, 10}, },
+			{{-1, 3}, {4, 7}, },
+			{{-1, 6}, {8, 10}, },
+			{{-1, 13}, },
 			{{-1, 4}, },
         };*/
     private static String[] errorMessages;
@@ -410,13 +472,14 @@ public class Parser
 			"expecting: variable",
 			"expecting: EOF",
 			"expecting: var, EOF",
+			"expecting: ':', ','",
 			"expecting: ':'",
 			"expecting: int, char",
 			"expecting: ';'",
         };*/
     private static int[] errors;
 /*      {
-			0, 1, 2, 3, 3, 4, 3, 5, 6, 6, 6, 3, 
+			0, 1, 2, 3, 3, 4, 5, 3, 1, 6, 5, 7, 7, 7, 3, 
         };*/
 
     static 

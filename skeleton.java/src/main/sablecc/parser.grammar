@@ -14,7 +14,7 @@ Helpers
   underscore = '_';
   letter = ['a' .. 'z'];
   digit	= ['0' .. '9'];
-  namepart = letter ( letter | digit )*;
+  namepart = ( letter | digit )*;
   
   
 Tokens
@@ -25,6 +25,7 @@ Tokens
   rpar 	= ')';
   deftype = ':';
   cmd_end	= ';';
+  comma = ',';
   
   and	= 'a''n''d';
   or	= 'o''r'; 
@@ -44,7 +45,9 @@ Tokens
   ref	= 'r''e''f';
   nothing = 'n''o''t''h''i''n''g';
 
-  variable = namepart ( underscore namepart)*;
+  variable = letter+ ( (underscore namepart) | namepart )*;
+  integer = digit+;
+  
  
   
 Ignored Tokens
@@ -58,7 +61,12 @@ Productions
 		
 	
 	variable_definition = 
-		{two} 	var variable deftype type cmd_end
+		{def} 	var set_of_variables deftype type cmd_end
+		;
+		
+	set_of_variables =
+		{multi_set}  variable comma set_of_variables  |
+		{single_set} variable 
 		;
 
 	type = 

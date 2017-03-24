@@ -5,16 +5,16 @@ package compiler.node;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TUnderscore extends Token
+public final class TComma extends Token
 {
-    public TUnderscore()
+    public TComma()
     {
-        super.setText("_");
+        super.setText(",");
     }
 
-    public TUnderscore(int line, int pos)
+    public TComma(int line, int pos)
     {
-        super.setText("_");
+        super.setText(",");
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,18 @@ public final class TUnderscore extends Token
     @Override
     public Object clone()
     {
-      return new TUnderscore(getLine(), getPos());
+      return new TComma(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTUnderscore(this);
+        ((Analysis) sw).caseTComma(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change TUnderscore text.");
+        throw new RuntimeException("Cannot change TComma text.");
     }
 }

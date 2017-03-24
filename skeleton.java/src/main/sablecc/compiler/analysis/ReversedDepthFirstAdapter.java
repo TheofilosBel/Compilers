@@ -61,20 +61,20 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outAOneProgram(node);
     }
 
-    public void inATwoVariableDefinition(ATwoVariableDefinition node)
+    public void inADefVariableDefinition(ADefVariableDefinition node)
     {
         defaultIn(node);
     }
 
-    public void outATwoVariableDefinition(ATwoVariableDefinition node)
+    public void outADefVariableDefinition(ADefVariableDefinition node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseATwoVariableDefinition(ATwoVariableDefinition node)
+    public void caseADefVariableDefinition(ADefVariableDefinition node)
     {
-        inATwoVariableDefinition(node);
+        inADefVariableDefinition(node);
         if(node.getCmdEnd() != null)
         {
             node.getCmdEnd().apply(this);
@@ -87,15 +87,65 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getDeftype().apply(this);
         }
-        if(node.getVariable() != null)
+        if(node.getSetOfVariables() != null)
         {
-            node.getVariable().apply(this);
+            node.getSetOfVariables().apply(this);
         }
         if(node.getVar() != null)
         {
             node.getVar().apply(this);
         }
-        outATwoVariableDefinition(node);
+        outADefVariableDefinition(node);
+    }
+
+    public void inAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
+    {
+        inAMultiSetSetOfVariables(node);
+        if(node.getSetOfVariables() != null)
+        {
+            node.getSetOfVariables().apply(this);
+        }
+        if(node.getComma() != null)
+        {
+            node.getComma().apply(this);
+        }
+        if(node.getVariable() != null)
+        {
+            node.getVariable().apply(this);
+        }
+        outAMultiSetSetOfVariables(node);
+    }
+
+    public void inASingleSetSetOfVariables(ASingleSetSetOfVariables node)
+    {
+        defaultIn(node);
+    }
+
+    public void outASingleSetSetOfVariables(ASingleSetSetOfVariables node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseASingleSetSetOfVariables(ASingleSetSetOfVariables node)
+    {
+        inASingleSetSetOfVariables(node);
+        if(node.getVariable() != null)
+        {
+            node.getVariable().apply(this);
+        }
+        outASingleSetSetOfVariables(node);
     }
 
     public void inATIntType(ATIntType node)

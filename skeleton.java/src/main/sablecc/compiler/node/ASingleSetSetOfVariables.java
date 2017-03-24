@@ -5,46 +5,46 @@ package compiler.node;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AVarCharsVariable extends PVariable
+public final class ASingleSetSetOfVariables extends PSetOfVariables
 {
-    private TChars _chars_;
+    private TVariable _variable_;
 
-    public AVarCharsVariable()
+    public ASingleSetSetOfVariables()
     {
         // Constructor
     }
 
-    public AVarCharsVariable(
-        @SuppressWarnings("hiding") TChars _chars_)
+    public ASingleSetSetOfVariables(
+        @SuppressWarnings("hiding") TVariable _variable_)
     {
         // Constructor
-        setChars(_chars_);
+        setVariable(_variable_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AVarCharsVariable(
-            cloneNode(this._chars_));
+        return new ASingleSetSetOfVariables(
+            cloneNode(this._variable_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAVarCharsVariable(this);
+        ((Analysis) sw).caseASingleSetSetOfVariables(this);
     }
 
-    public TChars getChars()
+    public TVariable getVariable()
     {
-        return this._chars_;
+        return this._variable_;
     }
 
-    public void setChars(TChars node)
+    public void setVariable(TVariable node)
     {
-        if(this._chars_ != null)
+        if(this._variable_ != null)
         {
-            this._chars_.parent(null);
+            this._variable_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class AVarCharsVariable extends PVariable
             node.parent(this);
         }
 
-        this._chars_ = node;
+        this._variable_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._chars_);
+            + toString(this._variable_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._chars_ == child)
+        if(this._variable_ == child)
         {
-            this._chars_ = null;
+            this._variable_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class AVarCharsVariable extends PVariable
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._chars_ == oldChild)
+        if(this._variable_ == oldChild)
         {
-            setChars((TChars) newChild);
+            setVariable((TVariable) newChild);
             return;
         }
 

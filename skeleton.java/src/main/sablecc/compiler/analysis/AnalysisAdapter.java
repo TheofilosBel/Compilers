@@ -81,7 +81,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseATwoVariableDefinition(ATwoVariableDefinition node)
+    public void caseADefVariableDefinition(ADefVariableDefinition node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseASingleSetSetOfVariables(ASingleSetSetOfVariables node)
     {
         defaultCase(node);
     }
@@ -124,6 +136,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTCmdEnd(TCmdEnd node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTComma(TComma node)
     {
         defaultCase(node);
     }
@@ -232,6 +250,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTVariable(TVariable node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTInteger(TInteger node)
     {
         defaultCase(node);
     }

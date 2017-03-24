@@ -5,14 +5,14 @@ package compiler.node;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TChars extends Token
+public final class TInteger extends Token
 {
-    public TChars(String text)
+    public TInteger(String text)
     {
         setText(text);
     }
 
-    public TChars(String text, int line, int pos)
+    public TInteger(String text, int line, int pos)
     {
         setText(text);
         setLine(line);
@@ -22,12 +22,12 @@ public final class TChars extends Token
     @Override
     public Object clone()
     {
-      return new TChars(getText(), getLine(), getPos());
+      return new TInteger(getText(), getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTChars(this);
+        ((Analysis) sw).caseTInteger(this);
     }
 }

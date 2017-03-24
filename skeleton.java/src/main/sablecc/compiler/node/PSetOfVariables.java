@@ -2,7 +2,7 @@
 
 package compiler.node;
 
-public abstract class PVars extends Node
+public abstract class PSetOfVariables extends Node
 {
     // Empty body
 }
