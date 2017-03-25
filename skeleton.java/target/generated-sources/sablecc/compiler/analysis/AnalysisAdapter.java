@@ -74,56 +74,6 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAVarDefVarDef(AVarDefVarDef node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAMultiSetSetOfIds(AMultiSetSetOfIds node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseASingleSetSetOfIds(ASingleSetSetOfIds node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseASimpleType(ASimpleType node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseATRetRetType(ATRetRetType node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseARetType(ARetType node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseATIntDataType(ATIntDataType node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseATCharDataType(ATCharDataType node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAArrayDeclArrayDeclarator(AArrayDeclArrayDeclarator node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAEmptyDeclArrayDeclarator(AEmptyDeclArrayDeclarator node)
-    {
-        defaultCase(node);
-    }
-
     public void caseTWhiteSpace(TWhiteSpace node)
     {
         defaultCase(node);

@@ -8,7 +8,7 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class AOneProgram extends PProgram
 {
-    private final LinkedList<PVarDef> _varDef_ = new LinkedList<PVarDef>();
+    private final LinkedList<TId> _id_ = new LinkedList<TId>();
 
     public AOneProgram()
     {
@@ -16,10 +16,10 @@ public final class AOneProgram extends PProgram
     }
 
     public AOneProgram(
-        @SuppressWarnings("hiding") List<PVarDef> _varDef_)
+        @SuppressWarnings("hiding") List<TId> _id_)
     {
         // Constructor
-        setVarDef(_varDef_);
+        setId(_id_);
 
     }
 
@@ -27,7 +27,7 @@ public final class AOneProgram extends PProgram
     public Object clone()
     {
         return new AOneProgram(
-            cloneList(this._varDef_));
+            cloneList(this._id_));
     }
 
     public void apply(Switch sw)
@@ -35,16 +35,16 @@ public final class AOneProgram extends PProgram
         ((Analysis) sw).caseAOneProgram(this);
     }
 
-    public LinkedList<PVarDef> getVarDef()
+    public LinkedList<TId> getId()
     {
-        return this._varDef_;
+        return this._id_;
     }
 
-    public void setVarDef(List<PVarDef> list)
+    public void setId(List<TId> list)
     {
-        this._varDef_.clear();
-        this._varDef_.addAll(list);
-        for(PVarDef e : list)
+        this._id_.clear();
+        this._id_.addAll(list);
+        for(TId e : list)
         {
             if(e.parent() != null)
             {
@@ -59,14 +59,14 @@ public final class AOneProgram extends PProgram
     public String toString()
     {
         return ""
-            + toString(this._varDef_);
+            + toString(this._id_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._varDef_.remove(child))
+        if(this._id_.remove(child))
         {
             return;
         }
@@ -78,13 +78,13 @@ public final class AOneProgram extends PProgram
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<PVarDef> i = this._varDef_.listIterator(); i.hasNext();)
+        for(ListIterator<TId> i = this._id_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PVarDef) newChild);
+                    i.set((TId) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;

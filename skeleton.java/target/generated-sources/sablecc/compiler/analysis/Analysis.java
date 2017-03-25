@@ -13,16 +13,6 @@ public interface Analysis extends Switch
 
     void caseStart(Start node);
     void caseAOneProgram(AOneProgram node);
-    void caseAVarDefVarDef(AVarDefVarDef node);
-    void caseAMultiSetSetOfIds(AMultiSetSetOfIds node);
-    void caseASingleSetSetOfIds(ASingleSetSetOfIds node);
-    void caseASimpleType(ASimpleType node);
-    void caseATRetRetType(ATRetRetType node);
-    void caseARetType(ARetType node);
-    void caseATIntDataType(ATIntDataType node);
-    void caseATCharDataType(ATCharDataType node);
-    void caseAArrayDeclArrayDeclarator(AArrayDeclArrayDeclarator node);
-    void caseAEmptyDeclArrayDeclarator(AEmptyDeclArrayDeclarator node);
 
     void caseTWhiteSpace(TWhiteSpace node);
     void caseTComment(TComment node);
