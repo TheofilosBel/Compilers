@@ -176,64 +176,28 @@ public class Parser
                 case REDUCE:
                     switch(this.action[1])
                     {
-                    case 0: /* reduce AOneProgram */
+                    case 0: /* reduce AAoneprogram1Program */
 		    {
 			ArrayList<Object> list = new0();
 			push(goTo(0), list, false);
 		    }
 		    break;
-                    case 1: /* reduce ADefVariableDefinition */
+                    case 1: /* reduce AAoneprogram2Program */
 		    {
 			ArrayList<Object> list = new1();
-			push(goTo(1), list, false);
+			push(goTo(0), list, false);
 		    }
 		    break;
-                    case 2: /* reduce AMultiSetSetOfVariables */
+                    case 2: /* reduce ATerminal$Identifier */
 		    {
 			ArrayList<Object> list = new2();
-			push(goTo(2), list, false);
+			push(goTo(1), list, true);
 		    }
 		    break;
-                    case 3: /* reduce ASingleSetSetOfVariables */
+                    case 3: /* reduce ANonTerminal$Identifier */
 		    {
 			ArrayList<Object> list = new3();
-			push(goTo(2), list, false);
-		    }
-		    break;
-                    case 4: /* reduce ASimpleType */
-		    {
-			ArrayList<Object> list = new4();
-			push(goTo(3), list, false);
-		    }
-		    break;
-                    case 5: /* reduce AArrayType */
-		    {
-			ArrayList<Object> list = new5();
-			push(goTo(3), list, false);
-		    }
-		    break;
-                    case 6: /* reduce ATIntDataType */
-		    {
-			ArrayList<Object> list = new6();
-			push(goTo(4), list, false);
-		    }
-		    break;
-                    case 7: /* reduce ATCharDataType */
-		    {
-			ArrayList<Object> list = new7();
-			push(goTo(4), list, false);
-		    }
-		    break;
-                    case 8: /* reduce ATerminal$VariableDefinition */
-		    {
-			ArrayList<Object> list = new8();
-			push(goTo(5), list, true);
-		    }
-		    break;
-                    case 9: /* reduce ANonTerminal$VariableDefinition */
-		    {
-			ArrayList<Object> list = new9();
-			push(goTo(5), list, true);
+			push(goTo(1), list, true);
 		    }
 		    break;
                     }
@@ -256,7 +220,28 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new0() /* reduce AOneProgram */
+    ArrayList<Object> new0() /* reduce AAoneprogram1Program */
+    {
+        @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
+
+        PProgram pprogramNode1;
+        {
+            // Block
+        LinkedList<Object> listNode2 = new LinkedList<Object>();
+        {
+            // Block
+        }
+
+        pprogramNode1 = new AOneProgram(listNode2);
+        }
+	nodeList.add(pprogramNode1);
+        return nodeList;
+    }
+
+
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    ArrayList<Object> new1() /* reduce AAoneprogram2Program */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
@@ -284,168 +269,7 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new1() /* reduce ADefVariableDefinition */
-    {
-        @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
-
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList5 = pop();
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList4 = pop();
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList3 = pop();
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList2 = pop();
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
-        PVariableDefinition pvariabledefinitionNode1;
-        {
-            // Block
-        TKwVar tkwvarNode2;
-        PSetOfVariables psetofvariablesNode3;
-        TColon tcolonNode4;
-        PType ptypeNode5;
-        TSemicolon tsemicolonNode6;
-        tkwvarNode2 = (TKwVar)nodeArrayList1.get(0);
-        psetofvariablesNode3 = (PSetOfVariables)nodeArrayList2.get(0);
-        tcolonNode4 = (TColon)nodeArrayList3.get(0);
-        ptypeNode5 = (PType)nodeArrayList4.get(0);
-        tsemicolonNode6 = (TSemicolon)nodeArrayList5.get(0);
-
-        pvariabledefinitionNode1 = new ADefVariableDefinition(tkwvarNode2, psetofvariablesNode3, tcolonNode4, ptypeNode5, tsemicolonNode6);
-        }
-	nodeList.add(pvariabledefinitionNode1);
-        return nodeList;
-    }
-
-
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new2() /* reduce AMultiSetSetOfVariables */
-    {
-        @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
-
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList3 = pop();
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList2 = pop();
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
-        PSetOfVariables psetofvariablesNode1;
-        {
-            // Block
-        TIdentifier tidentifierNode2;
-        TComma tcommaNode3;
-        PSetOfVariables psetofvariablesNode4;
-        tidentifierNode2 = (TIdentifier)nodeArrayList1.get(0);
-        tcommaNode3 = (TComma)nodeArrayList2.get(0);
-        psetofvariablesNode4 = (PSetOfVariables)nodeArrayList3.get(0);
-
-        psetofvariablesNode1 = new AMultiSetSetOfVariables(tidentifierNode2, tcommaNode3, psetofvariablesNode4);
-        }
-	nodeList.add(psetofvariablesNode1);
-        return nodeList;
-    }
-
-
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new3() /* reduce ASingleSetSetOfVariables */
-    {
-        @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
-
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
-        PSetOfVariables psetofvariablesNode1;
-        {
-            // Block
-        TIdentifier tidentifierNode2;
-        tidentifierNode2 = (TIdentifier)nodeArrayList1.get(0);
-
-        psetofvariablesNode1 = new ASingleSetSetOfVariables(tidentifierNode2);
-        }
-	nodeList.add(psetofvariablesNode1);
-        return nodeList;
-    }
-
-
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new4() /* reduce ASimpleType */
-    {
-        @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
-
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
-        PType ptypeNode1;
-        {
-            // Block
-        PDataType pdatatypeNode2;
-        pdatatypeNode2 = (PDataType)nodeArrayList1.get(0);
-
-        ptypeNode1 = new ASimpleType(pdatatypeNode2);
-        }
-	nodeList.add(ptypeNode1);
-        return nodeList;
-    }
-
-
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new5() /* reduce AArrayType */
-    {
-        @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
-
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList2 = pop();
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
-        PType ptypeNode1;
-        {
-            // Block
-        PDataType pdatatypeNode2;
-        TArrayDeclaration tarraydeclarationNode3;
-        pdatatypeNode2 = (PDataType)nodeArrayList1.get(0);
-        tarraydeclarationNode3 = (TArrayDeclaration)nodeArrayList2.get(0);
-
-        ptypeNode1 = new AArrayType(pdatatypeNode2, tarraydeclarationNode3);
-        }
-	nodeList.add(ptypeNode1);
-        return nodeList;
-    }
-
-
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new6() /* reduce ATIntDataType */
-    {
-        @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
-
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
-        PDataType pdatatypeNode1;
-        {
-            // Block
-        TKwInt tkwintNode2;
-        tkwintNode2 = (TKwInt)nodeArrayList1.get(0);
-
-        pdatatypeNode1 = new ATIntDataType(tkwintNode2);
-        }
-	nodeList.add(pdatatypeNode1);
-        return nodeList;
-    }
-
-
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new7() /* reduce ATCharDataType */
-    {
-        @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
-
-        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
-        PDataType pdatatypeNode1;
-        {
-            // Block
-        TKwChar tkwcharNode2;
-        tkwcharNode2 = (TKwChar)nodeArrayList1.get(0);
-
-        pdatatypeNode1 = new ATCharDataType(tkwcharNode2);
-        }
-	nodeList.add(pdatatypeNode1);
-        return nodeList;
-    }
-
-
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new8() /* reduce ATerminal$VariableDefinition */
+    ArrayList<Object> new2() /* reduce ATerminal$Identifier */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
@@ -453,11 +277,11 @@ public class Parser
         LinkedList<Object> listNode2 = new LinkedList<Object>();
         {
             // Block
-        PVariableDefinition pvariabledefinitionNode1;
-        pvariabledefinitionNode1 = (PVariableDefinition)nodeArrayList1.get(0);
-	if(pvariabledefinitionNode1 != null)
+        TIdentifier tidentifierNode1;
+        tidentifierNode1 = (TIdentifier)nodeArrayList1.get(0);
+	if(tidentifierNode1 != null)
 	{
-	  listNode2.add(pvariabledefinitionNode1);
+	  listNode2.add(tidentifierNode1);
 	}
         }
 	nodeList.add(listNode2);
@@ -467,7 +291,7 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new9() /* reduce ANonTerminal$VariableDefinition */
+    ArrayList<Object> new3() /* reduce ANonTerminal$Identifier */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
@@ -477,16 +301,16 @@ public class Parser
         {
             // Block
         LinkedList<Object> listNode1 = new LinkedList<Object>();
-        PVariableDefinition pvariabledefinitionNode2;
+        TIdentifier tidentifierNode2;
         listNode1 = (LinkedList)nodeArrayList1.get(0);
-        pvariabledefinitionNode2 = (PVariableDefinition)nodeArrayList2.get(0);
+        tidentifierNode2 = (TIdentifier)nodeArrayList2.get(0);
 	if(listNode1 != null)
 	{
 	  listNode3.addAll(listNode1);
 	}
-	if(pvariabledefinitionNode2 != null)
+	if(tidentifierNode2 != null)
 	{
-	  listNode3.add(pvariabledefinitionNode2);
+	  listNode3.add(tidentifierNode2);
 	}
         }
 	nodeList.add(listNode3);
@@ -497,48 +321,25 @@ public class Parser
 
     private static int[][][] actionTable;
 /*      {
-			{{-1, ERROR, 0}, {9, SHIFT, 1}, },
-			{{-1, ERROR, 1}, {20, SHIFT, 5}, },
-			{{-1, ERROR, 2}, {23, ACCEPT, -1}, },
-			{{-1, REDUCE, 8}, },
-			{{-1, REDUCE, 0}, {9, SHIFT, 1}, },
-			{{-1, REDUCE, 3}, {2, SHIFT, 8}, },
-			{{-1, ERROR, 6}, {0, SHIFT, 9}, },
-			{{-1, REDUCE, 9}, },
-			{{-1, ERROR, 8}, {20, SHIFT, 5}, },
-			{{-1, ERROR, 9}, {5, SHIFT, 11}, {7, SHIFT, 12}, },
+			{{-1, REDUCE, 0}, {20, SHIFT, 1}, },
 			{{-1, REDUCE, 2}, },
-			{{-1, REDUCE, 6}, },
-			{{-1, REDUCE, 7}, },
-			{{-1, ERROR, 13}, {1, SHIFT, 15}, },
-			{{-1, REDUCE, 4}, {22, SHIFT, 16}, },
-			{{-1, REDUCE, 1}, },
-			{{-1, REDUCE, 5}, },
+			{{-1, ERROR, 2}, {23, ACCEPT, -1}, },
+			{{-1, REDUCE, 1}, {20, SHIFT, 4}, },
+			{{-1, REDUCE, 3}, },
         };*/
     private static int[][][] gotoTable;
 /*      {
 			{{-1, 2}, },
-			{{-1, 3}, {4, 7}, },
-			{{-1, 6}, {8, 10}, },
-			{{-1, 13}, },
-			{{-1, 14}, },
-			{{-1, 4}, },
+			{{-1, 3}, },
         };*/
     private static String[] errorMessages;
 /*      {
-			"expecting: 'var'",
-			"expecting: identifier",
+			"expecting: identifier, EOF",
 			"expecting: EOF",
-			"expecting: 'var', EOF",
-			"expecting: ':', ','",
-			"expecting: ':'",
-			"expecting: 'int', 'char'",
-			"expecting: ';', array declaration",
-			"expecting: ';'",
         };*/
     private static int[] errors;
 /*      {
-			0, 1, 2, 3, 3, 4, 5, 3, 1, 6, 5, 7, 7, 8, 7, 3, 8, 
+			0, 0, 1, 0, 0, 
         };*/
 
     static 

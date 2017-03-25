@@ -81,48 +81,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseADefVariableDefinition(ADefVariableDefinition node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseASingleSetSetOfVariables(ASingleSetSetOfVariables node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseASimpleType(ASimpleType node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAArrayType(AArrayType node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseATIntDataType(ATIntDataType node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseATCharDataType(ATCharDataType node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseTWhiteSpace(TWhiteSpace node)
     {
         defaultCase(node);

@@ -8,7 +8,7 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class AOneProgram extends PProgram
 {
-    private final LinkedList<PVariableDefinition> _variableDefinition_ = new LinkedList<PVariableDefinition>();
+    private final LinkedList<TIdentifier> _identifier_ = new LinkedList<TIdentifier>();
 
     public AOneProgram()
     {
@@ -16,10 +16,10 @@ public final class AOneProgram extends PProgram
     }
 
     public AOneProgram(
-        @SuppressWarnings("hiding") List<?> _variableDefinition_)
+        @SuppressWarnings("hiding") List<?> _identifier_)
     {
         // Constructor
-        setVariableDefinition(_variableDefinition_);
+        setIdentifier(_identifier_);
 
     }
 
@@ -27,7 +27,7 @@ public final class AOneProgram extends PProgram
     public Object clone()
     {
         return new AOneProgram(
-            cloneList(this._variableDefinition_));
+            cloneList(this._identifier_));
     }
 
     @Override
@@ -36,29 +36,29 @@ public final class AOneProgram extends PProgram
         ((Analysis) sw).caseAOneProgram(this);
     }
 
-    public LinkedList<PVariableDefinition> getVariableDefinition()
+    public LinkedList<TIdentifier> getIdentifier()
     {
-        return this._variableDefinition_;
+        return this._identifier_;
     }
 
-    public void setVariableDefinition(List<?> list)
+    public void setIdentifier(List<?> list)
     {
-        for(PVariableDefinition e : this._variableDefinition_)
+        for(TIdentifier e : this._identifier_)
         {
             e.parent(null);
         }
-        this._variableDefinition_.clear();
+        this._identifier_.clear();
 
         for(Object obj_e : list)
         {
-            PVariableDefinition e = (PVariableDefinition) obj_e;
+            TIdentifier e = (TIdentifier) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
             }
 
             e.parent(this);
-            this._variableDefinition_.add(e);
+            this._identifier_.add(e);
         }
     }
 
@@ -66,14 +66,14 @@ public final class AOneProgram extends PProgram
     public String toString()
     {
         return ""
-            + toString(this._variableDefinition_);
+            + toString(this._identifier_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._variableDefinition_.remove(child))
+        if(this._identifier_.remove(child))
         {
             return;
         }
@@ -85,13 +85,13 @@ public final class AOneProgram extends PProgram
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<PVariableDefinition> i = this._variableDefinition_.listIterator(); i.hasNext();)
+        for(ListIterator<TIdentifier> i = this._identifier_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PVariableDefinition) newChild);
+                    i.set((TIdentifier) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;
