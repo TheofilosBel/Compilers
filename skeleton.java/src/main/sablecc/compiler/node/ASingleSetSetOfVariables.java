@@ -7,7 +7,7 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class ASingleSetSetOfVariables extends PSetOfVariables
 {
-    private TVariable _variable_;
+    private TIdentifier _identifier_;
 
     public ASingleSetSetOfVariables()
     {
@@ -15,10 +15,10 @@ public final class ASingleSetSetOfVariables extends PSetOfVariables
     }
 
     public ASingleSetSetOfVariables(
-        @SuppressWarnings("hiding") TVariable _variable_)
+        @SuppressWarnings("hiding") TIdentifier _identifier_)
     {
         // Constructor
-        setVariable(_variable_);
+        setIdentifier(_identifier_);
 
     }
 
@@ -26,7 +26,7 @@ public final class ASingleSetSetOfVariables extends PSetOfVariables
     public Object clone()
     {
         return new ASingleSetSetOfVariables(
-            cloneNode(this._variable_));
+            cloneNode(this._identifier_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class ASingleSetSetOfVariables extends PSetOfVariables
         ((Analysis) sw).caseASingleSetSetOfVariables(this);
     }
 
-    public TVariable getVariable()
+    public TIdentifier getIdentifier()
     {
-        return this._variable_;
+        return this._identifier_;
     }
 
-    public void setVariable(TVariable node)
+    public void setIdentifier(TIdentifier node)
     {
-        if(this._variable_ != null)
+        if(this._identifier_ != null)
         {
-            this._variable_.parent(null);
+            this._identifier_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ASingleSetSetOfVariables extends PSetOfVariables
             node.parent(this);
         }
 
-        this._variable_ = node;
+        this._identifier_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._variable_);
+            + toString(this._identifier_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._variable_ == child)
+        if(this._identifier_ == child)
         {
-            this._variable_ = null;
+            this._identifier_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ASingleSetSetOfVariables extends PSetOfVariables
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._variable_ == oldChild)
+        if(this._identifier_ == oldChild)
         {
-            setVariable((TVariable) newChild);
+            setIdentifier((TIdentifier) newChild);
             return;
         }
 

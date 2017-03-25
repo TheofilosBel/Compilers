@@ -296,18 +296,18 @@ public class Parser
         PVariableDefinition pvariabledefinitionNode1;
         {
             // Block
-        TVar tvarNode2;
+        TKwVar tkwvarNode2;
         PSetOfVariables psetofvariablesNode3;
-        TDeftype tdeftypeNode4;
+        TColon tcolonNode4;
         PType ptypeNode5;
-        TCmdEnd tcmdendNode6;
-        tvarNode2 = (TVar)nodeArrayList1.get(0);
+        TSemicolon tsemicolonNode6;
+        tkwvarNode2 = (TKwVar)nodeArrayList1.get(0);
         psetofvariablesNode3 = (PSetOfVariables)nodeArrayList2.get(0);
-        tdeftypeNode4 = (TDeftype)nodeArrayList3.get(0);
+        tcolonNode4 = (TColon)nodeArrayList3.get(0);
         ptypeNode5 = (PType)nodeArrayList4.get(0);
-        tcmdendNode6 = (TCmdEnd)nodeArrayList5.get(0);
+        tsemicolonNode6 = (TSemicolon)nodeArrayList5.get(0);
 
-        pvariabledefinitionNode1 = new ADefVariableDefinition(tvarNode2, psetofvariablesNode3, tdeftypeNode4, ptypeNode5, tcmdendNode6);
+        pvariabledefinitionNode1 = new ADefVariableDefinition(tkwvarNode2, psetofvariablesNode3, tcolonNode4, ptypeNode5, tsemicolonNode6);
         }
 	nodeList.add(pvariabledefinitionNode1);
         return nodeList;
@@ -326,14 +326,14 @@ public class Parser
         PSetOfVariables psetofvariablesNode1;
         {
             // Block
-        TVariable tvariableNode2;
+        TIdentifier tidentifierNode2;
         TComma tcommaNode3;
         PSetOfVariables psetofvariablesNode4;
-        tvariableNode2 = (TVariable)nodeArrayList1.get(0);
+        tidentifierNode2 = (TIdentifier)nodeArrayList1.get(0);
         tcommaNode3 = (TComma)nodeArrayList2.get(0);
         psetofvariablesNode4 = (PSetOfVariables)nodeArrayList3.get(0);
 
-        psetofvariablesNode1 = new AMultiSetSetOfVariables(tvariableNode2, tcommaNode3, psetofvariablesNode4);
+        psetofvariablesNode1 = new AMultiSetSetOfVariables(tidentifierNode2, tcommaNode3, psetofvariablesNode4);
         }
 	nodeList.add(psetofvariablesNode1);
         return nodeList;
@@ -350,10 +350,10 @@ public class Parser
         PSetOfVariables psetofvariablesNode1;
         {
             // Block
-        TVariable tvariableNode2;
-        tvariableNode2 = (TVariable)nodeArrayList1.get(0);
+        TIdentifier tidentifierNode2;
+        tidentifierNode2 = (TIdentifier)nodeArrayList1.get(0);
 
-        psetofvariablesNode1 = new ASingleSetSetOfVariables(tvariableNode2);
+        psetofvariablesNode1 = new ASingleSetSetOfVariables(tidentifierNode2);
         }
 	nodeList.add(psetofvariablesNode1);
         return nodeList;
@@ -413,10 +413,10 @@ public class Parser
         PDataType pdatatypeNode1;
         {
             // Block
-        TInt tintNode2;
-        tintNode2 = (TInt)nodeArrayList1.get(0);
+        TKwInt tkwintNode2;
+        tkwintNode2 = (TKwInt)nodeArrayList1.get(0);
 
-        pdatatypeNode1 = new ATIntDataType(tintNode2);
+        pdatatypeNode1 = new ATIntDataType(tkwintNode2);
         }
 	nodeList.add(pdatatypeNode1);
         return nodeList;
@@ -433,10 +433,10 @@ public class Parser
         PDataType pdatatypeNode1;
         {
             // Block
-        TChar tcharNode2;
-        tcharNode2 = (TChar)nodeArrayList1.get(0);
+        TKwChar tkwcharNode2;
+        tkwcharNode2 = (TKwChar)nodeArrayList1.get(0);
 
-        pdatatypeNode1 = new ATCharDataType(tcharNode2);
+        pdatatypeNode1 = new ATCharDataType(tkwcharNode2);
         }
 	nodeList.add(pdatatypeNode1);
         return nodeList;
@@ -497,21 +497,21 @@ public class Parser
 
     private static int[][][] actionTable;
 /*      {
-			{{-1, ERROR, 0}, {11, SHIFT, 1}, },
-			{{-1, ERROR, 1}, {22, SHIFT, 5}, },
-			{{-1, ERROR, 2}, {25, ACCEPT, -1}, },
+			{{-1, ERROR, 0}, {9, SHIFT, 1}, },
+			{{-1, ERROR, 1}, {20, SHIFT, 5}, },
+			{{-1, ERROR, 2}, {23, ACCEPT, -1}, },
 			{{-1, REDUCE, 8}, },
-			{{-1, REDUCE, 0}, {11, SHIFT, 1}, },
-			{{-1, REDUCE, 3}, {4, SHIFT, 8}, },
-			{{-1, ERROR, 6}, {2, SHIFT, 9}, },
+			{{-1, REDUCE, 0}, {9, SHIFT, 1}, },
+			{{-1, REDUCE, 3}, {2, SHIFT, 8}, },
+			{{-1, ERROR, 6}, {0, SHIFT, 9}, },
 			{{-1, REDUCE, 9}, },
-			{{-1, ERROR, 8}, {22, SHIFT, 5}, },
-			{{-1, ERROR, 9}, {7, SHIFT, 11}, {9, SHIFT, 12}, },
+			{{-1, ERROR, 8}, {20, SHIFT, 5}, },
+			{{-1, ERROR, 9}, {5, SHIFT, 11}, {7, SHIFT, 12}, },
 			{{-1, REDUCE, 2}, },
 			{{-1, REDUCE, 6}, },
 			{{-1, REDUCE, 7}, },
-			{{-1, ERROR, 13}, {3, SHIFT, 15}, },
-			{{-1, REDUCE, 4}, {24, SHIFT, 16}, },
+			{{-1, ERROR, 13}, {1, SHIFT, 15}, },
+			{{-1, REDUCE, 4}, {22, SHIFT, 16}, },
 			{{-1, REDUCE, 1}, },
 			{{-1, REDUCE, 5}, },
         };*/
@@ -526,13 +526,13 @@ public class Parser
         };*/
     private static String[] errorMessages;
 /*      {
-			"expecting: var",
-			"expecting: variable",
+			"expecting: 'var'",
+			"expecting: identifier",
 			"expecting: EOF",
-			"expecting: var, EOF",
+			"expecting: 'var', EOF",
 			"expecting: ':', ','",
 			"expecting: ':'",
-			"expecting: int, char",
+			"expecting: 'int', 'char'",
 			"expecting: ';', array declaration",
 			"expecting: ';'",
         };*/

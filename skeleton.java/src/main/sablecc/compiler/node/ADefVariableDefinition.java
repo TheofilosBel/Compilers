@@ -7,11 +7,11 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class ADefVariableDefinition extends PVariableDefinition
 {
-    private TVar _var_;
+    private TKwVar _kwVar_;
     private PSetOfVariables _setOfVariables_;
-    private TDeftype _deftype_;
+    private TColon _colon_;
     private PType _type_;
-    private TCmdEnd _cmdEnd_;
+    private TSemicolon _semicolon_;
 
     public ADefVariableDefinition()
     {
@@ -19,22 +19,22 @@ public final class ADefVariableDefinition extends PVariableDefinition
     }
 
     public ADefVariableDefinition(
-        @SuppressWarnings("hiding") TVar _var_,
+        @SuppressWarnings("hiding") TKwVar _kwVar_,
         @SuppressWarnings("hiding") PSetOfVariables _setOfVariables_,
-        @SuppressWarnings("hiding") TDeftype _deftype_,
+        @SuppressWarnings("hiding") TColon _colon_,
         @SuppressWarnings("hiding") PType _type_,
-        @SuppressWarnings("hiding") TCmdEnd _cmdEnd_)
+        @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
-        setVar(_var_);
+        setKwVar(_kwVar_);
 
         setSetOfVariables(_setOfVariables_);
 
-        setDeftype(_deftype_);
+        setColon(_colon_);
 
         setType(_type_);
 
-        setCmdEnd(_cmdEnd_);
+        setSemicolon(_semicolon_);
 
     }
 
@@ -42,11 +42,11 @@ public final class ADefVariableDefinition extends PVariableDefinition
     public Object clone()
     {
         return new ADefVariableDefinition(
-            cloneNode(this._var_),
+            cloneNode(this._kwVar_),
             cloneNode(this._setOfVariables_),
-            cloneNode(this._deftype_),
+            cloneNode(this._colon_),
             cloneNode(this._type_),
-            cloneNode(this._cmdEnd_));
+            cloneNode(this._semicolon_));
     }
 
     @Override
@@ -55,16 +55,16 @@ public final class ADefVariableDefinition extends PVariableDefinition
         ((Analysis) sw).caseADefVariableDefinition(this);
     }
 
-    public TVar getVar()
+    public TKwVar getKwVar()
     {
-        return this._var_;
+        return this._kwVar_;
     }
 
-    public void setVar(TVar node)
+    public void setKwVar(TKwVar node)
     {
-        if(this._var_ != null)
+        if(this._kwVar_ != null)
         {
-            this._var_.parent(null);
+            this._kwVar_.parent(null);
         }
 
         if(node != null)
@@ -77,7 +77,7 @@ public final class ADefVariableDefinition extends PVariableDefinition
             node.parent(this);
         }
 
-        this._var_ = node;
+        this._kwVar_ = node;
     }
 
     public PSetOfVariables getSetOfVariables()
@@ -105,16 +105,16 @@ public final class ADefVariableDefinition extends PVariableDefinition
         this._setOfVariables_ = node;
     }
 
-    public TDeftype getDeftype()
+    public TColon getColon()
     {
-        return this._deftype_;
+        return this._colon_;
     }
 
-    public void setDeftype(TDeftype node)
+    public void setColon(TColon node)
     {
-        if(this._deftype_ != null)
+        if(this._colon_ != null)
         {
-            this._deftype_.parent(null);
+            this._colon_.parent(null);
         }
 
         if(node != null)
@@ -127,7 +127,7 @@ public final class ADefVariableDefinition extends PVariableDefinition
             node.parent(this);
         }
 
-        this._deftype_ = node;
+        this._colon_ = node;
     }
 
     public PType getType()
@@ -155,16 +155,16 @@ public final class ADefVariableDefinition extends PVariableDefinition
         this._type_ = node;
     }
 
-    public TCmdEnd getCmdEnd()
+    public TSemicolon getSemicolon()
     {
-        return this._cmdEnd_;
+        return this._semicolon_;
     }
 
-    public void setCmdEnd(TCmdEnd node)
+    public void setSemicolon(TSemicolon node)
     {
-        if(this._cmdEnd_ != null)
+        if(this._semicolon_ != null)
         {
-            this._cmdEnd_.parent(null);
+            this._semicolon_.parent(null);
         }
 
         if(node != null)
@@ -177,27 +177,27 @@ public final class ADefVariableDefinition extends PVariableDefinition
             node.parent(this);
         }
 
-        this._cmdEnd_ = node;
+        this._semicolon_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._var_)
+            + toString(this._kwVar_)
             + toString(this._setOfVariables_)
-            + toString(this._deftype_)
+            + toString(this._colon_)
             + toString(this._type_)
-            + toString(this._cmdEnd_);
+            + toString(this._semicolon_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._var_ == child)
+        if(this._kwVar_ == child)
         {
-            this._var_ = null;
+            this._kwVar_ = null;
             return;
         }
 
@@ -207,9 +207,9 @@ public final class ADefVariableDefinition extends PVariableDefinition
             return;
         }
 
-        if(this._deftype_ == child)
+        if(this._colon_ == child)
         {
-            this._deftype_ = null;
+            this._colon_ = null;
             return;
         }
 
@@ -219,9 +219,9 @@ public final class ADefVariableDefinition extends PVariableDefinition
             return;
         }
 
-        if(this._cmdEnd_ == child)
+        if(this._semicolon_ == child)
         {
-            this._cmdEnd_ = null;
+            this._semicolon_ = null;
             return;
         }
 
@@ -232,9 +232,9 @@ public final class ADefVariableDefinition extends PVariableDefinition
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._var_ == oldChild)
+        if(this._kwVar_ == oldChild)
         {
-            setVar((TVar) newChild);
+            setKwVar((TKwVar) newChild);
             return;
         }
 
@@ -244,9 +244,9 @@ public final class ADefVariableDefinition extends PVariableDefinition
             return;
         }
 
-        if(this._deftype_ == oldChild)
+        if(this._colon_ == oldChild)
         {
-            setDeftype((TDeftype) newChild);
+            setColon((TColon) newChild);
             return;
         }
 
@@ -256,9 +256,9 @@ public final class ADefVariableDefinition extends PVariableDefinition
             return;
         }
 
-        if(this._cmdEnd_ == oldChild)
+        if(this._semicolon_ == oldChild)
         {
-            setCmdEnd((TCmdEnd) newChild);
+            setSemicolon((TSemicolon) newChild);
             return;
         }
 
