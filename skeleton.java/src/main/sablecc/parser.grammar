@@ -2,49 +2,47 @@ Package compiler;
 
 Helpers
 
-  all= [0 .. 127]
-  sp = ' ';
-  lf = 0x000a;
-  cr = 0x000d;
-  ff = 0x000c;
-  ht = 0x0009; 
-
-    sp          = ' ';
-    tab         = 9;
-    lf          = 10;
-    ff          = 12;
-    cr          = 13; 
-    eol         = lf | cr | cr lf;
-    not_eol     = [all - [cr + lf]];
-
-  line_terminator = lf | cr | cr lf;
-  white_space = (sp | ht | ff | line_terminator)*;
+	all= [0 .. 127];
+	sp = ' ';
+	tab= 9;
+	lf = 10;
+	ff = 12;
+	cr = 13; 
+	eol= lf | cr | cr lf;
+	not_eol = [all - [cr + lf]];
+	line_terminator = lf | cr | cr lf;
+	white_space = (sp | tab | ff | line_terminator)*;
+	
+	underscore = '_';
+	letter = ['a' .. 'z'];
+	digit	= ['0' .. '9'];
+	nondigit = [['a' .. 'z'] + ['A' .. 'Z']];
+	namepart = ( letter | digit )*;
+	
+	/* Comments */
+	not_dollar        = [all - '$'];
+	not_double_dollar = not_dollar not_dollar;
+	
+	l_par 	  = '(';
+	r_par 	  = ')';
+	l_bracket = '[';
+	r_bracket = ']';
+	l_brace   = '{';
+	r_brace   = '}';
   
-  underscore = '_';
-  lagg	= '[';
-  ragg	= ']';
-  letter = ['a' .. 'z'];
-  digit	= ['0' .. '9'];
-  nondigit = ['_' + [['a' .. 'z'] + ['A' .. 'Z']]] 
-  namepart = ( letter | digit )*;
-
-  /* Comments */
-  not_dollar        = [all - '$']
-  not_double_dollar = [all - '$$']
   
 Tokens
 
     white_space	= white_space;
     
-    l_par 	  = '(';
-    r_par 	  = ')';
-    l_bracket = '[';
-    r_bracket = ']';
-    l_brace   = '{';
-    r_brace   = '}';
-    colon     = ':';
-    semicolon = ';';
-    comma     = ',';
+    /* Comments */
+    comment = ('$' not_dollar not_eol* eol );
+    
+	colon     = ':';
+	semicolon = ';';
+	comma     = ',';
+	
+    
     
     /* Keywords */
     kw_and	   = 'and';
@@ -65,9 +63,9 @@ Tokens
     kw_ref	   = 'ref';
     kw_nothing = 'nothing';
 
-    identifier = letter+ ( (underscore namepart) | namepart )*; /* Remove */
-    /* identifier = nondigit (digit | nondigit)*; */
+    identifier = nondigit+ ( (underscore namepart) | namepart )*;
     integer = digit+;
+    array_declaration = (l_bracket digit* r_bracket)+;
     
 Ignored Tokens
     white_space;
@@ -78,7 +76,7 @@ Productions
         {one} variable_definition+;
 	
 	variable_definition = 
-		{def} var set_of_variables colon type semicolon;
+		{def} kw_var set_of_variables colon type semicolon;
 		
 	set_of_variables =
 		{multi_set} identifier comma set_of_variables |
@@ -90,5 +88,11 @@ Productions
 		;
 
 	data_type = 
-		{t_int} int |
-		{t_char} char;
+		{t_int} kw_int |
+		{t_char} kw_char;
+		
+		
+		
+		
+		
+		
