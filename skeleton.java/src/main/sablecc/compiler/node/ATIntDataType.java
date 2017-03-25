@@ -7,7 +7,7 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class ATIntDataType extends PDataType
 {
-    private TInt _int_;
+    private TKwInt _kwInt_;
 
     public ATIntDataType()
     {
@@ -15,10 +15,10 @@ public final class ATIntDataType extends PDataType
     }
 
     public ATIntDataType(
-        @SuppressWarnings("hiding") TInt _int_)
+        @SuppressWarnings("hiding") TKwInt _kwInt_)
     {
         // Constructor
-        setInt(_int_);
+        setKwInt(_kwInt_);
 
     }
 
@@ -26,7 +26,7 @@ public final class ATIntDataType extends PDataType
     public Object clone()
     {
         return new ATIntDataType(
-            cloneNode(this._int_));
+            cloneNode(this._kwInt_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class ATIntDataType extends PDataType
         ((Analysis) sw).caseATIntDataType(this);
     }
 
-    public TInt getInt()
+    public TKwInt getKwInt()
     {
-        return this._int_;
+        return this._kwInt_;
     }
 
-    public void setInt(TInt node)
+    public void setKwInt(TKwInt node)
     {
-        if(this._int_ != null)
+        if(this._kwInt_ != null)
         {
-            this._int_.parent(null);
+            this._kwInt_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ATIntDataType extends PDataType
             node.parent(this);
         }
 
-        this._int_ = node;
+        this._kwInt_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._int_);
+            + toString(this._kwInt_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._int_ == child)
+        if(this._kwInt_ == child)
         {
-            this._int_ = null;
+            this._kwInt_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ATIntDataType extends PDataType
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._int_ == oldChild)
+        if(this._kwInt_ == oldChild)
         {
-            setInt((TInt) newChild);
+            setKwInt((TKwInt) newChild);
             return;
         }
 

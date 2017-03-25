@@ -7,7 +7,7 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class ATCharDataType extends PDataType
 {
-    private TChar _char_;
+    private TKwChar _kwChar_;
 
     public ATCharDataType()
     {
@@ -15,10 +15,10 @@ public final class ATCharDataType extends PDataType
     }
 
     public ATCharDataType(
-        @SuppressWarnings("hiding") TChar _char_)
+        @SuppressWarnings("hiding") TKwChar _kwChar_)
     {
         // Constructor
-        setChar(_char_);
+        setKwChar(_kwChar_);
 
     }
 
@@ -26,7 +26,7 @@ public final class ATCharDataType extends PDataType
     public Object clone()
     {
         return new ATCharDataType(
-            cloneNode(this._char_));
+            cloneNode(this._kwChar_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class ATCharDataType extends PDataType
         ((Analysis) sw).caseATCharDataType(this);
     }
 
-    public TChar getChar()
+    public TKwChar getKwChar()
     {
-        return this._char_;
+        return this._kwChar_;
     }
 
-    public void setChar(TChar node)
+    public void setKwChar(TKwChar node)
     {
-        if(this._char_ != null)
+        if(this._kwChar_ != null)
         {
-            this._char_.parent(null);
+            this._kwChar_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ATCharDataType extends PDataType
             node.parent(this);
         }
 
-        this._char_ = node;
+        this._kwChar_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._char_);
+            + toString(this._kwChar_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._char_ == child)
+        if(this._kwChar_ == child)
         {
-            this._char_ = null;
+            this._kwChar_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ATCharDataType extends PDataType
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._char_ == oldChild)
+        if(this._kwChar_ == oldChild)
         {
-            setChar((TChar) newChild);
+            setKwChar((TKwChar) newChild);
             return;
         }
 

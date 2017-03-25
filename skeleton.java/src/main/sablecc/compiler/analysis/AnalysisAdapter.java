@@ -129,25 +129,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTLpar(TLpar node)
+    public void caseTComment(TComment node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTRpar(TRpar node)
+    public void caseTColon(TColon node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTDeftype(TDeftype node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTCmdEnd(TCmdEnd node)
+    public void caseTSemicolon(TSemicolon node)
     {
         defaultCase(node);
     }
@@ -159,115 +153,115 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTAnd(TAnd node)
+    public void caseTKwAnd(TKwAnd node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTOr(TOr node)
+    public void caseTKwOr(TKwOr node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTInt(TInt node)
+    public void caseTKwInt(TKwInt node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTThen(TThen node)
+    public void caseTKwThen(TKwThen node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTChar(TChar node)
+    public void caseTKwChar(TKwChar node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTMod(TMod node)
+    public void caseTKwMod(TKwMod node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTVar(TVar node)
+    public void caseTKwVar(TKwVar node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTDiv(TDiv node)
+    public void caseTKwDiv(TKwDiv node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTNot(TNot node)
+    public void caseTKwNot(TKwNot node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTWhile(TWhile node)
+    public void caseTKwWhile(TKwWhile node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTDo(TDo node)
+    public void caseTKwDo(TKwDo node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTIf(TIf node)
+    public void caseTKwIf(TKwIf node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTElse(TElse node)
+    public void caseTKwElse(TKwElse node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTFun(TFun node)
+    public void caseTKwFun(TKwFun node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTRetrun(TRetrun node)
+    public void caseTKwReturn(TKwReturn node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTRef(TRef node)
+    public void caseTKwRef(TKwRef node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTNothing(TNothing node)
+    public void caseTKwNothing(TKwNothing node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTVariable(TVariable node)
+    public void caseTIdentifier(TIdentifier node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTIntegerConst(TIntegerConst node)
+    public void caseTInteger(TInteger node)
     {
         defaultCase(node);
     }
