@@ -99,13 +99,25 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseATIntType(ATIntType node)
+    public void caseASimpleType(ASimpleType node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseATCharType(ATCharType node)
+    public void caseAArrayType(AArrayType node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATIntDataType(ATIntDataType node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATCharDataType(ATCharDataType node)
     {
         defaultCase(node);
     }
@@ -255,7 +267,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTInteger(TInteger node)
+    public void caseTIntegerConst(TIntegerConst node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTArrayDeclaration(TArrayDeclaration node)
     {
         defaultCase(node);
     }

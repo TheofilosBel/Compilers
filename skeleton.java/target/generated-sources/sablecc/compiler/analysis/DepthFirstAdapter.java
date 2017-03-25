@@ -36,119 +36,202 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outStart(node);
     }
 
-    public void inAIfProgram(AIfProgram node)
+    public void inAOneProgram(AOneProgram node)
     {
         defaultIn(node);
     }
 
-    public void outAIfProgram(AIfProgram node)
+    public void outAOneProgram(AOneProgram node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAIfProgram(AIfProgram node)
+    public void caseAOneProgram(AOneProgram node)
     {
-        inAIfProgram(node);
-        if(node.getSelectionStatement() != null)
+        inAOneProgram(node);
         {
-            node.getSelectionStatement().apply(this);
+            List<PVariableDefinition> copy = new ArrayList<PVariableDefinition>(node.getVariableDefinition());
+            for(PVariableDefinition e : copy)
+            {
+                e.apply(this);
+            }
         }
-        outAIfProgram(node);
+        outAOneProgram(node);
     }
 
-    public void inAOneSelectionStatement(AOneSelectionStatement node)
+    public void inADefVariableDefinition(ADefVariableDefinition node)
     {
         defaultIn(node);
     }
 
-    public void outAOneSelectionStatement(AOneSelectionStatement node)
+    public void outADefVariableDefinition(ADefVariableDefinition node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAOneSelectionStatement(AOneSelectionStatement node)
+    public void caseADefVariableDefinition(ADefVariableDefinition node)
     {
-        inAOneSelectionStatement(node);
-        if(node.getIf() != null)
+        inADefVariableDefinition(node);
+        if(node.getVar() != null)
         {
-            node.getIf().apply(this);
+            node.getVar().apply(this);
         }
-        if(node.getLpar() != null)
+        if(node.getSetOfVariables() != null)
         {
-            node.getLpar().apply(this);
+            node.getSetOfVariables().apply(this);
         }
-        if(node.getCondition() != null)
+        if(node.getDeftype() != null)
         {
-            node.getCondition().apply(this);
+            node.getDeftype().apply(this);
         }
-        if(node.getRpar() != null)
+        if(node.getType() != null)
         {
-            node.getRpar().apply(this);
+            node.getType().apply(this);
         }
-        if(node.getElse() != null)
+        if(node.getCmdEnd() != null)
         {
-            node.getElse().apply(this);
+            node.getCmdEnd().apply(this);
         }
-        if(node.getSelectionStatement() != null)
-        {
-            node.getSelectionStatement().apply(this);
-        }
-        outAOneSelectionStatement(node);
+        outADefVariableDefinition(node);
     }
 
-    public void inATwoSelectionStatement(ATwoSelectionStatement node)
+    public void inAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
     {
         defaultIn(node);
     }
 
-    public void outATwoSelectionStatement(ATwoSelectionStatement node)
+    public void outAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseATwoSelectionStatement(ATwoSelectionStatement node)
+    public void caseAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
     {
-        inATwoSelectionStatement(node);
-        if(node.getIf() != null)
+        inAMultiSetSetOfVariables(node);
+        if(node.getVariable() != null)
         {
-            node.getIf().apply(this);
+            node.getVariable().apply(this);
         }
-        if(node.getLpar() != null)
+        if(node.getComma() != null)
         {
-            node.getLpar().apply(this);
+            node.getComma().apply(this);
         }
-        if(node.getCondition() != null)
+        if(node.getSetOfVariables() != null)
         {
-            node.getCondition().apply(this);
+            node.getSetOfVariables().apply(this);
         }
-        if(node.getRpar() != null)
-        {
-            node.getRpar().apply(this);
-        }
-        outATwoSelectionStatement(node);
+        outAMultiSetSetOfVariables(node);
     }
 
-    public void inACondition(ACondition node)
+    public void inASingleSetSetOfVariables(ASingleSetSetOfVariables node)
     {
         defaultIn(node);
     }
 
-    public void outACondition(ACondition node)
+    public void outASingleSetSetOfVariables(ASingleSetSetOfVariables node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseACondition(ACondition node)
+    public void caseASingleSetSetOfVariables(ASingleSetSetOfVariables node)
     {
-        inACondition(node);
+        inASingleSetSetOfVariables(node);
+        if(node.getVariable() != null)
+        {
+            node.getVariable().apply(this);
+        }
+        outASingleSetSetOfVariables(node);
+    }
+
+    public void inASimpleType(ASimpleType node)
+    {
+        defaultIn(node);
+    }
+
+    public void outASimpleType(ASimpleType node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseASimpleType(ASimpleType node)
+    {
+        inASimpleType(node);
+        if(node.getDataType() != null)
+        {
+            node.getDataType().apply(this);
+        }
+        outASimpleType(node);
+    }
+
+    public void inAArrayType(AArrayType node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAArrayType(AArrayType node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAArrayType(AArrayType node)
+    {
+        inAArrayType(node);
+        if(node.getDataType() != null)
+        {
+            node.getDataType().apply(this);
+        }
+        if(node.getArrayDeclaration() != null)
+        {
+            node.getArrayDeclaration().apply(this);
+        }
+        outAArrayType(node);
+    }
+
+    public void inATIntDataType(ATIntDataType node)
+    {
+        defaultIn(node);
+    }
+
+    public void outATIntDataType(ATIntDataType node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseATIntDataType(ATIntDataType node)
+    {
+        inATIntDataType(node);
+        if(node.getInt() != null)
+        {
+            node.getInt().apply(this);
+        }
+        outATIntDataType(node);
+    }
+
+    public void inATCharDataType(ATCharDataType node)
+    {
+        defaultIn(node);
+    }
+
+    public void outATCharDataType(ATCharDataType node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseATCharDataType(ATCharDataType node)
+    {
+        inATCharDataType(node);
         if(node.getChar() != null)
         {
             node.getChar().apply(this);
         }
-        outACondition(node);
+        outATCharDataType(node);
     }
 }

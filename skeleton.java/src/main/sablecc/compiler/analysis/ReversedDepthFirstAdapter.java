@@ -148,45 +148,91 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outASingleSetSetOfVariables(node);
     }
 
-    public void inATIntType(ATIntType node)
+    public void inASimpleType(ASimpleType node)
     {
         defaultIn(node);
     }
 
-    public void outATIntType(ATIntType node)
+    public void outASimpleType(ASimpleType node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseATIntType(ATIntType node)
+    public void caseASimpleType(ASimpleType node)
     {
-        inATIntType(node);
+        inASimpleType(node);
+        if(node.getDataType() != null)
+        {
+            node.getDataType().apply(this);
+        }
+        outASimpleType(node);
+    }
+
+    public void inAArrayType(AArrayType node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAArrayType(AArrayType node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAArrayType(AArrayType node)
+    {
+        inAArrayType(node);
+        if(node.getArrayDeclaration() != null)
+        {
+            node.getArrayDeclaration().apply(this);
+        }
+        if(node.getDataType() != null)
+        {
+            node.getDataType().apply(this);
+        }
+        outAArrayType(node);
+    }
+
+    public void inATIntDataType(ATIntDataType node)
+    {
+        defaultIn(node);
+    }
+
+    public void outATIntDataType(ATIntDataType node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseATIntDataType(ATIntDataType node)
+    {
+        inATIntDataType(node);
         if(node.getInt() != null)
         {
             node.getInt().apply(this);
         }
-        outATIntType(node);
+        outATIntDataType(node);
     }
 
-    public void inATCharType(ATCharType node)
+    public void inATCharDataType(ATCharDataType node)
     {
         defaultIn(node);
     }
 
-    public void outATCharType(ATCharType node)
+    public void outATCharDataType(ATCharDataType node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseATCharType(ATCharType node)
+    public void caseATCharDataType(ATCharDataType node)
     {
-        inATCharType(node);
+        inATCharDataType(node);
         if(node.getChar() != null)
         {
             node.getChar().apply(this);
         }
-        outATCharType(node);
+        outATCharDataType(node);
     }
 }

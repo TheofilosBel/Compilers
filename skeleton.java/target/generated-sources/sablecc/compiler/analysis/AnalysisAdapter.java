@@ -69,37 +69,47 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAIfProgram(AIfProgram node)
+    public void caseAOneProgram(AOneProgram node)
     {
         defaultCase(node);
     }
 
-    public void caseAOneSelectionStatement(AOneSelectionStatement node)
+    public void caseADefVariableDefinition(ADefVariableDefinition node)
     {
         defaultCase(node);
     }
 
-    public void caseATwoSelectionStatement(ATwoSelectionStatement node)
+    public void caseAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
     {
         defaultCase(node);
     }
 
-    public void caseACondition(ACondition node)
+    public void caseASingleSetSetOfVariables(ASingleSetSetOfVariables node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseASimpleType(ASimpleType node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAArrayType(AArrayType node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseATIntDataType(ATIntDataType node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseATCharDataType(ATCharDataType node)
     {
         defaultCase(node);
     }
 
     public void caseTWhiteSpace(TWhiteSpace node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseTIf(TIf node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseTElse(TElse node)
     {
         defaultCase(node);
     }
@@ -114,7 +124,117 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
+    public void caseTDeftype(TDeftype node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTCmdEnd(TCmdEnd node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTComma(TComma node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTAnd(TAnd node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTOr(TOr node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTInt(TInt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTThen(TThen node)
+    {
+        defaultCase(node);
+    }
+
     public void caseTChar(TChar node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTMod(TMod node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTVar(TVar node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTDiv(TDiv node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTNot(TNot node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTWhile(TWhile node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTDo(TDo node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTIf(TIf node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTElse(TElse node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTFun(TFun node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTRetrun(TRetrun node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTRef(TRef node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTNothing(TNothing node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTVariable(TVariable node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTIntegerConst(TIntegerConst node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTArrayDeclaration(TArrayDeclaration node)
     {
         defaultCase(node);
     }

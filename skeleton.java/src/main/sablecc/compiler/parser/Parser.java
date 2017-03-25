@@ -200,28 +200,40 @@ public class Parser
 			push(goTo(2), list, false);
 		    }
 		    break;
-                    case 4: /* reduce ATIntType */
+                    case 4: /* reduce ASimpleType */
 		    {
 			ArrayList<Object> list = new4();
 			push(goTo(3), list, false);
 		    }
 		    break;
-                    case 5: /* reduce ATCharType */
+                    case 5: /* reduce AArrayType */
 		    {
 			ArrayList<Object> list = new5();
 			push(goTo(3), list, false);
 		    }
 		    break;
-                    case 6: /* reduce ATerminal$VariableDefinition */
+                    case 6: /* reduce ATIntDataType */
 		    {
 			ArrayList<Object> list = new6();
-			push(goTo(4), list, true);
+			push(goTo(4), list, false);
 		    }
 		    break;
-                    case 7: /* reduce ANonTerminal$VariableDefinition */
+                    case 7: /* reduce ATCharDataType */
 		    {
 			ArrayList<Object> list = new7();
-			push(goTo(4), list, true);
+			push(goTo(4), list, false);
+		    }
+		    break;
+                    case 8: /* reduce ATerminal$VariableDefinition */
+		    {
+			ArrayList<Object> list = new8();
+			push(goTo(5), list, true);
+		    }
+		    break;
+                    case 9: /* reduce ANonTerminal$VariableDefinition */
+		    {
+			ArrayList<Object> list = new9();
+			push(goTo(5), list, true);
 		    }
 		    break;
                     }
@@ -350,47 +362,90 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new4() /* reduce ATIntType */
+    ArrayList<Object> new4() /* reduce ASimpleType */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
         @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
         PType ptypeNode1;
+        {
+            // Block
+        PDataType pdatatypeNode2;
+        pdatatypeNode2 = (PDataType)nodeArrayList1.get(0);
+
+        ptypeNode1 = new ASimpleType(pdatatypeNode2);
+        }
+	nodeList.add(ptypeNode1);
+        return nodeList;
+    }
+
+
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    ArrayList<Object> new5() /* reduce AArrayType */
+    {
+        @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
+
+        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList2 = pop();
+        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
+        PType ptypeNode1;
+        {
+            // Block
+        PDataType pdatatypeNode2;
+        TArrayDeclaration tarraydeclarationNode3;
+        pdatatypeNode2 = (PDataType)nodeArrayList1.get(0);
+        tarraydeclarationNode3 = (TArrayDeclaration)nodeArrayList2.get(0);
+
+        ptypeNode1 = new AArrayType(pdatatypeNode2, tarraydeclarationNode3);
+        }
+	nodeList.add(ptypeNode1);
+        return nodeList;
+    }
+
+
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    ArrayList<Object> new6() /* reduce ATIntDataType */
+    {
+        @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
+
+        @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
+        PDataType pdatatypeNode1;
         {
             // Block
         TInt tintNode2;
         tintNode2 = (TInt)nodeArrayList1.get(0);
 
-        ptypeNode1 = new ATIntType(tintNode2);
+        pdatatypeNode1 = new ATIntDataType(tintNode2);
         }
-	nodeList.add(ptypeNode1);
+	nodeList.add(pdatatypeNode1);
         return nodeList;
     }
 
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new5() /* reduce ATCharType */
+    ArrayList<Object> new7() /* reduce ATCharDataType */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
         @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
-        PType ptypeNode1;
+        PDataType pdatatypeNode1;
         {
             // Block
         TChar tcharNode2;
         tcharNode2 = (TChar)nodeArrayList1.get(0);
 
-        ptypeNode1 = new ATCharType(tcharNode2);
+        pdatatypeNode1 = new ATCharDataType(tcharNode2);
         }
-	nodeList.add(ptypeNode1);
+	nodeList.add(pdatatypeNode1);
         return nodeList;
     }
 
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new6() /* reduce ATerminal$VariableDefinition */
+    ArrayList<Object> new8() /* reduce ATerminal$VariableDefinition */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
@@ -412,7 +467,7 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new7() /* reduce ANonTerminal$VariableDefinition */
+    ArrayList<Object> new9() /* reduce ANonTerminal$VariableDefinition */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
@@ -444,19 +499,21 @@ public class Parser
 /*      {
 			{{-1, ERROR, 0}, {11, SHIFT, 1}, },
 			{{-1, ERROR, 1}, {22, SHIFT, 5}, },
-			{{-1, ERROR, 2}, {24, ACCEPT, -1}, },
-			{{-1, REDUCE, 6}, },
+			{{-1, ERROR, 2}, {25, ACCEPT, -1}, },
+			{{-1, REDUCE, 8}, },
 			{{-1, REDUCE, 0}, {11, SHIFT, 1}, },
 			{{-1, REDUCE, 3}, {4, SHIFT, 8}, },
 			{{-1, ERROR, 6}, {2, SHIFT, 9}, },
-			{{-1, REDUCE, 7}, },
+			{{-1, REDUCE, 9}, },
 			{{-1, ERROR, 8}, {22, SHIFT, 5}, },
 			{{-1, ERROR, 9}, {7, SHIFT, 11}, {9, SHIFT, 12}, },
 			{{-1, REDUCE, 2}, },
-			{{-1, REDUCE, 4}, },
-			{{-1, REDUCE, 5}, },
-			{{-1, ERROR, 13}, {3, SHIFT, 14}, },
+			{{-1, REDUCE, 6}, },
+			{{-1, REDUCE, 7}, },
+			{{-1, ERROR, 13}, {3, SHIFT, 15}, },
+			{{-1, REDUCE, 4}, {24, SHIFT, 16}, },
 			{{-1, REDUCE, 1}, },
+			{{-1, REDUCE, 5}, },
         };*/
     private static int[][][] gotoTable;
 /*      {
@@ -464,6 +521,7 @@ public class Parser
 			{{-1, 3}, {4, 7}, },
 			{{-1, 6}, {8, 10}, },
 			{{-1, 13}, },
+			{{-1, 14}, },
 			{{-1, 4}, },
         };*/
     private static String[] errorMessages;
@@ -475,11 +533,12 @@ public class Parser
 			"expecting: ':', ','",
 			"expecting: ':'",
 			"expecting: int, char",
+			"expecting: ';', array declaration",
 			"expecting: ';'",
         };*/
     private static int[] errors;
 /*      {
-			0, 1, 2, 3, 3, 4, 5, 3, 1, 6, 5, 7, 7, 7, 3, 
+			0, 1, 2, 3, 3, 4, 5, 3, 1, 6, 5, 7, 7, 8, 7, 3, 8, 
         };*/
 
     static 
