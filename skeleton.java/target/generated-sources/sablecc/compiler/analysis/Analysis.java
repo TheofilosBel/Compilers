@@ -16,10 +16,15 @@ public interface Analysis extends Switch
     void caseADefVariableDefinition(ADefVariableDefinition node);
     void caseAMultiSetSetOfVariables(AMultiSetSetOfVariables node);
     void caseASingleSetSetOfVariables(ASingleSetSetOfVariables node);
+<<<<<<< HEAD
     void caseASimpleType(ASimpleType node);
     void caseAArrayType(AArrayType node);
     void caseATIntDataType(ATIntDataType node);
     void caseATCharDataType(ATCharDataType node);
+=======
+    void caseATIntType(ATIntType node);
+    void caseATCharType(ATCharType node);
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
 
     void caseTWhiteSpace(TWhiteSpace node);
     void caseTLpar(TLpar node);
@@ -45,7 +50,11 @@ public interface Analysis extends Switch
     void caseTRef(TRef node);
     void caseTNothing(TNothing node);
     void caseTVariable(TVariable node);
+<<<<<<< HEAD
     void caseTIntegerConst(TIntegerConst node);
     void caseTArrayDeclaration(TArrayDeclaration node);
+=======
+    void caseTInteger(TInteger node);
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     void caseEOF(EOF node);
 }

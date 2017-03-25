@@ -199,18 +199,27 @@ public class Parser
 			push(goTo(2), list, false);
 		    }
 		    break;
+<<<<<<< HEAD
                     case 4: /* reduce ASimpleType */
+=======
+                    case 4: /* reduce ATIntType */
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
 		    {
 			ArrayList list = new4();
 			push(goTo(3), list, false);
 		    }
 		    break;
+<<<<<<< HEAD
                     case 5: /* reduce AArrayType */
+=======
+                    case 5: /* reduce ATCharType */
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
 		    {
 			ArrayList list = new5();
 			push(goTo(3), list, false);
 		    }
 		    break;
+<<<<<<< HEAD
                     case 6: /* reduce ATIntDataType */
 		    {
 			ArrayList list = new6();
@@ -233,6 +242,18 @@ public class Parser
 		    {
 			ArrayList list = new9();
 			push(goTo(5), list, true);
+=======
+                    case 6: /* reduce ATerminal$VariableDefinition */
+		    {
+			ArrayList list = new6();
+			push(goTo(4), list, true);
+		    }
+		    break;
+                    case 7: /* reduce ANonTerminal$VariableDefinition */
+		    {
+			ArrayList list = new7();
+			push(goTo(4), list, true);
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
 		    }
 		    break;
                     }
@@ -323,6 +344,7 @@ public class Parser
         @SuppressWarnings("unused") ArrayList nodeArrayList2 = pop();
         @SuppressWarnings("unused") ArrayList nodeArrayList1 = pop();
         PSetOfVariables psetofvariablesNode1;
+<<<<<<< HEAD
         {
             // Block
         TVariable tvariableNode2;
@@ -418,33 +440,105 @@ public class Parser
         pdatatypeNode1 = new ATIntDataType(tintNode2);
         }
 	nodeList.add(pdatatypeNode1);
+=======
+        {
+            // Block
+        TVariable tvariableNode2;
+        TComma tcommaNode3;
+        PSetOfVariables psetofvariablesNode4;
+        tvariableNode2 = (TVariable)nodeArrayList1.get(0);
+        tcommaNode3 = (TComma)nodeArrayList2.get(0);
+        psetofvariablesNode4 = (PSetOfVariables)nodeArrayList3.get(0);
+
+        psetofvariablesNode1 = new AMultiSetSetOfVariables(tvariableNode2, tcommaNode3, psetofvariablesNode4);
+        }
+	nodeList.add(psetofvariablesNode1);
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
         return nodeList;
     }
 
 
 
     @SuppressWarnings("unchecked")
+<<<<<<< HEAD
     ArrayList new7() /* reduce ATCharDataType */
+=======
+    ArrayList new3() /* reduce ASingleSetSetOfVariables */
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     {
         @SuppressWarnings("hiding") ArrayList nodeList = new ArrayList();
 
         @SuppressWarnings("unused") ArrayList nodeArrayList1 = pop();
+<<<<<<< HEAD
         PDataType pdatatypeNode1;
+=======
+        PSetOfVariables psetofvariablesNode1;
+        {
+            // Block
+        TVariable tvariableNode2;
+        tvariableNode2 = (TVariable)nodeArrayList1.get(0);
+
+        psetofvariablesNode1 = new ASingleSetSetOfVariables(tvariableNode2);
+        }
+	nodeList.add(psetofvariablesNode1);
+        return nodeList;
+    }
+
+
+
+    @SuppressWarnings("unchecked")
+    ArrayList new4() /* reduce ATIntType */
+    {
+        @SuppressWarnings("hiding") ArrayList nodeList = new ArrayList();
+
+        @SuppressWarnings("unused") ArrayList nodeArrayList1 = pop();
+        PType ptypeNode1;
+        {
+            // Block
+        TInt tintNode2;
+        tintNode2 = (TInt)nodeArrayList1.get(0);
+
+        ptypeNode1 = new ATIntType(tintNode2);
+        }
+	nodeList.add(ptypeNode1);
+        return nodeList;
+    }
+
+
+
+    @SuppressWarnings("unchecked")
+    ArrayList new5() /* reduce ATCharType */
+    {
+        @SuppressWarnings("hiding") ArrayList nodeList = new ArrayList();
+
+        @SuppressWarnings("unused") ArrayList nodeArrayList1 = pop();
+        PType ptypeNode1;
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
         {
             // Block
         TChar tcharNode2;
         tcharNode2 = (TChar)nodeArrayList1.get(0);
 
+<<<<<<< HEAD
         pdatatypeNode1 = new ATCharDataType(tcharNode2);
         }
 	nodeList.add(pdatatypeNode1);
+=======
+        ptypeNode1 = new ATCharType(tcharNode2);
+        }
+	nodeList.add(ptypeNode1);
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
         return nodeList;
     }
 
 
 
     @SuppressWarnings("unchecked")
+<<<<<<< HEAD
     ArrayList new8() /* reduce ATerminal$VariableDefinition */
+=======
+    ArrayList new6() /* reduce ATerminal$VariableDefinition */
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     {
         @SuppressWarnings("hiding") ArrayList nodeList = new ArrayList();
 
@@ -466,7 +560,11 @@ public class Parser
 
 
     @SuppressWarnings("unchecked")
+<<<<<<< HEAD
     ArrayList new9() /* reduce ANonTerminal$VariableDefinition */
+=======
+    ArrayList new7() /* reduce ANonTerminal$VariableDefinition */
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     {
         @SuppressWarnings("hiding") ArrayList nodeList = new ArrayList();
 
@@ -498,6 +596,7 @@ public class Parser
 /*      {
 			{{-1, ERROR, 0}, {11, SHIFT, 1}, },
 			{{-1, ERROR, 1}, {22, SHIFT, 5}, },
+<<<<<<< HEAD
 			{{-1, ERROR, 2}, {25, ACCEPT, -1}, },
 			{{-1, REDUCE, 8}, },
 			{{-1, REDUCE, 0}, {11, SHIFT, 1}, },
@@ -511,6 +610,20 @@ public class Parser
 			{{-1, REDUCE, 7}, },
 			{{-1, ERROR, 13}, {3, SHIFT, 15}, },
 			{{-1, REDUCE, 4}, {24, SHIFT, 16}, },
+=======
+			{{-1, ERROR, 2}, {24, ACCEPT, -1}, },
+			{{-1, REDUCE, 6}, },
+			{{-1, REDUCE, 0}, {11, SHIFT, 1}, },
+			{{-1, REDUCE, 3}, {4, SHIFT, 8}, },
+			{{-1, ERROR, 6}, {2, SHIFT, 9}, },
+			{{-1, REDUCE, 7}, },
+			{{-1, ERROR, 8}, {22, SHIFT, 5}, },
+			{{-1, ERROR, 9}, {7, SHIFT, 11}, {9, SHIFT, 12}, },
+			{{-1, REDUCE, 2}, },
+			{{-1, REDUCE, 4}, },
+			{{-1, REDUCE, 5}, },
+			{{-1, ERROR, 13}, {3, SHIFT, 14}, },
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
 			{{-1, REDUCE, 1}, },
 			{{-1, REDUCE, 5}, },
         };*/
@@ -520,7 +633,10 @@ public class Parser
 			{{-1, 3}, {4, 7}, },
 			{{-1, 6}, {8, 10}, },
 			{{-1, 13}, },
+<<<<<<< HEAD
 			{{-1, 14}, },
+=======
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
 			{{-1, 4}, },
         };*/
     private static String[] errorMessages;
@@ -532,12 +648,19 @@ public class Parser
 			"expecting: ':', ','",
 			"expecting: ':'",
 			"expecting: int, char",
+<<<<<<< HEAD
 			"expecting: ';', array declaration",
+=======
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
 			"expecting: ';'",
         };*/
     private static int[] errors;
 /*      {
+<<<<<<< HEAD
 			0, 1, 2, 3, 3, 4, 5, 3, 1, 6, 5, 7, 7, 8, 7, 3, 8, 
+=======
+			0, 1, 2, 3, 3, 4, 5, 3, 1, 6, 5, 7, 7, 7, 3, 
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
         };*/
 
     static 

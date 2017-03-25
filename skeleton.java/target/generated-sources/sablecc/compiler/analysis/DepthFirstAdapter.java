@@ -95,6 +95,7 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getCmdEnd().apply(this);
         }
         outADefVariableDefinition(node);
+<<<<<<< HEAD
     }
 
     public void inAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
@@ -148,16 +149,26 @@ public class DepthFirstAdapter extends AnalysisAdapter
     }
 
     public void inASimpleType(ASimpleType node)
+=======
+    }
+
+    public void inAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     {
         defaultIn(node);
     }
 
+<<<<<<< HEAD
     public void outASimpleType(ASimpleType node)
+=======
+    public void outAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     {
         defaultOut(node);
     }
 
     @Override
+<<<<<<< HEAD
     public void caseASimpleType(ASimpleType node)
     {
         inASimpleType(node);
@@ -194,44 +205,117 @@ public class DepthFirstAdapter extends AnalysisAdapter
     }
 
     public void inATIntDataType(ATIntDataType node)
+=======
+    public void caseAMultiSetSetOfVariables(AMultiSetSetOfVariables node)
+    {
+        inAMultiSetSetOfVariables(node);
+        if(node.getVariable() != null)
+        {
+            node.getVariable().apply(this);
+        }
+        if(node.getComma() != null)
+        {
+            node.getComma().apply(this);
+        }
+        if(node.getSetOfVariables() != null)
+        {
+            node.getSetOfVariables().apply(this);
+        }
+        outAMultiSetSetOfVariables(node);
+    }
+
+    public void inASingleSetSetOfVariables(ASingleSetSetOfVariables node)
     {
         defaultIn(node);
     }
 
-    public void outATIntDataType(ATIntDataType node)
+    public void outASingleSetSetOfVariables(ASingleSetSetOfVariables node)
     {
         defaultOut(node);
     }
 
     @Override
+    public void caseASingleSetSetOfVariables(ASingleSetSetOfVariables node)
+    {
+        inASingleSetSetOfVariables(node);
+        if(node.getVariable() != null)
+        {
+            node.getVariable().apply(this);
+        }
+        outASingleSetSetOfVariables(node);
+    }
+
+    public void inATIntType(ATIntType node)
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
+    {
+        defaultIn(node);
+    }
+
+<<<<<<< HEAD
+    public void outATIntDataType(ATIntDataType node)
+=======
+    public void outATIntType(ATIntType node)
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
+    {
+        defaultOut(node);
+    }
+
+    @Override
+<<<<<<< HEAD
     public void caseATIntDataType(ATIntDataType node)
     {
         inATIntDataType(node);
+=======
+    public void caseATIntType(ATIntType node)
+    {
+        inATIntType(node);
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
         if(node.getInt() != null)
         {
             node.getInt().apply(this);
         }
+<<<<<<< HEAD
         outATIntDataType(node);
     }
 
     public void inATCharDataType(ATCharDataType node)
+=======
+        outATIntType(node);
+    }
+
+    public void inATCharType(ATCharType node)
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     {
         defaultIn(node);
     }
 
+<<<<<<< HEAD
     public void outATCharDataType(ATCharDataType node)
+=======
+    public void outATCharType(ATCharType node)
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     {
         defaultOut(node);
     }
 
     @Override
+<<<<<<< HEAD
     public void caseATCharDataType(ATCharDataType node)
     {
         inATCharDataType(node);
+=======
+    public void caseATCharType(ATCharType node)
+    {
+        inATCharType(node);
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
         if(node.getChar() != null)
         {
             node.getChar().apply(this);
         }
+<<<<<<< HEAD
         outATCharDataType(node);
+=======
+        outATCharType(node);
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     }
 }

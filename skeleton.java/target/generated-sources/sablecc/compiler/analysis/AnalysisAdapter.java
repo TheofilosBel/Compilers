@@ -89,16 +89,25 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
+<<<<<<< HEAD
     public void caseASimpleType(ASimpleType node)
+=======
+    public void caseATIntType(ATIntType node)
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     {
         defaultCase(node);
     }
 
+<<<<<<< HEAD
     public void caseAArrayType(AArrayType node)
+=======
+    public void caseATCharType(ATCharType node)
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     {
         defaultCase(node);
     }
 
+<<<<<<< HEAD
     public void caseATIntDataType(ATIntDataType node)
     {
         defaultCase(node);
@@ -109,6 +118,8 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
+=======
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     public void caseTWhiteSpace(TWhiteSpace node)
     {
         defaultCase(node);
@@ -229,12 +240,16 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
+<<<<<<< HEAD
     public void caseTIntegerConst(TIntegerConst node)
     {
         defaultCase(node);
     }
 
     public void caseTArrayDeclaration(TArrayDeclaration node)
+=======
+    public void caseTInteger(TInteger node)
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     {
         defaultCase(node);
     }

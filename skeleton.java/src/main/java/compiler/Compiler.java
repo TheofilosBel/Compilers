@@ -5,12 +5,10 @@ import compiler.lexer.*;
 import compiler.node.*;
 import java.io.*;
 
-public class Compiler
-{
-	public static void main(String[] arguments)
-	{
-		try
-		{
+public class Compiler {
+	
+	public static void main(String[] arguments) {
+		try {
 			System.out.println("Type an arithmetic expression:");
 			// Create a Parser instance.
 			Parser p =
@@ -23,18 +21,15 @@ public class Compiler
 			// Apply the translation.
 			tree.apply(new Translation());
 		}
-		catch (ParserException p)
-		{
+		catch (ParserException p) {
 			System.out.println("Parrser error :");
 			System.out.println(p.getMessage());
 		}
-		catch(LexerException l)
-		{
+		catch(LexerException l) {
 			System.out.println("LEXER error :");
 			System.out.println(l.getMessage());
 		}
-		catch(Exception e)
-		{
+		catch(Exception e) {
 			System.out.println("General exception :");
 			System.out.println(e.getMessage());
 		}

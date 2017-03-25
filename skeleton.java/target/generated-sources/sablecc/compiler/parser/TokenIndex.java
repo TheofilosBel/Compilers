@@ -148,12 +148,17 @@ class TokenIndex extends AnalysisAdapter
     }
 
     @Override
+<<<<<<< HEAD
     public void caseTIntegerConst(@SuppressWarnings("unused") TIntegerConst node)
+=======
+    public void caseTInteger(@SuppressWarnings("unused") TInteger node)
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     {
         this.index = 23;
     }
 
     @Override
+<<<<<<< HEAD
     public void caseTArrayDeclaration(@SuppressWarnings("unused") TArrayDeclaration node)
     {
         this.index = 24;
@@ -163,5 +168,10 @@ class TokenIndex extends AnalysisAdapter
     public void caseEOF(@SuppressWarnings("unused") EOF node)
     {
         this.index = 25;
+=======
+    public void caseEOF(@SuppressWarnings("unused") EOF node)
+    {
+        this.index = 24;
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
     }
 }

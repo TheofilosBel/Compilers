@@ -1,13 +1,22 @@
 Package compiler;
 
-
 Helpers
 
+  all= [0 .. 127]
   sp = ' ';
   lf = 0x000a;
   cr = 0x000d;
   ff = 0x000c;
   ht = 0x0009; 
+
+    sp          = ' ';
+    tab         = 9;
+    lf          = 10;
+    ff          = 12;
+    cr          = 13; 
+    eol         = lf | cr | cr lf;
+    not_eol     = [all - [cr + lf]];
+
   line_terminator = lf | cr | cr lf;
   white_space = (sp | ht | ff | line_terminator)*;
   
@@ -16,61 +25,65 @@ Helpers
   ragg	= ']';
   letter = ['a' .. 'z'];
   digit	= ['0' .. '9'];
+  nondigit = ['_' + [['a' .. 'z'] + ['A' .. 'Z']]] 
   namepart = ( letter | digit )*;
-  
+
+  /* Comments */
+  not_dollar        = [all - '$']
+  not_double_dollar = [all - '$$']
   
 Tokens
 
-  white_space	= white_space;
-  
-  lpar 	= '(';
-  rpar 	= ')';
-  deftype = ':';
-  cmd_end	= ';';
-  comma = ',';
-  
-  and	= 'a''n''d';
-  or	= 'o''r'; 
-  int	= 'i''n''t';
-  then	= 't''h''e''n';
-  char	= 'c''h''a''r';
-  mod	= 'm''o''d';
-  var	= 'v''a''r';
-  div	= 'd''i''v';
-  not	= 'n''o''t';
-  while = 'w''h''i''l''e';
-  do	= 'd''o';
-  if	= 'i''f';
-  else	= 'e''l''s''e';
-  fun	= 'f''u''n';
-  retrun= 'r''e''t''u''r''n';
-  ref	= 'r''e''f';
-  nothing = 'n''o''t''h''i''n''g';
+    white_space	= white_space;
+    
+    l_par 	  = '(';
+    r_par 	  = ')';
+    l_bracket = '[';
+    r_bracket = ']';
+    l_brace   = '{';
+    r_brace   = '}';
+    colon     = ':';
+    semicolon = ';';
+    comma     = ',';
+    
+    /* Keywords */
+    kw_and	   = 'and';
+    kw_or	   = 'or';
+    kw_int	   = 'int';
+    kw_then    = 'then';
+    kw_char	   = 'char';
+    kw_mod	   = 'mod';
+    kw_var	   = 'var';
+    kw_div	   = 'div';
+    kw_not	   = 'not';
+    kw_while   = 'while';
+    kw_do      = 'do';
+    kw_if	   = 'if';
+    kw_else	   = 'else';
+    kw_fun	   = 'fun';
+    kw_return  = 'return';
+    kw_ref	   = 'ref';
+    kw_nothing = 'nothing';
 
-  variable = letter+ ( (underscore namepart) | namepart )*;
-  integer_const = digit+;
-  array_declaration = (lagg digit* ragg)+;
-  
- 
-  
+    identifier = letter+ ( (underscore namepart) | namepart )*; /* Remove */
+    /* identifier = nondigit (digit | nondigit)*; */
+    integer = digit+;
+    
 Ignored Tokens
-  white_space;
+    white_space;
 
 Productions
  
 	program =
-		{one} variable_definition+
-		;
-		
+        {one} variable_definition+;
 	
 	variable_definition = 
-		{def} 	var set_of_variables deftype type cmd_end
-		;
+		{def} var set_of_variables colon type semicolon;
 		
 	set_of_variables =
-		{multi_set}  variable comma set_of_variables  |
-		{single_set} variable 
-		;
+		{multi_set} identifier comma set_of_variables |
+		{single_set} identifier;
+
 	type = 
 		{simple}  data_type |
 		{array}   data_type array_declaration
@@ -78,8 +91,4 @@ Productions
 
 	data_type = 
 		{t_int} int |
-		{t_char} char 
-		;
-	
-	
-	
+		{t_char} char;

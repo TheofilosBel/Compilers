@@ -4,10 +4,8 @@ import compiler.analysis.*;
 import compiler.node.*;
 
 public class Translation extends DepthFirstAdapter{
-
 	
-	public void outADefVariableDefinition(ADefVariableDefinition node)
-	{  // out of alternative {two} then print it 
+	public void outADefVariableDefinition(ADefVariableDefinition node) { 
 		System.out.print(node);
 	}
 	

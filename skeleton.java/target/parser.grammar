@@ -12,8 +12,11 @@ Helpers
   white_space = (sp | ht | ff | line_terminator)*;
   
   underscore = '_';
+<<<<<<< HEAD
   lagg	= '[';
   ragg	= ']';
+=======
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
   letter = ['a' .. 'z'];
   digit	= ['0' .. '9'];
   namepart = ( letter | digit )*;
@@ -48,8 +51,12 @@ Tokens
   nothing = 'n''o''t''h''i''n''g';
 
   variable = letter+ ( (underscore namepart) | namepart )*;
+<<<<<<< HEAD
   integer_const = digit+;
   array_declaration = (lagg digit* ragg)+;
+=======
+  integer = digit+;
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
   
  
   
@@ -71,12 +78,17 @@ Productions
 		{multi_set}  variable comma set_of_variables  |
 		{single_set} variable 
 		;
+<<<<<<< HEAD
 	type = 
 		{simple}  data_type |
 		{array}   data_type array_declaration
 		;
 
 	data_type = 
+=======
+
+	type = 
+>>>>>>> b1eaafba594df57a3dd041af00bbd79c5d592cdd
 		{t_int} int |
 		{t_char} char 
 		;
