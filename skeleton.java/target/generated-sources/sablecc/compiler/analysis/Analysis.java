@@ -12,16 +12,37 @@ public interface Analysis extends Switch
     void setOut(Node node, Object o);
 
     void caseStart(Start node);
-    void caseAIfProgram(AIfProgram node);
-    void caseAOneSelectionStatement(AOneSelectionStatement node);
-    void caseATwoSelectionStatement(ATwoSelectionStatement node);
-    void caseACondition(ACondition node);
+    void caseAOneProgram(AOneProgram node);
+    void caseADefVariableDefinition(ADefVariableDefinition node);
+    void caseAMultiSetSetOfVariables(AMultiSetSetOfVariables node);
+    void caseASingleSetSetOfVariables(ASingleSetSetOfVariables node);
+    void caseATIntType(ATIntType node);
+    void caseATCharType(ATCharType node);
 
     void caseTWhiteSpace(TWhiteSpace node);
-    void caseTIf(TIf node);
-    void caseTElse(TElse node);
     void caseTLpar(TLpar node);
     void caseTRpar(TRpar node);
+    void caseTDeftype(TDeftype node);
+    void caseTCmdEnd(TCmdEnd node);
+    void caseTComma(TComma node);
+    void caseTAnd(TAnd node);
+    void caseTOr(TOr node);
+    void caseTInt(TInt node);
+    void caseTThen(TThen node);
     void caseTChar(TChar node);
+    void caseTMod(TMod node);
+    void caseTVar(TVar node);
+    void caseTDiv(TDiv node);
+    void caseTNot(TNot node);
+    void caseTWhile(TWhile node);
+    void caseTDo(TDo node);
+    void caseTIf(TIf node);
+    void caseTElse(TElse node);
+    void caseTFun(TFun node);
+    void caseTRetrun(TRetrun node);
+    void caseTRef(TRef node);
+    void caseTNothing(TNothing node);
+    void caseTVariable(TVariable node);
+    void caseTInteger(TInteger node);
     void caseEOF(EOF node);
 }
