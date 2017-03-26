@@ -51,8 +51,8 @@ public class DepthFirstAdapter extends AnalysisAdapter
     {
         inAOneProgram(node);
         {
-            List<TId> copy = new ArrayList<TId>(node.getId());
-            for(TId e : copy)
+            List<TCharConst> copy = new ArrayList<TCharConst>(node.getCharConst());
+            for(TCharConst e : copy)
             {
                 e.apply(this);
             }

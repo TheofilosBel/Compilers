@@ -25,9 +25,16 @@ public interface Analysis extends Switch
     void caseTColon(TColon node);
     void caseTSemicolon(TSemicolon node);
     void caseTComma(TComma node);
+    void caseTArrow(TArrow node);
     void caseTPlus(TPlus node);
     void caseTMinus(TMinus node);
     void caseTMult(TMult node);
+    void caseTEq(TEq node);
+    void caseTNeq(TNeq node);
+    void caseTLt(TLt node);
+    void caseTGt(TGt node);
+    void caseTLteq(TLteq node);
+    void caseTGteq(TGteq node);
     void caseTKwAnd(TKwAnd node);
     void caseTKwOr(TKwOr node);
     void caseTKwInt(TKwInt node);
@@ -46,6 +53,7 @@ public interface Analysis extends Switch
     void caseTKwRef(TKwRef node);
     void caseTKwNothing(TKwNothing node);
     void caseTIntConst(TIntConst node);
+    void caseTCharConst(TCharConst node);
     void caseTId(TId node);
     void caseEOF(EOF node);
 }

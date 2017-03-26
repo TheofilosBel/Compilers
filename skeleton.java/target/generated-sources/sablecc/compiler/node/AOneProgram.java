@@ -8,7 +8,7 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class AOneProgram extends PProgram
 {
-    private final LinkedList<TId> _id_ = new LinkedList<TId>();
+    private final LinkedList<TCharConst> _charConst_ = new LinkedList<TCharConst>();
 
     public AOneProgram()
     {
@@ -16,10 +16,10 @@ public final class AOneProgram extends PProgram
     }
 
     public AOneProgram(
-        @SuppressWarnings("hiding") List<TId> _id_)
+        @SuppressWarnings("hiding") List<TCharConst> _charConst_)
     {
         // Constructor
-        setId(_id_);
+        setCharConst(_charConst_);
 
     }
 
@@ -27,7 +27,7 @@ public final class AOneProgram extends PProgram
     public Object clone()
     {
         return new AOneProgram(
-            cloneList(this._id_));
+            cloneList(this._charConst_));
     }
 
     public void apply(Switch sw)
@@ -35,16 +35,16 @@ public final class AOneProgram extends PProgram
         ((Analysis) sw).caseAOneProgram(this);
     }
 
-    public LinkedList<TId> getId()
+    public LinkedList<TCharConst> getCharConst()
     {
-        return this._id_;
+        return this._charConst_;
     }
 
-    public void setId(List<TId> list)
+    public void setCharConst(List<TCharConst> list)
     {
-        this._id_.clear();
-        this._id_.addAll(list);
-        for(TId e : list)
+        this._charConst_.clear();
+        this._charConst_.addAll(list);
+        for(TCharConst e : list)
         {
             if(e.parent() != null)
             {
@@ -59,14 +59,14 @@ public final class AOneProgram extends PProgram
     public String toString()
     {
         return ""
-            + toString(this._id_);
+            + toString(this._charConst_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._id_.remove(child))
+        if(this._charConst_.remove(child))
         {
             return;
         }
@@ -78,13 +78,13 @@ public final class AOneProgram extends PProgram
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<TId> i = this._id_.listIterator(); i.hasNext();)
+        for(ListIterator<TCharConst> i = this._charConst_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((TId) newChild);
+                    i.set((TCharConst) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;

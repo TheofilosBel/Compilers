@@ -187,13 +187,13 @@ public class Parser
 			push(goTo(0), list, false);
 		    }
 		    break;
-                    case 2: /* reduce ATerminal$Id */
+                    case 2: /* reduce ATerminal$CharConst */
 		    {
 			ArrayList list = new2();
 			push(goTo(1), list, true);
 		    }
 		    break;
-                    case 3: /* reduce ANonTerminal$Id */
+                    case 3: /* reduce ANonTerminal$CharConst */
 		    {
 			ArrayList list = new3();
 			push(goTo(1), list, true);
@@ -268,7 +268,7 @@ public class Parser
 
 
     @SuppressWarnings("unchecked")
-    ArrayList new2() /* reduce ATerminal$Id */
+    ArrayList new2() /* reduce ATerminal$CharConst */
     {
         @SuppressWarnings("hiding") ArrayList nodeList = new ArrayList();
 
@@ -276,11 +276,11 @@ public class Parser
         LinkedList listNode2 = new LinkedList();
         {
             // Block
-        TId tidNode1;
-        tidNode1 = (TId)nodeArrayList1.get(0);
-	if(tidNode1 != null)
+        TCharConst tcharconstNode1;
+        tcharconstNode1 = (TCharConst)nodeArrayList1.get(0);
+	if(tcharconstNode1 != null)
 	{
-	  listNode2.add(tidNode1);
+	  listNode2.add(tcharconstNode1);
 	}
         }
 	nodeList.add(listNode2);
@@ -290,7 +290,7 @@ public class Parser
 
 
     @SuppressWarnings("unchecked")
-    ArrayList new3() /* reduce ANonTerminal$Id */
+    ArrayList new3() /* reduce ANonTerminal$CharConst */
     {
         @SuppressWarnings("hiding") ArrayList nodeList = new ArrayList();
 
@@ -300,16 +300,16 @@ public class Parser
         {
             // Block
         LinkedList listNode1 = new LinkedList();
-        TId tidNode2;
+        TCharConst tcharconstNode2;
         listNode1 = (LinkedList)nodeArrayList1.get(0);
-        tidNode2 = (TId)nodeArrayList2.get(0);
+        tcharconstNode2 = (TCharConst)nodeArrayList2.get(0);
 	if(listNode1 != null)
 	{
 	  listNode3.addAll(listNode1);
 	}
-	if(tidNode2 != null)
+	if(tcharconstNode2 != null)
 	{
-	  listNode3.add(tidNode2);
+	  listNode3.add(tcharconstNode2);
 	}
         }
 	nodeList.add(listNode3);
@@ -320,10 +320,10 @@ public class Parser
 
     private static int[][][] actionTable;
 /*      {
-			{{-1, REDUCE, 0}, {30, SHIFT, 1}, },
+			{{-1, REDUCE, 0}, {37, SHIFT, 1}, },
 			{{-1, REDUCE, 2}, },
-			{{-1, ERROR, 2}, {31, ACCEPT, -1}, },
-			{{-1, REDUCE, 1}, {30, SHIFT, 4}, },
+			{{-1, ERROR, 2}, {39, ACCEPT, -1}, },
+			{{-1, REDUCE, 1}, {37, SHIFT, 4}, },
 			{{-1, REDUCE, 3}, },
         };*/
     private static int[][][] gotoTable;
@@ -333,7 +333,7 @@ public class Parser
         };*/
     private static String[] errorMessages;
 /*      {
-			"expecting: id, EOF",
+			"expecting: char const, EOF",
 			"expecting: EOF",
         };*/
     private static int[] errors;

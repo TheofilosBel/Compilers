@@ -129,6 +129,11 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
+    public void caseTArrow(TArrow node)
+    {
+        defaultCase(node);
+    }
+
     public void caseTPlus(TPlus node)
     {
         defaultCase(node);
@@ -140,6 +145,36 @@ public class AnalysisAdapter implements Analysis
     }
 
     public void caseTMult(TMult node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTEq(TEq node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTNeq(TNeq node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTLt(TLt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTGt(TGt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTLteq(TLteq node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTGteq(TGteq node)
     {
         defaultCase(node);
     }
@@ -230,6 +265,11 @@ public class AnalysisAdapter implements Analysis
     }
 
     public void caseTIntConst(TIntConst node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTCharConst(TCharConst node)
     {
         defaultCase(node);
     }

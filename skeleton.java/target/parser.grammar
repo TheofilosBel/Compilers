@@ -23,6 +23,11 @@ Helpers
     decimal_const = nonzero_digit digit*;
     octal_const   = '0' octal_digit*;
     hex_const     = '0' ('x' | 'X') hex_digit*;
+
+    simple_escape_sequence = '\' ''' | '\"' | '\\' | '\n' | '\r' | '\t' | '\0';
+    hex_escape_sequence    = '\x' hex_digit hex_digit;
+    escape_sequence        = simple_escape_sequence | hex_escape_sequence;
+    character              = [all - [''' + ['"' + ['\' + [cr + lf]]]]] | escape_sequence;
     
     /* Comments */
     not_dollar        = [all - '$'];
@@ -34,7 +39,7 @@ Tokens
     
     /* Comments */
     comment = ('$' not_dollar not_eol* eol |
-               '$$' ((not_dollar+ '$'? not_dollar+) | (not_dollar*))* '$$');
+               '$$' '$'* ((not_dollar+ '$'? not_dollar+) | (not_dollar*))* '$$');
     
     l_par     = '(';
     r_par     = ')';
@@ -45,10 +50,17 @@ Tokens
     colon     = ':';
     semicolon = ';';
     comma     = ',';
+    arrow     = '<-';
     plus      = '+';
     minus     = '-';
     mult      = '*';
-    
+    eq        = '=';
+    neq       = '#';
+    lt        = '<';
+    gt        = '>';
+    lteq      = '<=';
+    gteq      = '>=';
+
     /* Keywords */
     kw_and     = 'and';
     kw_or      = 'or';
@@ -70,6 +82,7 @@ Tokens
 
     /* Constants */
     int_const = decimal_const | octal_const | hex_const;
+    char_const = ''' character ''';
 
     /* Identifiers */
     id = letter (letter | digit | underscore)*;
@@ -80,7 +93,7 @@ Ignored Tokens
 
 Productions
 
-    program = {one} id*;
+    program = {one} char_const*;
 /*
     program =
         {one} var_def+;

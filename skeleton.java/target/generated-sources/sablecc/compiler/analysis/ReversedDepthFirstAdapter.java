@@ -51,9 +51,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     {
         inAOneProgram(node);
         {
-            List<TId> copy = new ArrayList<TId>(node.getId());
+            List<TCharConst> copy = new ArrayList<TCharConst>(node.getCharConst());
             Collections.reverse(copy);
-            for(TId e : copy)
+            for(TCharConst e : copy)
             {
                 e.apply(this);
             }
