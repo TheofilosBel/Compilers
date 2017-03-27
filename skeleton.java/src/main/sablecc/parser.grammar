@@ -24,7 +24,7 @@ Helpers
     character              = [all - [''' + ['"' + ['\' + [cr + lf]]]]] | escape_sequence;
     
     /* Comments */
-    not_dollar        = [all - '$'];
+    not_dollar = [all - '$'];
   
 Tokens
 
