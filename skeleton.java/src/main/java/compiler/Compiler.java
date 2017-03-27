@@ -18,13 +18,13 @@ public class Compiler {
 			/* Apply the translation */
 			tree.apply(new Translation());
 		}
-		catch (ParserException p) {
+		catch (ParserException pa) {
 			System.out.println("Parser error:");
-			System.out.println(p.getMessage());
+			System.out.println(pa.getMessage());
 		}
-		catch (LexerException l) {
+		catch (LexerException le) {
 			System.out.println("LEXER error:");
-			System.out.println(l.getMessage());
+			System.out.println(le.getMessage());
 		}
 		catch (Exception e) {
 			System.out.println("General exception:");

@@ -9,8 +9,18 @@ public class Translation extends DepthFirstAdapter{
 		System.out.print(node);
 	}
     */
-    public void outAOneProgram(AOneProgram node) { 
+	public void caseTId(TId node)
+	{
+		System.out.println(node);
+	}
+    
+    public void outAVarDefVarDef(AVarDefVarDef node) 
+    { 
         System.out.print(node);
     }
-	
+    
+    public void outAFuncHeaderHeader(AFuncHeaderHeader node) 
+    { 
+        System.out.println(node);
+    }
 }
