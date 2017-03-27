@@ -91,14 +91,21 @@ Productions
 */
     program =
         {one} var_def+ |
-        {two} header+;
+        {two} func_def+;
    
-/*     
+     
     func_def = 
-    	{func_def} header local_def block;
-    	*/
+    	{simple}	header local_def* block;
     	
-    
+    func_decl = 
+    	header;
+    	    	
+    local_def =
+    	{inner_decl}	func_decl |
+    	//{inner_def}		func_def  |
+    	{vars}			var_def;
+    	
+
     header = 
     	{func_header} kw_fun id l_par fargs_def r_par colon ret_type semicolon ;
     	
@@ -116,6 +123,7 @@ Productions
     set_of_ids =
         {multi_set}  id comma set_of_ids |
         {single_set} id; 
+
 	
 	fpar_type =
 		{type}		data_type array_declarator;
@@ -129,8 +137,13 @@ Productions
     data_type = 
         {t_int}  kw_int |
         {t_char} kw_char;
-
-	/* Why not : l_bracket int_const? r_bracket array_declarator  ? */
+        
+    stmnt = 
+    	{empty} semicolon;
+        
+    block = 
+    	{one} l_brace stmnt* r_brace;
+        
     array_declarator =
         {array_decl} l_bracket int_const? r_bracket array_declarator |
         {empty_decl} ;
