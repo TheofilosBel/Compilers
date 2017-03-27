@@ -86,17 +86,30 @@ Ignored Tokens
 
 Productions
 
-    program = {one} char_const*;
 /*
+    program = {one} char_const*;
+*/
     program =
-        {one} var_def+;
+        {one} var_def+ |
+        {two} func_def;
+        
+    func_def = 
+    	{func_def} header local_def block;
+    
+    header = 
+    	{func_header} fun id l_par args_def r_par colon ret_type ;
+    	
+    /* NOTE : Tables are passed by ref only */
+    args_def = 
+    	{ByVal} set_of_ids colon fpar_type_byval |
+    	{ByRef} kw_ref set_of_ids colon fpar_type | 
     
     var_def = 
         {var_def} kw_var set_of_ids colon type semicolon;
         
     set_of_ids =
         {multi_set}  id comma set_of_ids |
-        {single_set} id;
+        {single_set} id; 
 
     type = 
         {simple} data_type array_declarator;
@@ -111,4 +124,3 @@ Productions
     array_declarator =
         {array_decl} array_declarator l_bracket int_const? r_bracket |
         {empty_decl} ;
-*/
