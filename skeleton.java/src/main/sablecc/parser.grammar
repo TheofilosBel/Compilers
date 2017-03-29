@@ -98,23 +98,26 @@ Productions
     	{simple}	header local_def* block;
     	
     func_decl = 
-    	header;
+    	header semicolon;
     	    	
     local_def =
     	{inner_decl}	func_decl |
-    	//{inner_def}		func_def  |
+    	{inner_def}		func_def  |
     	{vars}			var_def;
     	
 
     header = 
-    	{func_header} kw_fun id l_par fargs_def r_par colon ret_type semicolon ;
+    	{func_header} kw_fun id l_par fargs_list r_par colon ret_type ;
+    	
+    fargs_list = 
+    	{multi}		fargs_def semicolon fargs_list |
+    	{single}	fargs_def |
+    	{empty}		;
     	
     /* NOTE : Tables are passed by ref only */
     fargs_def = 
     	{by_val} 	set_of_ids colon data_type fargs_def |
-    	{by_ref} 	kw_ref set_of_ids colon fpar_type fargs_def |
-    	{multiple}	semicolon fargs_def |
-    	{empty}		;
+    	{by_ref} 	kw_ref set_of_ids colon fpar_type fargs_def;
     	
     
     var_def = 
