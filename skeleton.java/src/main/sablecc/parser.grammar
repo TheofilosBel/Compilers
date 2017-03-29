@@ -15,7 +15,6 @@ Helpers
     underscore    = '_';
     letter        = [['a' .. 'z'] + ['A' .. 'Z']];
     digit         = ['0' .. '9'];
-    nonzero_digit = ['1' .. '9'];
     hex_digit     = [digit + [['a' .. 'f'] + ['A' .. 'F']]];
 
     simple_escape_sequence = '\' ''' | '\"' | '\\' | '\n' | '\r' | '\t' | '\0';
@@ -75,7 +74,6 @@ Tokens
 
     /* Constants */
     int_const      = digit+;
-    nonzero_int    = nonzero_digit digit*;
     char_const     = ''' c_char? ''';
     string_literal = '"' s_char* '"';
 
@@ -88,10 +86,9 @@ Ignored Tokens
 
 Productions
 
-    program =
-        {one} var_def+ |
-        {two} func_def+;   
-     
+    program = {one} expr+;
+        /*{one} func_def+;*/
+    
     func_def =
         {simple} header local_def* block;
 
@@ -100,26 +97,26 @@ Productions
 
     local_def =
         {inner_decl} func_decl |
-        {inner_def}  func_def  |
+        {inner_def}  func_def |
         {inner_vars} var_def;
 
     header = 
-        {func_header} kw_fun id l_par fargs_list? r_par colon ret_type;
+        {func_header} kw_fun id l_par fpar_list? r_par colon ret_type;
 
-    fargs_list =
-        {multi}  fargs_def semicolon fargs_list |
-        {single} fargs_def;
+    fpar_list =
+        {multi}  fpar_def semicolon fpar_list |
+        {single} fpar_def;
 
-    /* NOTE : Tables are passed by ref only */
-    fargs_def =
-        {by_val} set_of_ids colon data_type fargs_def |
-        {by_ref} kw_ref set_of_ids colon fpar_type fargs_def;
+    /* NOTE: Tables are passed by ref only */
+    fpar_def =
+        {by_val} id_list colon data_type |
+        {by_ref} kw_ref id_list colon fpar_type;
 
     var_def =
-        {var_def} kw_var set_of_ids colon type semicolon;
+        {var_def} kw_var id_list colon type semicolon;
 
-    set_of_ids =
-        {multi_set}  id comma set_of_ids |
+    id_list =
+        {multi_set}  id comma id_list |
         {single_set} id; 
 
     fpar_type =
@@ -129,21 +126,50 @@ Productions
         {simple} data_type array_declarator;
 
     ret_type =
-        {t_ret} data_type | kw_nothing;
+        {ret_data} data_type |
+        {ret_noth} kw_nothing;
 
     data_type =
         {t_int}  kw_int |
         {t_char} kw_char;
 
-    stmnt =
+    stmt =
         {empty} semicolon;
 
     block =
-        {one} l_brace stmnt* r_brace;
+        {one} l_brace stmt* r_brace;
 
     array_declarator =
-        {array_decl} l_bracket nonzero_int r_bracket array_declarator |
+        {array_decl} l_bracket int_const r_bracket array_declarator |
         {empty_decl} ;
 
     empty_array_declarator =
         {empty_array_decl} l_bracket r_bracket;
+
+    l_value =
+        {lval_id}   id |
+        {lval_str}  string_literal |
+        {lval_expr} l_value l_bracket expr r_bracket;
+
+    expr =
+        {add}  expr plus term |
+        {sub}  expr minus term |
+        {term} term;
+
+    term =
+        {mult}     term mult signed_factor |
+        {div}      term kw_div signed_factor |
+        {mod}      term kw_mod signed_factor |
+        {s_factor} signed_factor;
+
+    signed_factor =
+        {pos}    plus signed_factor |
+        {neg}    minus signed_factor |
+        {factor} factor;
+
+    factor =
+        {f_int}    int_const |
+        /*{f_char}   char_const |
+        {f_lval}   l_value |
+        {f_func}   func_call |*/
+        {f_parens} l_par expr r_par;
