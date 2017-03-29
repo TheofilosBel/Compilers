@@ -86,14 +86,14 @@ Ignored Tokens
 
 Productions
 
-    program = {one} expr;
-        /*{one} func_def+;*/
+    program =
+        {one} func_def+;
     
     func_def =
-        {simple} header local_def* block;
+        {func_def} header local_def* block;
 
     func_decl =
-        header semicolon;
+        {func_decl} header semicolon;
 
     local_def =
         {inner_decl} func_decl |
@@ -101,47 +101,45 @@ Productions
         {inner_vars} var_def;
 
     header = 
-        {func_header} kw_fun id l_par fpar_list? r_par colon ret_type;
+        {header} kw_fun id l_par fpar_list? r_par colon ret_type;
 
     fpar_list =
-        {multi}  fpar_def semicolon fpar_list |
-        {single} fpar_def;
+        {multi_fpar}  fpar_def semicolon fpar_list |
+        {single_fpar} fpar_def;
 
-    /* NOTE: Tables are passed by ref only */
     fpar_def =
-        {by_val} id_list colon data_type |
-        {by_ref} kw_ref id_list colon fpar_type;
+        {fpar_def} kw_ref? id_list colon fpar_type;
 
     var_def =
         {var_def} kw_var id_list colon type semicolon;
 
     id_list =
-        {multi_set}  id comma id_list |
-        {single_set} id; 
+        {multi_id}  id comma id_list |
+        {single_id} id; 
 
     fpar_type =
-        {type} data_type empty_array_declarator? array_declarator;
+        {fpar_type} data_type empty_array_declarator? array_declarator;
 
     type =
-        {simple} data_type array_declarator;
+        {type} data_type array_declarator;
 
     ret_type =
         {ret_data} data_type |
         {ret_noth} kw_nothing;
 
     data_type =
-        {t_int}  kw_int |
-        {t_char} kw_char;
+        {type_int}  kw_int |
+        {type_char} kw_char;
 
     stmt =
-        {empty} semicolon;
+        {stmt_empty} semicolon;
 
     block =
-        {one} l_brace stmt* r_brace;
+        {block} l_brace stmt* r_brace;
 
     array_declarator =
-        {array_decl} l_bracket int_const r_bracket array_declarator |
-        {empty_decl} ;
+        {array_decl}    l_bracket int_const r_bracket array_declarator |
+        {no_array_decl} ;
 
     empty_array_declarator =
         {empty_array_decl} l_bracket r_bracket;
