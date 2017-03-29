@@ -107,12 +107,11 @@ Productions
     	
 
     header = 
-    	{func_header} kw_fun id l_par fargs_list r_par colon ret_type ;
+    	{func_header} kw_fun id l_par fargs_list? r_par colon ret_type ;
     	
     fargs_list = 
     	{multi}		fargs_def semicolon fargs_list |
-    	{single}	fargs_def |
-    	{empty}		;
+    	{single}	fargs_def;
     	
     /* NOTE : Tables are passed by ref only */
     fargs_def = 
