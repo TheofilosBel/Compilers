@@ -142,7 +142,7 @@ Productions
         {one} l_brace stmnt* r_brace;
 
     array_declarator =
-        {array_decl} l_bracket nonzero_int? r_bracket array_declarator |
+        {array_decl} l_bracket nonzero_int r_bracket array_declarator |
         {empty_decl} ;
 
     empty_array_declarator =
