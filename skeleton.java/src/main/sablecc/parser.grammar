@@ -21,9 +21,9 @@ Helpers
     simple_escape_sequence = '\' ''' | '\"' | '\\' | '\n' | '\r' | '\t' | '\0';
     hex_escape_sequence    = '\x' hex_digit hex_digit;
     escape_sequence        = simple_escape_sequence | hex_escape_sequence;
-    character              = [all - [''' + ['"' + ['\' + [cr + lf]]]]] | escape_sequence;
+    c_char                 = [all - [''' + ['"' + ['\' + [cr + lf]]]]] | escape_sequence;
+    s_char                 = [all - ['"' + ['\' + [cr + lf]]]] | escape_sequence;
     
-    /* Comments */
     not_dollar = [all - '$'];
   
 Tokens
@@ -74,8 +74,10 @@ Tokens
     kw_nothing = 'nothing';
 
     /* Constants */
-    int_const = digit+;
-    char_const = ''' character ''';
+    int_const      = digit+;
+    nonzero_int    = nonzero_digit digit*;
+    char_const     = ''' c_char? ''';
+    string_literal = '"' s_char* '"';
 
     /* Identifiers */
     id = letter (letter | digit | underscore)*;
@@ -86,66 +88,62 @@ Ignored Tokens
 
 Productions
 
-/*
-    program = {one} char_const*;
-*/
     program =
         {one} var_def+ |
-        {two} func_def+;
-   
+        {two} func_def+;   
      
-    func_def = 
-    	{simple}	header local_def* block;
-    	
-    func_decl = 
-    	header semicolon;
-    	    	
+    func_def =
+        {simple} header local_def* block;
+
+    func_decl =
+        header semicolon;
+
     local_def =
-    	{inner_decl}	func_decl |
-    	{inner_def}		func_def  |
-    	{vars}			var_def;
-    	
+        {inner_decl} func_decl |
+        {inner_def}  func_def  |
+        {inner_vars} var_def;
 
     header = 
-    	{func_header} kw_fun id l_par fargs_list? r_par colon ret_type ;
-    	
-    fargs_list = 
-    	{multi}		fargs_def semicolon fargs_list |
-    	{single}	fargs_def;
-    	
+        {func_header} kw_fun id l_par fargs_list? r_par colon ret_type;
+
+    fargs_list =
+        {multi}  fargs_def semicolon fargs_list |
+        {single} fargs_def;
+
     /* NOTE : Tables are passed by ref only */
-    fargs_def = 
-    	{by_val} 	set_of_ids colon data_type fargs_def |
-    	{by_ref} 	kw_ref set_of_ids colon fpar_type fargs_def;
-    	
-    
-    var_def = 
-        {var_def} 	kw_var set_of_ids colon type semicolon;
-        
+    fargs_def =
+        {by_val} set_of_ids colon data_type fargs_def |
+        {by_ref} kw_ref set_of_ids colon fpar_type fargs_def;
+
+    var_def =
+        {var_def} kw_var set_of_ids colon type semicolon;
+
     set_of_ids =
         {multi_set}  id comma set_of_ids |
         {single_set} id; 
 
-	
-	fpar_type =
-		{type}		data_type array_declarator;
-	
-    type = 
+    fpar_type =
+        {type} data_type empty_array_declarator? array_declarator;
+
+    type =
         {simple} data_type array_declarator;
 
     ret_type =
         {t_ret} data_type | kw_nothing;
 
-    data_type = 
+    data_type =
         {t_int}  kw_int |
         {t_char} kw_char;
-        
-    stmnt = 
-    	{empty} semicolon;
-        
-    block = 
-    	{one} l_brace stmnt* r_brace;
-        
+
+    stmnt =
+        {empty} semicolon;
+
+    block =
+        {one} l_brace stmnt* r_brace;
+
     array_declarator =
-        {array_decl} l_bracket int_const? r_bracket array_declarator |
+        {array_decl} l_bracket nonzero_int? r_bracket array_declarator |
         {empty_decl} ;
+
+    empty_array_declarator =
+        {empty_array_decl} l_bracket r_bracket;
