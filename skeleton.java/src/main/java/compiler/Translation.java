@@ -15,9 +15,14 @@ public class Translation extends DepthFirstAdapter{
 	}*/
 	
 	@Override
-    public void outAVarDefVarDef(AVarDefVarDef node) 
-    { 
-		System.out.println(node);
+	public void outAVar(AVar node)
+    {
+	    /*Print the ids */
+	    System.out.print("VARS list=");
+        System.out.print(node.getIdList());
+        System.out.print(" type = ");
+        /* Print the type */
+        System.out.println(node.getTypes().toString());
     }
-    
+	
 }

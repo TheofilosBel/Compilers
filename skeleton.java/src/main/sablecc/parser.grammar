@@ -86,8 +86,12 @@ Ignored Tokens
 
 Productions
 
-    program =
-        {one} func_def+;
+    program {->program} =
+        //{func_def} func_def+ {-> New program[func_def.func_def] };
+        {vars}var_def_list {-> New program(var_def_list.var_list) };
+        
+    var_def_list {-> var_list} = 
+    		{var_list}	var_def* {-> New var_list([var_def.var])};
     
     func_def =
         {func_def} header local_def* block;
@@ -110,26 +114,28 @@ Productions
     fpar_def =
         {fpar_def} kw_ref? id_list colon fpar_type;
 
-    var_def =
-        {var_def} kw_var id_list colon type semicolon;
+    var_def {-> var} =
+        {var_def} kw_var id_list colon type semicolon {->New var( [id_list.id], type) };
 
-    id_list =
-        {multi_id}  id comma id_list |
-        {single_id} id; 
+    id_list {-> id*} =
+        {single}  id id_list_tail* {-> [id, id_list_tail.id] };
+        
+    id_list_tail {-> id} =
+        {multi} comma id {-> id}; 
 
     fpar_type =
         {fpar_type} data_type empty_array_declarator? array_declarator;
 
-    type =
-        {type} data_type array_declarator;
+    type {-> type} =
+        {type} data_type array_declarator {-> data_type.type};
 
     ret_type =
         {ret_data} data_type |
         {ret_noth} kw_nothing;
 
-    data_type =
-        {type_int}  kw_int |
-        {type_char} kw_char;
+    data_type {-> type} =
+        {type_int}  kw_int 	{-> New type.int(kw_int)}  |
+        {type_char} kw_char {-> New type.char(kw_char)};
 
     stmt =
         {stmt_empty} semicolon;
@@ -178,3 +184,22 @@ Productions
         {f_lval}   l_value |
         {f_func}   func_call |
         {f_parens} l_par expr r_par;
+        
+        
+Abstract Syntax Tree
+	program = var_list;
+	var_list= [v_list]:var*;
+	
+	var		= [id_list]:id* [types]:type;
+	
+	type 	= {int} kw_int |
+			{char}	kw_char;
+			
+			 
+	
+				
+	
+	
+	
+
+	
