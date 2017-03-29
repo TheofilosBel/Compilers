@@ -50,12 +50,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAOneProgram(AOneProgram node)
     {
         inAOneProgram(node);
+        if(node.getExpr() != null)
         {
-            List<PExpr> copy = new ArrayList<PExpr>(node.getExpr());
-            for(PExpr e : copy)
-            {
-                e.apply(this);
-            }
+            node.getExpr().apply(this);
         }
         outAOneProgram(node);
     }
@@ -952,31 +949,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outASFactorTerm(node);
     }
 
-    public void inANegSignedFactor(ANegSignedFactor node)
-    {
-        defaultIn(node);
-    }
-
-    public void outANegSignedFactor(ANegSignedFactor node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseANegSignedFactor(ANegSignedFactor node)
-    {
-        inANegSignedFactor(node);
-        if(node.getMinus() != null)
-        {
-            node.getMinus().apply(this);
-        }
-        if(node.getSignedFactor() != null)
-        {
-            node.getSignedFactor().apply(this);
-        }
-        outANegSignedFactor(node);
-    }
-
     public void inAPosSignedFactor(APosSignedFactor node)
     {
         defaultIn(node);
@@ -1000,6 +972,31 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getSignedFactor().apply(this);
         }
         outAPosSignedFactor(node);
+    }
+
+    public void inANegSignedFactor(ANegSignedFactor node)
+    {
+        defaultIn(node);
+    }
+
+    public void outANegSignedFactor(ANegSignedFactor node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseANegSignedFactor(ANegSignedFactor node)
+    {
+        inANegSignedFactor(node);
+        if(node.getMinus() != null)
+        {
+            node.getMinus().apply(this);
+        }
+        if(node.getSignedFactor() != null)
+        {
+            node.getSignedFactor().apply(this);
+        }
+        outANegSignedFactor(node);
     }
 
     public void inAFactorSignedFactor(AFactorSignedFactor node)

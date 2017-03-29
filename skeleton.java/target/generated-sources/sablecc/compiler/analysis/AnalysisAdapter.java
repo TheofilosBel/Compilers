@@ -244,12 +244,12 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseANegSignedFactor(ANegSignedFactor node)
+    public void caseAPosSignedFactor(APosSignedFactor node)
     {
         defaultCase(node);
     }
 
-    public void caseAPosSignedFactor(APosSignedFactor node)
+    public void caseANegSignedFactor(ANegSignedFactor node)
     {
         defaultCase(node);
     }

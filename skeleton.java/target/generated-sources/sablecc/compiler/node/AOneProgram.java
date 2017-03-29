@@ -2,13 +2,12 @@
 
 package compiler.node;
 
-import java.util.*;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
 public final class AOneProgram extends PProgram
 {
-    private final LinkedList<PExpr> _expr_ = new LinkedList<PExpr>();
+    private PExpr _expr_;
 
     public AOneProgram()
     {
@@ -16,7 +15,7 @@ public final class AOneProgram extends PProgram
     }
 
     public AOneProgram(
-        @SuppressWarnings("hiding") List<PExpr> _expr_)
+        @SuppressWarnings("hiding") PExpr _expr_)
     {
         // Constructor
         setExpr(_expr_);
@@ -27,7 +26,7 @@ public final class AOneProgram extends PProgram
     public Object clone()
     {
         return new AOneProgram(
-            cloneList(this._expr_));
+            cloneNode(this._expr_));
     }
 
     public void apply(Switch sw)
@@ -35,24 +34,29 @@ public final class AOneProgram extends PProgram
         ((Analysis) sw).caseAOneProgram(this);
     }
 
-    public LinkedList<PExpr> getExpr()
+    public PExpr getExpr()
     {
         return this._expr_;
     }
 
-    public void setExpr(List<PExpr> list)
+    public void setExpr(PExpr node)
     {
-        this._expr_.clear();
-        this._expr_.addAll(list);
-        for(PExpr e : list)
+        if(this._expr_ != null)
         {
-            if(e.parent() != null)
+            this._expr_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
             {
-                e.parent().removeChild(e);
+                node.parent().removeChild(node);
             }
 
-            e.parent(this);
+            node.parent(this);
         }
+
+        this._expr_ = node;
     }
 
     @Override
@@ -66,8 +70,9 @@ public final class AOneProgram extends PProgram
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._expr_.remove(child))
+        if(this._expr_ == child)
         {
+            this._expr_ = null;
             return;
         }
 
@@ -78,22 +83,10 @@ public final class AOneProgram extends PProgram
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<PExpr> i = this._expr_.listIterator(); i.hasNext();)
+        if(this._expr_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((PExpr) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
+            setExpr((PExpr) newChild);
+            return;
         }
 
         throw new RuntimeException("Not a child.");

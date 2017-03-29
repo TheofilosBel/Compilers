@@ -47,8 +47,8 @@ public interface Analysis extends Switch
     void caseADivTerm(ADivTerm node);
     void caseAModTerm(AModTerm node);
     void caseASFactorTerm(ASFactorTerm node);
-    void caseANegSignedFactor(ANegSignedFactor node);
     void caseAPosSignedFactor(APosSignedFactor node);
+    void caseANegSignedFactor(ANegSignedFactor node);
     void caseAFactorSignedFactor(AFactorSignedFactor node);
     void caseAFIntFactor(AFIntFactor node);
     void caseAFParensFactor(AFParensFactor node);

@@ -50,13 +50,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAOneProgram(AOneProgram node)
     {
         inAOneProgram(node);
+        if(node.getExpr() != null)
         {
-            List<PExpr> copy = new ArrayList<PExpr>(node.getExpr());
-            Collections.reverse(copy);
-            for(PExpr e : copy)
-            {
-                e.apply(this);
-            }
+            node.getExpr().apply(this);
         }
         outAOneProgram(node);
     }
@@ -955,31 +951,6 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outASFactorTerm(node);
     }
 
-    public void inANegSignedFactor(ANegSignedFactor node)
-    {
-        defaultIn(node);
-    }
-
-    public void outANegSignedFactor(ANegSignedFactor node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseANegSignedFactor(ANegSignedFactor node)
-    {
-        inANegSignedFactor(node);
-        if(node.getSignedFactor() != null)
-        {
-            node.getSignedFactor().apply(this);
-        }
-        if(node.getMinus() != null)
-        {
-            node.getMinus().apply(this);
-        }
-        outANegSignedFactor(node);
-    }
-
     public void inAPosSignedFactor(APosSignedFactor node)
     {
         defaultIn(node);
@@ -1003,6 +974,31 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
             node.getPlus().apply(this);
         }
         outAPosSignedFactor(node);
+    }
+
+    public void inANegSignedFactor(ANegSignedFactor node)
+    {
+        defaultIn(node);
+    }
+
+    public void outANegSignedFactor(ANegSignedFactor node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseANegSignedFactor(ANegSignedFactor node)
+    {
+        inANegSignedFactor(node);
+        if(node.getSignedFactor() != null)
+        {
+            node.getSignedFactor().apply(this);
+        }
+        if(node.getMinus() != null)
+        {
+            node.getMinus().apply(this);
+        }
+        outANegSignedFactor(node);
     }
 
     public void inAFactorSignedFactor(AFactorSignedFactor node)
