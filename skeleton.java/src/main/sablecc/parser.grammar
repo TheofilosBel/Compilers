@@ -137,6 +137,13 @@ Productions
     block =
         {block} l_brace stmt* r_brace;
 
+    func_call =
+        {func_call} id l_par expr_list? r_par;
+
+    expr_list =
+        {multi_expr}  expr comma expr_list |
+        {single_expr} expr;
+
     array_declarator =
         {array_decl}    l_bracket int_const r_bracket array_declarator |
         {no_array_decl} ;
@@ -167,7 +174,7 @@ Productions
 
     factor =
         {f_int}    int_const |
-        /*{f_char}   char_const |
+        {f_char}   char_const |
         {f_lval}   l_value |
-        {f_func}   func_call |*/
+        {f_func}   func_call |
         {f_parens} l_par expr r_par;
