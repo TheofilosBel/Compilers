@@ -90,9 +90,9 @@ Ignored Tokens
 
 Productions
 
-    program {->program} = {cond} cond;
-        // {func_def} func_def+ {-> New program[func_def.func_def] };
-        // {vars} var_def_list {-> New program(var_def_list.var_list) };
+    program {->program} =
+        {func_def} func_def {-> New program(func_def) };
+        
 
     var_def_list {-> var_list} = 
             {var_list}  var_def* {-> New var_list([var_def.var])};
@@ -106,7 +106,7 @@ Productions
     local_def =
         {inner_decl} func_decl |
         {inner_def}  func_def |
-        {inner_vars} var_def;
+        {inner_vars} var_def_list {-> New program(var_def_list.var_list) };
 
     header = 
         {header} kw_fun id l_par fpar_list? r_par colon ret_type;
@@ -220,7 +220,12 @@ Productions
         {geq} gteq;
 
 Abstract Syntax Tree
-    program = var_list;
+    program = func_def;
+    
+    func_def= 
+    
+    
+    
     var_list= [v_list]:var*;
     
     var     = [id_list]:id* [type]:type;
