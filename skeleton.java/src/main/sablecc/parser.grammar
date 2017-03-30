@@ -90,8 +90,15 @@ Ignored Tokens
 
 Productions
 
-    program = {cond} cond;
+    program = {cond_list} cond_list;
         // {func_def} func_def;
+
+    cond_list =
+        {multi} cond cond_list_tail* |
+        {empty} ;
+
+    cond_list_tail =
+        {cond_list_tail} semicolon cond;
 
     var_def_list = 
             {var_list} var_def*;
@@ -148,8 +155,11 @@ Productions
         {func_call} id l_par expr_list? r_par;
 
     expr_list =
-        {multi_expr}  expr comma expr_list |
-        {single_expr} expr;
+        {multi} expr expr_list_tail* |
+        {empty} ;
+
+    expr_list_tail =
+        {expr_list_tail} comma expr;
 
     array_declarator =
         {array_decl}    l_bracket int_const r_bracket array_declarator_tail* |
