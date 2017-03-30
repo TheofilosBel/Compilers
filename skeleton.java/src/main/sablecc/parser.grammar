@@ -90,9 +90,9 @@ Ignored Tokens
 
 Productions
 
-    program {->program} = {cond} cond;
+    program {->program} =
         // {func_def} func_def+ {-> New program[func_def.func_def] };
-        // {vars} var_def_list {-> New program(var_def_list.var_list) };
+        {vars} var_def_list {-> New program(var_def_list.var_list) };
 
     var_def_list {-> var_list} = 
             {var_list}  var_def* {-> New var_list([var_def.var])};
