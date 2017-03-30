@@ -90,12 +90,11 @@ Ignored Tokens
 
 Productions
 
-    program {->program} =
-        // {func_def} func_def+ {-> New program[func_def.func_def] };
-        //{vars} var_def_list {-> New program(var_def_list.var_list) };
+    program = {cond} cond;
+        // {func_def} func_def;
 
-    var_def_list {-> var_list} = 
-            {var_list}  var_def* {-> New var_list([var_def.var])};
+    var_def_list = 
+            {var_list} var_def*;
     
     func_def =
         {func_def} header local_def* block;
@@ -118,26 +117,26 @@ Productions
     fpar_def =
         {fpar_def} kw_ref? id_list colon fpar_type;
 
-    var_def {-> var} =
-        {var_def} kw_var id_list colon type semicolon {->New var( [id_list.id], type) };
+    var_def =
+        {var_def} kw_var id_list colon type semicolon;
 
-    id_list {-> id*} =
-        {multi}    id comma id_list {-> [id, id_list.id] } |
-        {single}   id {-> [id]};
+    id_list =
+        {multi}    id comma id_list |
+        {single}   id ;
 
     fpar_type =
         {fpar_type} data_type empty_array_declarator? array_declarator;
 
-    type {-> type} =
-        {type} data_type array_declarator {-> New type( data_type.data_type, array_declarator.array_dec) };
+    type =
+        {type} data_type array_declarator;
 
     ret_type =
         {ret_data} data_type |
         {ret_noth} kw_nothing;
 
-    data_type {-> data_type} =
-        {type_int}  kw_int  {-> New data_type.int(kw_int)}  |
-        {type_char} kw_char {-> New data_type.char(kw_char)};
+    data_type =
+        {type_int}  kw_int |
+        {type_char} kw_char;
 
     stmt =
         {stmt_empty} semicolon;
@@ -152,12 +151,12 @@ Productions
         {multi_expr}  expr comma expr_list |
         {single_expr} expr;
 
-    array_declarator {-> array_dec} =
-        {array_decl}    l_bracket int_const r_bracket array_declarator_tail* {-> New array_dec.existing([int_const, array_declarator_tail.int_const])}|
-        {no_array_decl}  {-> New array_dec.not_existing()};
+    array_declarator =
+        {array_decl}    l_bracket int_const r_bracket array_declarator_tail* |
+        {no_array_decl} ;
 
-    array_declarator_tail {->int_const} =
-        {multiple} l_bracket int_const r_bracket {-> int_const};
+    array_declarator_tail =
+        {multiple} l_bracket int_const r_bracket;
 
     empty_array_declarator =
         {empty_array_decl} l_bracket r_bracket;
@@ -199,7 +198,7 @@ Productions
         {cond2} cond2;
 
     cond2 =
-        {not}   cond2 kw_not cond3 |
+        {not}   kw_not cond3 |
         {cond3} cond3;
 
     cond3 =
@@ -218,17 +217,3 @@ Productions
         {gt}  gt |
         {leq} lteq |
         {geq} gteq;
-
-Abstract Syntax Tree
-    program = var_list;
-    var_list= [v_list]:var*;
-    
-    var     = [id_list]:id* [type]:type;
-    
-    type    = data_type  array_dec;
-    
-    array_dec   = {existing}    int_const* |
-                {not_existing}  ;
-    
-    data_type = {int}  kw_int |
-                {char} kw_char;
