@@ -22,7 +22,14 @@ public class Translation extends DepthFirstAdapter{
         System.out.print(node.getIdList());
         System.out.print(" type = ");
         /* Print the type */
-        System.out.println(node.getTypes().toString());
+        System.out.println(node.getType().toString());
+    }
+	
+	@Override
+	public void outAVarList(AVarList node)
+    {
+        System.out.print("Var def's found : ");
+        System.out.println(node.getVList().size());
     }
 	
 }
