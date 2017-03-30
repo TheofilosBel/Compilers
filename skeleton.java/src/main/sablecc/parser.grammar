@@ -77,6 +77,10 @@ Tokens
     char_const     = ''' c_char? ''';
     string_literal = '"' s_char* '"';
 
+    /* Boolean Constants */
+    true  = 'TRUE';
+    false = 'FALSE';
+
     /* Identifiers */
     id = letter (letter | digit | underscore)*;
     
@@ -86,12 +90,12 @@ Ignored Tokens
 
 Productions
 
-    program {->program} =
-        //{func_def} func_def+ {-> New program[func_def.func_def] };
-        {vars}var_def_list {-> New program(var_def_list.var_list) };
-        
+    program {->program} = {cond} cond;
+        // {func_def} func_def+ {-> New program[func_def.func_def] };
+        // {vars} var_def_list {-> New program(var_def_list.var_list) };
+
     var_def_list {-> var_list} = 
-    		{var_list}	var_def* {-> New var_list([var_def.var])};
+            {var_list}  var_def* {-> New var_list([var_def.var])};
     
     func_def =
         {func_def} header local_def* block;
@@ -120,8 +124,6 @@ Productions
     id_list {-> id*} =
         {multi}    id comma id_list {-> [id, id_list.id] } |
         {single}   id {-> [id]};
-        
-         
 
     fpar_type =
         {fpar_type} data_type empty_array_declarator? array_declarator;
@@ -134,7 +136,7 @@ Productions
         {ret_noth} kw_nothing;
 
     data_type {-> data_type} =
-        {type_int}  kw_int 	{-> New data_type.int(kw_int)}  |
+        {type_int}  kw_int  {-> New data_type.int(kw_int)}  |
         {type_char} kw_char {-> New data_type.char(kw_char)};
 
     stmt =
@@ -154,8 +156,8 @@ Productions
         {array_decl}    l_bracket int_const r_bracket array_declarator_tail* {-> New array_dec.existing([int_const, array_declarator_tail.int_const])}|
         {no_array_decl}  {-> New array_dec.not_existing()};
 
-	array_declarator_tail {->int_const} =
-		{multiple} l_bracket int_const r_bracket {-> int_const};
+    array_declarator_tail {->int_const} =
+        {multiple} l_bracket int_const r_bracket {-> int_const};
 
     empty_array_declarator =
         {empty_array_decl} l_bracket r_bracket;
@@ -187,28 +189,46 @@ Productions
         {f_lval}   l_value |
         {f_func}   func_call |
         {f_parens} l_par expr r_par;
-        
-        
-Abstract Syntax Tree
-	program = var_list;
-	var_list= [v_list]:var*;
-	
-	var		= [id_list]:id* [type]:type;
-	
-	type 	= data_type  array_dec;
-	
-	array_dec	= {existing}	int_const* |
-				{not_existing}	;
-	
-	data_type = {int}  kw_int |
-				{char} kw_char;
-			
-			
-			 
-	
-				
-	
-	
-	
 
-	
+    cond =
+        {or} cond kw_or cond1 |
+        {cond1} cond1;
+
+    cond1 =
+        {and}   cond1 kw_and cond2 |
+        {cond2} cond2;
+
+    cond2 =
+        {not}   cond2 kw_not cond3 |
+        {cond3} cond3;
+
+    cond3 =
+        {expr_cmp} [left]:expr cmp_op [right]:expr |
+        {bool}     bool;
+
+    bool =
+        {true}     true |
+        {false}    false |
+        {c_parens} l_par cond r_par;
+
+    cmp_op =
+        {eq}  eq |
+        {neq} neq |
+        {lt}  lt |
+        {gt}  gt |
+        {leq} lteq |
+        {geq} gteq;
+
+Abstract Syntax Tree
+    program = var_list;
+    var_list= [v_list]:var*;
+    
+    var     = [id_list]:id* [type]:type;
+    
+    type    = data_type  array_dec;
+    
+    array_dec   = {existing}    int_const* |
+                {not_existing}  ;
+    
+    data_type = {int}  kw_int |
+                {char} kw_char;
