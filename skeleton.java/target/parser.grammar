@@ -42,7 +42,7 @@ Tokens
     colon     = ':';
     semicolon = ';';
     comma     = ',';
-    assign    = '<-';
+    arrow     = '<-';
     plus      = '+';
     minus     = '-';
     mult      = '*';
@@ -90,16 +90,16 @@ Ignored Tokens
 
 Productions
 
-    program = {stmt_list} stmt_list;
+    program = {cond_list} cond_list;
+        // {func_def} func_def;
 
-/*
     cond_list =
         {multi} cond cond_list_tail* |
         {empty} ;
 
     cond_list_tail =
         {cond_list_tail} semicolon cond;
-*/
+
     var_def_list = 
             {var_list} var_def*;
     
