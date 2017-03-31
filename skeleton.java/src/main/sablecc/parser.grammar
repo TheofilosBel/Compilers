@@ -91,49 +91,52 @@ Ignored Tokens
 Productions
 
     program  {->program} =
-        {func_def} func_def {-> New program(func_def) };
+        {func_def} func_def {-> New program(func_def.func_def) };
         
-
     var_def_list {-> var_list} = 
             {var_list}  var_def* {-> New var_list([var_def.var])};
     
     func_def {-> func_def}=
-        {func_def} header local_def* block {-> New func_def(header.id, [local_def])};
+        {func_def} header local_def_list block {->New func_def(header.id, [local_def_list.local_def], header.var_list, header.type)};
+        
 
-    func_decl {-> id}=
-        {func_decl} header semicolon {-> header.id};
+    func_decl {-> func_dec} =
+        {func_decl} header semicolon {-> New func_dec(header.id)};
+        
+    local_def_list {-> local_def*} =
+    	{local_defs}  local_def* {-> [local_def]};
 
     local_def {-> local_def} =
-        {inner_decl} func_decl    {-> New local_def.func_def(func_decl.id, Null)}|
+        {inner_decl} func_decl    {-> New local_def.func_dec(func_decl.func_dec)}|
         {inner_def}  func_def  	  {-> New local_def.func_def(func_def)}|
         {inner_vars} var_def_list {-> New local_def.vars(var_def_list.var_list)};
 
-    header {-> id} = 
-        {header} kw_fun id l_par fpar_list? r_par colon ret_type {-> id };
+    header {-> id var_list type} = 
+        {header} kw_fun id l_par fpar_list? r_par colon ret_type {-> id New var_list([fpar_list.var]) ret_type.type};
 
-    fpar_list =
-        {multi_fpar}  fpar_def semicolon fpar_list |
-        {single_fpar} fpar_def;
+    fpar_list {-> var*}=
+        {multi_fpar}  fpar_def semicolon fpar_list {-> [fpar_def.var, fpar_list.var]}|
+        {single_fpar} fpar_def					   {-> [fpar_def.var]};
 
-    fpar_def =
-        {fpar_def} kw_ref? id_list colon fpar_type;
+    fpar_def {-> var} =
+        {fpar_def} kw_ref? id_list colon fpar_type {-> New var([id_list.id], fpar_type.type)};
 
     var_def {-> var} =
-        {var_def} kw_var id_list colon type semicolon {->New var( [id_list.id], type) };
+        {var_def} kw_var id_list colon type semicolon {->New var([id_list.id], type) };
 
     id_list {-> id*} =
         {multi}    id comma id_list {-> [id, id_list.id] } |
         {single}   id {-> [id]};
 
-    fpar_type =
-        {fpar_type} data_type empty_array_declarator? array_declarator;
+    fpar_type {-> type}=
+        {fpar_type} data_type empty_array_declarator? array_declarator {-> New type( data_type.data_type, array_declarator.array_dec)};
 
     type {-> type} =
-        {type} data_type array_declarator {-> New type( data_type.data_type, array_declarator.array_dec) };
+        {type} data_type array_declarator {-> New type( data_type.data_type, array_declarator.array_dec)};
 
-    ret_type =
-        {ret_data} data_type |
-        {ret_noth} kw_nothing;
+    ret_type {-> type} =
+        {ret_data} data_type  {-> New type(data_type.data_type, New array_dec.not_existing())}|
+        {ret_noth} kw_nothing {-> New type( New data_type.noth(kw_nothing), New array_dec.not_existing())};
 
     data_type {-> data_type} =
         {type_int}  kw_int  {-> New data_type.int(kw_int)}  |
@@ -222,12 +225,13 @@ Productions
 Abstract Syntax Tree
     program = func_def;
     
-    local_def = {fun_def} func_def |
-    			{vars} 	  var_list ;
+    local_def = {func_def} func_def |
+    			{func_dec} func_dec |
+    			{vars} 	   var_list ;
     			
+    func_def = [name]:id [local_defs]:local_def* [vars]:var_list [ret_type]:type;
     
-    func_def = [name]:id [local_defs]:local_def* ;
-    
+    func_dec = [name]:id ;
     
     var_list = [v_list]:var*;
     
@@ -239,4 +243,5 @@ Abstract Syntax Tree
                 {not_existing}  ;
     
     data_type = {int}  kw_int |
-                {char} kw_char;
+                {char} kw_char|
+                {noth} kw_nothing;
