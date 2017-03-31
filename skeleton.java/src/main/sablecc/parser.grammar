@@ -223,7 +223,7 @@ Abstract Syntax Tree
     program = func_def;
     
     local_def = {fun_def} func_def |
-    			{vars} 	  var_list |
+    			{vars} 	  var_list ;
     			
     
     func_def = [name]:id [local_defs]:local_def* ;
