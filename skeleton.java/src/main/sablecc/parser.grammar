@@ -99,12 +99,15 @@ Productions
     func_def {-> func_def}=
         {func_def} header local_def_list block {->New func_def(header.id, [local_def_list.local_def], header.var_list, header.type)};
         
-
     func_decl {-> func_dec} =
         {func_decl} header semicolon {-> New func_dec(header.id)};
         
     local_def_list {-> local_def*} =
-    	{local_defs}  local_def* {-> [local_def]};
+    	{local_defs}  local_def local_def_tail* {-> [local_def]} |
+        {empty}       ;
+
+    local_def_tail =
+        {list} local_def local_def_tail;
 
     local_def {-> local_def} =
         {inner_decl} func_decl    {-> New local_def.func_dec(func_decl.func_dec)}|
