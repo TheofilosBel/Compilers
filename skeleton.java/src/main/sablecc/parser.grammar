@@ -90,15 +90,15 @@ Ignored Tokens
 
 Productions
 
-    program {->program} =
+    program  {->program} =
         {func_def} func_def {-> New program(func_def) };
         
 
     var_def_list {-> var_list} = 
             {var_list}  var_def* {-> New var_list([var_def.var])};
     
-    func_def =
-        {func_def} header local_def* block;
+    func_def {-> func_def}=
+        {func_def} header local_def* block {-> New func_def(header.id)};
 
     func_decl =
         {func_decl} header semicolon;
@@ -106,10 +106,10 @@ Productions
     local_def =
         {inner_decl} func_decl |
         {inner_def}  func_def |
-        {inner_vars} var_def_list {-> New program(var_def_list.var_list) };
+        {inner_vars} var_def_list ;//{-> var_def_list.var_list };
 
-    header = 
-        {header} kw_fun id l_par fpar_list? r_par colon ret_type;
+    header {-> id} = 
+        {header} kw_fun id l_par fpar_list? r_par colon ret_type {-> id };
 
     fpar_list =
         {multi_fpar}  fpar_def semicolon fpar_list |
@@ -222,8 +222,7 @@ Productions
 Abstract Syntax Tree
     program = func_def;
     
-    func_def= 
-    
+    func_def= [name]: id ;
     
     
     var_list= [v_list]:var*;
