@@ -38,7 +38,6 @@ public class Translation extends DepthFirstAdapter {
         printIndentation();
         printNLineIndent("type = function definition");
         System.out.print("name = ");
-        /*WE add indent to ret_type for beautification reasons */
     }
 
     public void inAFuncDecl(AFuncDecl node) {
@@ -231,7 +230,10 @@ public class Translation extends DepthFirstAdapter {
     public void inAFuncCall(AFuncCall node) {
         printIndentation();
         printNLineIndent("type = function call");
-        System.out.println("name = ");
+        System.out.print("name = ");
+        System.out.println(node.getId().toString());
+        printIndentation();
+        System.out.println("parameters = [");
     }
     
     public void outAFuncCall(AFuncCall node) {
@@ -239,7 +241,13 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAMultiExprList(AMultiExprList node) {
-        defaultIn(node);
+        addIndentationLevel();
+    }
+
+    public void outAMultiExprList(AMultiExprList node) {
+        removeIndentationLevel();
+        printIndentation();
+        System.out.println("]");
     }
 
     public void inAEmptyExprList(AEmptyExprList node) {
@@ -255,21 +263,13 @@ public class Translation extends DepthFirstAdapter {
         System.out.print(node.getIntConst().toString());
     }
 
-    public void inANoArrayDeclArrayDeclarator(ANoArrayDeclArrayDeclarator node) {
-        defaultIn(node);
-    }
-
     public void inAArrayDeclaratorTail(AArrayDeclaratorTail node) {
         System.out.print(node.getIntConst().toString());
     }
 
-    public void inAEmptyArrayDeclarator(AEmptyArrayDeclarator node) {
-        defaultIn(node);
-    }
-
     public void inAIdLValue(AIdLValue node) {
         printIndentation();
-        System.out.print("Identifier name =");
+        System.out.print("identifier name = ");
         System.out.println(node.getId().toString());
     }
 
@@ -282,20 +282,19 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAAddExpr(AAddExpr node) {
-        addIndentationLevel();
         printIndentation();
-        System.out.println("type = Add experetion");
+        System.out.println("type = add expression");
+        addIndentationLevel();
     }
     
     public void outAAddExpr(AAddExpr node) {
         removeIndentationLevel();
     }
     
-
     public void inASubExpr(ASubExpr node) {
-        addIndentationLevel();
         printIndentation();
-        System.out.println("type = Sub experetion");
+        System.out.println("type = sub expression");
+        addIndentationLevel();
     }
     
     public void outASubExpr(ASubExpr node) {
