@@ -25,20 +25,26 @@ public class Translation extends DepthFirstAdapter {
         printIndentation();
     }
     
+    private void printNLineIndent(String msg){
+        System.out.println(msg);
+        printIndentation();
+    }
+    
     public void inAProgram(AProgram node) {
         defaultIn(node);
     }
 
     public void inAFuncDef(AFuncDef node) {
         printIndentation();
-        addIndentationLevel();
-        System.out.println("type = function");
+        printNLineIndent("type = function");
         System.out.print("name = ");
+        /*WE add indent to ret_type for beautification reasons */
     }
 
     public void inAFuncDecl(AFuncDecl node) {
         printIndentation();
-        System.out.print("#Func_decl name= ");
+        printNLineIndent("type = function declaration");
+        System.out.print("name = ");
     }
 
     public void inAInnerDeclLocalDef(AInnerDeclLocalDef node) {
@@ -87,7 +93,7 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAVarDef(AVarDef node) {
         printIndentation();
-        System.out.print("#Var_def: list=");
+        System.out.print("type = var definition list=");
     }
     
     public void outAVarDef(AVarDef node) {
@@ -122,10 +128,12 @@ public class Translation extends DepthFirstAdapter {
     public void inANothingRetType(ANothingRetType node) {
         printNLineIndent();
         System.out.print("return type = nothing");
+        addIndentationLevel();
     }
     
     public void outANothingRetType(ADataRetType node) {
         System.out.println();
+        addIndentationLevel();
     }
 
     public void inAIntDataType(AIntDataType node) {
