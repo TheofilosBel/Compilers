@@ -20,6 +20,11 @@ public class Translation extends DepthFirstAdapter {
         System.out.print(String.join("", Collections.nCopies(indentation, "    ")));
     }
     
+    private void printNLineIndent(){
+        System.out.println();
+        printIndentation();
+    }
+    
     public void inAProgram(AProgram node) {
         defaultIn(node);
     }
@@ -50,8 +55,8 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAHeader(AHeader node) {
         System.out.print(node.getId().toString());
-        System.out.println();
-        System.out.print("params = ");
+        printNLineIndent();
+        System.out.println("params = ");
     }
     
     public void outAHeader(AHeader node) {
@@ -59,18 +64,28 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAMultiFparList(AMultiFparList node) {
-        defaultIn(node);
+        addIndentationLevel();
+        printIndentation();
+    }
+    
+    public void outAMultiFparList(AMultiFparList node) {
+        removeIndentationLevel();
     }
 
     public void inASingleFparList(ASingleFparList node) {
-        defaultIn(node);
+        addIndentationLevel();
+        printIndentation();
     }
+    
+    public void outASingleFparList(ASingleFparList node) {
+        removeIndentationLevel();
+    }
+    
     public void inAFparDef(AFparDef node) {
         defaultIn(node);
     }
 
     public void inAVarDef(AVarDef node) {
-        addIndentationLevel();
         printIndentation();
         System.out.print("#Var_def: list=");
     }
@@ -96,13 +111,21 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inADataRetType(ADataRetType node) {
-        System.out.println();
+        printNLineIndent();
         System.out.print("return type = ");
+    }
+    
+    public void outADataRetType(ADataRetType node) {
+        System.out.println();
     }
 
     public void inANothingRetType(ANothingRetType node) {
-        System.out.println();
+        printNLineIndent();
         System.out.print("return type = nothing");
+    }
+    
+    public void outANothingRetType(ADataRetType node) {
+        System.out.println();
     }
 
     public void inAIntDataType(AIntDataType node) {
