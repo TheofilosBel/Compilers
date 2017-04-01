@@ -70,7 +70,10 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAVarDef(AVarDef node) {
+<<<<<<< HEAD
         addIndentationLevel();
+=======
+>>>>>>> b22b3a03a7ae0d70256c3a9f3f3a7dde8ad26114
         printIndentation();
         System.out.print("#Var_def: list=");
     }
@@ -92,12 +95,20 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAType(AType node) {
+<<<<<<< HEAD
         System.out.print(" type = ");
     }
 
     public void inADataRetType(ADataRetType node) {
         System.out.println();
         System.out.print("return type = ");
+=======
+        System.out.print("type= ");
+    }
+
+    public void inADataRetType(ADataRetType node) {
+        System.out.print("ret_type= ");
+>>>>>>> b22b3a03a7ae0d70256c3a9f3f3a7dde8ad26114
     }
 
     public void inANothingRetType(ANothingRetType node) {

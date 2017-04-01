@@ -5,7 +5,6 @@ import compiler.node.*;
 import java.util.Collections;
 
 public class Translation extends DepthFirstAdapter {
-
     int indentation = 0;
 
     private void addIndentationLevel() {
@@ -17,7 +16,7 @@ public class Translation extends DepthFirstAdapter {
     }
 
     private void printIndentation() {
-        System.out.print(String.join("", Collections.nCopies(indentation, "    ")));
+        System.out.print(String.join("", Collections.nCopies(indentation, " ")));
     }
     
     public void inAProgram(AProgram node) {
@@ -27,8 +26,7 @@ public class Translation extends DepthFirstAdapter {
     public void inAFuncDef(AFuncDef node) {
         printIndentation();
         addIndentationLevel();
-        System.out.println("type = function");
-        System.out.print("name = ");
+        System.out.print("#Func_def name= ");
     }
 
     public void inAFuncDecl(AFuncDecl node) {
@@ -50,8 +48,7 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAHeader(AHeader node) {
         System.out.print(node.getId().toString());
-        System.out.println();
-        System.out.print("params = ");
+        System.out.print(" params= ");
     }
     
     public void outAHeader(AHeader node) {
@@ -70,7 +67,6 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAVarDef(AVarDef node) {
-        addIndentationLevel();
         printIndentation();
         System.out.print("#Var_def: list=");
     }
@@ -92,17 +88,15 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAType(AType node) {
-        System.out.print(" type = ");
+        System.out.print("type= ");
     }
 
     public void inADataRetType(ADataRetType node) {
-        System.out.println();
-        System.out.print("return type = ");
+        System.out.print("ret_type= ");
     }
 
     public void inANothingRetType(ANothingRetType node) {
-        System.out.println();
-        System.out.print("return type = nothing");
+        System.out.print(" ret_type= nothing");
     }
 
     public void inAIntDataType(AIntDataType node) {
