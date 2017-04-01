@@ -93,33 +93,48 @@ Productions
     program  {->program} =
         {func_def} func_def {-> New program(func_def.func_def) };
         
-    var_def_list {-> var_list} = 
-            {var_list}  var_def* {-> New var_list([var_def.var])};
-    
     func_def {-> func_def}=
-        {func_def} header local_def_list block {->New func_def(header.id, [local_def_list.local_def], header.var_list, header.type)};
+                {func_def}   header local_def_list block {->New func_def(header.id, local_def_list, header.fpar_list, header.type)};
         
     func_decl {-> func_dec} =
         {func_decl} header semicolon {-> New func_dec(header.id)};
-        
-    local_def_list {-> local_def*} =
-    	{local_defs}  local_def local_def_tail* {-> [local_def]} |
-        {empty}       ;
-
-    local_def_tail =
-        {list} local_def local_def_tail;
-
-    local_def {-> local_def} =
+ 
+ 	local_def_list {-> local_def_list} =
+ 		{non_empty}	 local_def+  {-> New local_def_list.existing([local_def])}|
+ 		{empty}		 {-> New local_def_list.non_existing()};
+ 		
+    local_def {-> local_def}=
         {inner_decl} func_decl    {-> New local_def.func_dec(func_decl.func_dec)}|
         {inner_def}  func_def  	  {-> New local_def.func_def(func_def)}|
-        {inner_vars} var_def_list {-> New local_def.vars(var_def_list.var_list)};
+        {inner_vars} var_def      {-> New local_def.var(var_def.var)};
+        
 
-    header {-> id var_list type} = 
-        {header} kw_fun id l_par fpar_list? r_par colon ret_type {-> id New var_list([fpar_list.var]) ret_type.type};
+	/*------------------------Prototype--------------------------      
+    local_def {-> local_def*} =
+    	    {inner_vars} var_def_list local_def1 {-> New local_def.vars(var_def_list.var_list)}|
+    	    {others}	 local_def1 {-> local_def};
+    local_def1 {-> local_def}=
+    	{inner_decl} func_decl local_def2 {-> New local_def.func_dec(func_decl.func_dec)}|
+    	{others}     local_def2;    	
+    local_def2 {-> local_def} = 
+    	{inner_def}  func_def local_def {-> New local_def.func_def(func_def)}|
+    	loca_def;
+	-----------------------------------------------------------*/
+    	
+        
 
-    fpar_list {-> var*}=
-        {multi_fpar}  fpar_def semicolon fpar_list {-> [fpar_def.var, fpar_list.var]}|
-        {single_fpar} fpar_def					   {-> [fpar_def.var]};
+    header {-> id fpar_list type} = 
+        {header} kw_fun id l_par fpar_list r_par colon ret_type {-> id fpar_list ret_type.type};
+        
+    var_def_list {-> var_list} = 
+            {var_list}  var_def+  {-> New var_list.existing([var_def.var])};
+
+    fpar_list {-> fpar_list}=
+        {multi_fpar}  fpar_def fpar_list_tail* {-> New fpar_list.existing([fpar_def.var, fpar_list_tail.var])}|
+        {empty} 	   {-> New fpar_list.non_existing()};
+        
+    fpar_list_tail {-> var} =
+    	semicolon fpar_def {-> fpar_def.var};
 
     fpar_def {-> var} =
         {fpar_def} kw_ref? id_list colon fpar_type {-> New var([id_list.id], fpar_type.type)};
@@ -228,15 +243,22 @@ Productions
 Abstract Syntax Tree
     program = func_def;
     
+    local_def_list = {existing} local_def*|
+    				{non_existing} ;
+    
     local_def = {func_def} func_def |
     			{func_dec} func_dec |
-    			{vars} 	   var_list ;
+    			{var} 	   var ;
     			
-    func_def = [name]:id [local_defs]:local_def* [vars]:var_list [ret_type]:type;
+    func_def = [name]:id [local_defs]:local_def_list [vars]:fpar_list [ret_type]:type;
     
     func_dec = [name]:id ;
     
-    var_list = [v_list]:var*;
+    fpar_list = {existing} [vars]:var*|
+    			{non_existing} ;
+    
+    var_list =  {existing}     [v_list]:var*|
+    			{non_existing} ;
     
     var     = [id_list]:id* [type]:type;
     
