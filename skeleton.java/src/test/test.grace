@@ -9,4 +9,5 @@ fun p1 (a ,b : int) : nothing
     {
         x <- 3;
         f(x);
+	x <- (a-5) + 3;
     }

@@ -229,9 +229,13 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAFuncCall(AFuncCall node) {
-        printNLineIndent();
+        printIndentation();
         printNLineIndent("type = function call");
         System.out.println("name = ");
+    }
+    
+    public void outAFuncCall(AFuncCall node) {
+        System.out.println();
     }
 
     public void inAMultiExprList(AMultiExprList node) {
@@ -264,6 +268,8 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAIdLValue(AIdLValue node) {
+        printIndentation();
+        System.out.print("Identifier name =");
         System.out.println(node.getId().toString());
     }
 
@@ -276,11 +282,24 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAAddExpr(AAddExpr node) {
-        defaultIn(node);
+        addIndentationLevel();
+        printIndentation();
+        System.out.println("type = Add experetion");
     }
+    
+    public void outAAddExpr(AAddExpr node) {
+        removeIndentationLevel();
+    }
+    
 
     public void inASubExpr(ASubExpr node) {
-        defaultIn(node);
+        addIndentationLevel();
+        printIndentation();
+        System.out.println("type = Sub experetion");
+    }
+    
+    public void outASubExpr(ASubExpr node) {
+        removeIndentationLevel();
     }
 
     public void inATermExpr(ATermExpr node) {
@@ -316,7 +335,8 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAIntFactor(AIntFactor node) {
-        System.out.print(node.getIntConst().toString());
+        printIndentation();
+        System.out.println("Integer value = " + node.getIntConst().toString());
     }
 
     public void inACharFactor(ACharFactor node) {
