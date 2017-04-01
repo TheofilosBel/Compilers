@@ -69,37 +69,17 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseACondListProgram(ACondListProgram node)
+    public void caseAProgram(AProgram node)
     {
         defaultCase(node);
     }
 
-    public void caseAMultiCondList(AMultiCondList node)
+    public void caseAFuncDef(AFuncDef node)
     {
         defaultCase(node);
     }
 
-    public void caseAEmptyCondList(AEmptyCondList node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseACondListTailCondListTail(ACondListTailCondListTail node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAVarListVarDefList(AVarListVarDefList node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAFuncDefFuncDef(AFuncDefFuncDef node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAFuncDeclFuncDecl(AFuncDeclFuncDecl node)
+    public void caseAFuncDecl(AFuncDecl node)
     {
         defaultCase(node);
     }
@@ -114,32 +94,32 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAInnerVarsLocalDef(AInnerVarsLocalDef node)
+    public void caseAInnerVarLocalDef(AInnerVarLocalDef node)
     {
         defaultCase(node);
     }
 
-    public void caseAHeaderHeader(AHeaderHeader node)
+    public void caseAHeader(AHeader node)
     {
         defaultCase(node);
     }
 
-    public void caseAMultiFparFparList(AMultiFparFparList node)
+    public void caseAMultiFparList(AMultiFparList node)
     {
         defaultCase(node);
     }
 
-    public void caseASingleFparFparList(ASingleFparFparList node)
+    public void caseASingleFparList(ASingleFparList node)
     {
         defaultCase(node);
     }
 
-    public void caseAFparDefFparDef(AFparDefFparDef node)
+    public void caseAFparDef(AFparDef node)
     {
         defaultCase(node);
     }
 
-    public void caseAVarDefVarDef(AVarDefVarDef node)
+    public void caseAVarDef(AVarDef node)
     {
         defaultCase(node);
     }
@@ -154,47 +134,122 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAFparTypeFparType(AFparTypeFparType node)
+    public void caseAFparType(AFparType node)
     {
         defaultCase(node);
     }
 
-    public void caseATypeType(ATypeType node)
+    public void caseAType(AType node)
     {
         defaultCase(node);
     }
 
-    public void caseARetDataRetType(ARetDataRetType node)
+    public void caseADataRetType(ADataRetType node)
     {
         defaultCase(node);
     }
 
-    public void caseARetNothRetType(ARetNothRetType node)
+    public void caseANothingRetType(ANothingRetType node)
     {
         defaultCase(node);
     }
 
-    public void caseATypeIntDataType(ATypeIntDataType node)
+    public void caseAIntDataType(AIntDataType node)
     {
         defaultCase(node);
     }
 
-    public void caseATypeCharDataType(ATypeCharDataType node)
+    public void caseACharDataType(ACharDataType node)
     {
         defaultCase(node);
     }
 
-    public void caseAStmtEmptyStmt(AStmtEmptyStmt node)
+    public void caseAMatchedStmt(AMatchedStmt node)
     {
         defaultCase(node);
     }
 
-    public void caseABlockBlock(ABlockBlock node)
+    public void caseAUnmatchedStmt(AUnmatchedStmt node)
     {
         defaultCase(node);
     }
 
-    public void caseAFuncCallFuncCall(AFuncCallFuncCall node)
+    public void caseAIfMatched(AIfMatched node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAWhileMatched(AWhileMatched node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseANoopMatched(ANoopMatched node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAAssignMatched(AAssignMatched node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseABlockMatched(ABlockMatched node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAFuncCallMatched(AFuncCallMatched node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAReturnMatched(AReturnMatched node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAIfUnmatched(AIfUnmatched node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAWhileUnmatched(AWhileUnmatched node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAMatchedIf(AMatchedIf node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseANoElseUnmatchedIf(ANoElseUnmatchedIf node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAWithElseUnmatchedIf(AWithElseUnmatchedIf node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAMatchedWhile(AMatchedWhile node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAUnmatchedWhile(AUnmatchedWhile node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseABlock(ABlock node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAFuncCall(AFuncCall node)
     {
         defaultCase(node);
     }
@@ -209,7 +264,7 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAExprListTailExprListTail(AExprListTailExprListTail node)
+    public void caseAExprListTail(AExprListTail node)
     {
         defaultCase(node);
     }
@@ -224,27 +279,27 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAMultipleArrayDeclaratorTail(AMultipleArrayDeclaratorTail node)
+    public void caseAArrayDeclaratorTail(AArrayDeclaratorTail node)
     {
         defaultCase(node);
     }
 
-    public void caseAEmptyArrayDeclEmptyArrayDeclarator(AEmptyArrayDeclEmptyArrayDeclarator node)
+    public void caseAEmptyArrayDeclarator(AEmptyArrayDeclarator node)
     {
         defaultCase(node);
     }
 
-    public void caseALvalIdLValue(ALvalIdLValue node)
+    public void caseAIdLValue(AIdLValue node)
     {
         defaultCase(node);
     }
 
-    public void caseALvalStrLValue(ALvalStrLValue node)
+    public void caseAStrLValue(AStrLValue node)
     {
         defaultCase(node);
     }
 
-    public void caseALvalExprLValue(ALvalExprLValue node)
+    public void caseAExprLValue(AExprLValue node)
     {
         defaultCase(node);
     }
@@ -299,27 +354,27 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAFIntFactor(AFIntFactor node)
+    public void caseAIntFactor(AIntFactor node)
     {
         defaultCase(node);
     }
 
-    public void caseAFCharFactor(AFCharFactor node)
+    public void caseACharFactor(ACharFactor node)
     {
         defaultCase(node);
     }
 
-    public void caseAFLvalFactor(AFLvalFactor node)
+    public void caseALvalFactor(ALvalFactor node)
     {
         defaultCase(node);
     }
 
-    public void caseAFFuncFactor(AFFuncFactor node)
+    public void caseAFuncFactor(AFuncFactor node)
     {
         defaultCase(node);
     }
 
-    public void caseAFParensFactor(AFParensFactor node)
+    public void caseAParensFactor(AParensFactor node)
     {
         defaultCase(node);
     }
@@ -464,7 +519,7 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseTArrow(TArrow node)
+    public void caseTAssign(TAssign node)
     {
         defaultCase(node);
     }

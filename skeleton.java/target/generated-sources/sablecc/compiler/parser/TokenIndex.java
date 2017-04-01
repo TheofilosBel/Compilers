@@ -64,7 +64,7 @@ class TokenIndex extends AnalysisAdapter
     }
 
     @Override
-    public void caseTArrow(@SuppressWarnings("unused") TArrow node)
+    public void caseTAssign(@SuppressWarnings("unused") TAssign node)
     {
         this.index = 9;
     }

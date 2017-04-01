@@ -42,7 +42,7 @@ Tokens
     colon     = ':';
     semicolon = ';';
     comma     = ',';
-    arrow     = '<-';
+    assign    = '<-';
     plus      = '+';
     minus     = '-';
     mult      = '*';
@@ -90,114 +90,115 @@ Ignored Tokens
 
 Productions
 
-    program = {cond_list} cond_list;
-        // {func_def} func_def;
-
-    cond_list =
-        {multi} cond cond_list_tail* |
-        {empty} ;
-
-    cond_list_tail =
-        {cond_list_tail} semicolon cond;
-
-    var_def_list = 
-            {var_list} var_def*;
+    program = func_def;
     
-    func_def =
-        {func_def} header local_def* block;
+    func_def = header local_def* block;
 
-    func_decl =
-        {func_decl} header semicolon;
+    func_decl = header semicolon;
 
     local_def =
         {inner_decl} func_decl |
-        {inner_def}  func_def |
-        {inner_vars} var_def;
+        {inner_def}  func_def  |
+        {inner_var}  var_def;
 
-    header = 
-        {header} kw_fun id l_par fpar_list? r_par colon ret_type;
+    header = kw_fun id l_par fpar_list? r_par colon ret_type;
 
     fpar_list =
-        {multi_fpar}  fpar_def semicolon fpar_list |
-        {single_fpar} fpar_def;
+        {multi}  fpar_def semicolon fpar_list |
+        {single} fpar_def;
 
-    fpar_def =
-        {fpar_def} kw_ref? id_list colon fpar_type;
+    fpar_def = kw_ref? id_list colon fpar_type;
 
-    var_def =
-        {var_def} kw_var id_list colon type semicolon;
+    var_def = kw_var id_list colon type semicolon;
 
     id_list =
-        {multi}    id comma id_list |
-        {single}   id ;
+        {multi}  id comma id_list |
+        {single} id;
 
-    fpar_type =
-        {fpar_type} data_type empty_array_declarator? array_declarator;
+    fpar_type = data_type empty_array_declarator? array_declarator;
 
-    type =
-        {type} data_type array_declarator;
+    type = data_type array_declarator;
 
     ret_type =
-        {ret_data} data_type |
-        {ret_noth} kw_nothing;
+        {data}    data_type |
+        {nothing} kw_nothing;
 
     data_type =
-        {type_int}  kw_int |
-        {type_char} kw_char;
+        {int}  kw_int |
+        {char} kw_char;
 
     stmt =
-        {stmt_empty} semicolon;
+        {matched}   matched  |
+        {unmatched} unmatched;
 
-    block =
-        {block} l_brace stmt* r_brace;
+    matched =
+        {if}        matched_if                    |
+        {while}     matched_while                 |
+        {noop}      semicolon                     |
+        {assign}    l_value assign expr semicolon |
+        {block}     block                         |
+        {func_call} func_call semicolon           |
+        {return}    kw_return expr? semicolon;
 
-    func_call =
-        {func_call} id l_par expr_list? r_par;
+    unmatched =
+        {if}    unmatched_if   |
+        {while} unmatched_while;
+
+    matched_if = kw_if cond kw_then [inner]:matched kw_else [outer]:matched;
+
+    unmatched_if =
+        {no_else}   kw_if cond kw_then stmt                     |
+        {with_else} kw_if cond kw_then matched kw_else unmatched;
+
+    matched_while = kw_while cond kw_do matched;
+
+    unmatched_while = kw_while cond kw_do unmatched;
+
+    block = l_brace stmt* r_brace;
+
+    func_call = id l_par expr_list? r_par;
 
     expr_list =
         {multi} expr expr_list_tail* |
         {empty} ;
 
-    expr_list_tail =
-        {expr_list_tail} comma expr;
+    expr_list_tail = comma expr;
 
     array_declarator =
         {array_decl}    l_bracket int_const r_bracket array_declarator_tail* |
         {no_array_decl} ;
 
-    array_declarator_tail =
-        {multiple} l_bracket int_const r_bracket;
+    array_declarator_tail = l_bracket int_const r_bracket;
 
-    empty_array_declarator =
-        {empty_array_decl} l_bracket r_bracket;
+    empty_array_declarator = l_bracket r_bracket;
 
     l_value =
-        {lval_id}   id |
-        {lval_str}  string_literal |
-        {lval_expr} l_value l_bracket expr r_bracket;
+        {id}   id                              |
+        {str}  string_literal                  |
+        {expr} l_value l_bracket expr r_bracket;
 
     expr =
-        {add}  expr plus term |
+        {add}  expr plus term  |
         {sub}  expr minus term |
         {term} term;
 
     term =
-        {mult}     term mult signed_factor |
+        {mult}     term mult signed_factor   |
         {div}      term kw_div signed_factor |
         {mod}      term kw_mod signed_factor |
         {s_factor} signed_factor;
 
     signed_factor =
-        {pos}    plus signed_factor |
+        {pos}    plus signed_factor  |
         {neg}    minus signed_factor |
         {factor} factor;
 
     factor =
-        {f_int}    int_const |
-        {f_char}   char_const |
-        {f_lval}   l_value |
-        {f_func}   func_call |
-        {f_parens} l_par expr r_par;
+        {int}    int_const       |
+        {char}   char_const      |
+        {lval}   l_value         |
+        {func}   func_call       |
+        {parens} l_par expr r_par;
 
     cond =
         {or} cond kw_or cond1 |
@@ -216,14 +217,14 @@ Productions
         {bool}     bool;
 
     bool =
-        {true}     true |
-        {false}    false |
+        {true}     true            |
+        {false}    false           |
         {c_parens} l_par cond r_par;
 
     cmp_op =
-        {eq}  eq |
-        {neq} neq |
-        {lt}  lt |
-        {gt}  gt |
+        {eq}  eq   |
+        {neq} neq  |
+        {lt}  lt   |
+        {gt}  gt   |
         {leq} lteq |
         {geq} gteq;
