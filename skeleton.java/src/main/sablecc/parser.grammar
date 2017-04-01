@@ -103,9 +103,9 @@ Productions
 
     header = kw_fun id l_par fpar_list? r_par colon ret_type;
 
-    fpar_list =
-        {multi}  fpar_def semicolon fpar_list |
-        {single} fpar_def;
+    fpar_list = fpar_def fpar_list_tail*;
+    
+    fpar_list_tail = semicolon fpar_def;
 
     fpar_def = kw_ref? id_list colon fpar_type;
 

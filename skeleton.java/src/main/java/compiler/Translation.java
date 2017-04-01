@@ -69,26 +69,21 @@ public class Translation extends DepthFirstAdapter {
         System.out.println();
     }
 
-    public void inAMultiFparList(AMultiFparList node) {
+    public void inAFparList(AFparList node) {
         addIndentationLevel();
         printIndentation();
     }
     
-    public void outAMultiFparList(AMultiFparList node) {
+    public void outAFparList(AFparList node) {
         removeIndentationLevel();
     }
 
-    public void inASingleFparList(ASingleFparList node) {
-        addIndentationLevel();
-        printIndentation();
-    }
-    
-    public void outASingleFparList(ASingleFparList node) {
-        removeIndentationLevel();
-    }
-    
     public void inAFparDef(AFparDef node) {
         defaultIn(node);
+    }
+    
+    public void outAFparDef(AFparDef node) {
+        printNLineIndent();
     }
 
     public void inAVarDef(AVarDef node) {
