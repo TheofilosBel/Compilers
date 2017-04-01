@@ -85,7 +85,7 @@ public class Translation extends DepthFirstAdapter {
     }
     
     public void outAFparDef(AFparDef node) {
-        printNLineIndent();
+        defaultOut(node);
     }
 
     public void inAVarDef(AVarDef node) {
