@@ -28,13 +28,10 @@ public class Translation extends DepthFirstAdapter {
         addIndentationLevel();
         System.out.print("#Func_def name= ");
     }
-    
-    public void outAFuncDef(AFuncDef node) {
-        removeIndentationLevel();
-    }
 
     public void inAFuncDecl(AFuncDecl node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.print("#Func_decl name= ");
     }
 
     public void inAInnerDeclLocalDef(AInnerDeclLocalDef node) {
@@ -70,15 +67,12 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAVarDef(AVarDef node) {
-        
-        addIndentationLevel();
         printIndentation();
         System.out.print("#Var_def: list=");
     }
     
     public void outAVarDef(AVarDef node) {
         System.out.println();
-        removeIndentationLevel();
     }
 
     public void inAMultiIdList(AMultiIdList node) {
@@ -90,15 +84,15 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAFparType(AFparType node) {
-        defaultIn(node);
+        System.out.print("type= ");
     }
 
     public void inAType(AType node) {
-        System.out.print(" type=");
+        System.out.print("type= ");
     }
 
     public void inADataRetType(ADataRetType node) {
-        System.out.print(" ret_type= ");
+        System.out.print("ret_type= ");
     }
 
     public void inANothingRetType(ANothingRetType node) {
