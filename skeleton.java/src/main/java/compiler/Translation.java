@@ -5,12 +5,32 @@ import compiler.node.*;
 import java.util.Collections;
 
 public class Translation extends DepthFirstAdapter {
+    int indentation = 0;
+
+    private void addIndentationLevel() {
+        indentation++;
+    }
+
+    private void removeIndentationLevel() {
+        indentation--;
+    }
+
+    private void printIndentation() {
+        System.out.print(String.join("", Collections.nCopies(indentation, " ")));
+    }
+    
     public void inAProgram(AProgram node) {
         defaultIn(node);
     }
 
     public void inAFuncDef(AFuncDef node) {
-        defaultIn(node);
+        printIndentation();
+        addIndentationLevel();
+        System.out.print("#Func_def name= ");
+    }
+    
+    public void outAFuncDef(AFuncDef node) {
+        removeIndentationLevel();
     }
 
     public void inAFuncDecl(AFuncDecl node) {
@@ -30,7 +50,12 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAHeader(AHeader node) {
-        defaultIn(node);
+        System.out.print(node.getId().toString());
+        System.out.print(" params= ");
+    }
+    
+    public void outAHeader(AHeader node) {
+        System.out.println();
     }
 
     public void inAMultiFparList(AMultiFparList node) {
@@ -45,15 +70,23 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAVarDef(AVarDef node) {
-        defaultIn(node);
+        
+        addIndentationLevel();
+        printIndentation();
+        System.out.print("#Var_def: list=");
+    }
+    
+    public void outAVarDef(AVarDef node) {
+        System.out.println();
+        removeIndentationLevel();
     }
 
     public void inAMultiIdList(AMultiIdList node) {
-        defaultIn(node);
+        System.out.print(node.getId().toString());
     }
 
     public void inASingleIdList(ASingleIdList node) {
-        defaultIn(node);
+        System.out.print(node.getId().toString());
     }
 
     public void inAFparType(AFparType node) {
@@ -61,23 +94,23 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAType(AType node) {
-        defaultIn(node);
+        System.out.print(" type=");
     }
 
     public void inADataRetType(ADataRetType node) {
-        defaultIn(node);
+        System.out.print(" ret_type= ");
     }
 
     public void inANothingRetType(ANothingRetType node) {
-        defaultIn(node);
+        System.out.print(" ret_type= nothing");
     }
 
     public void inAIntDataType(AIntDataType node) {
-        defaultIn(node);
+        System.out.print(node.toString());
     }
 
     public void inACharDataType(ACharDataType node) {
-        defaultIn(node);
+        System.out.print(node.toString());
     }
 
     public void inAMatchedStmt(AMatchedStmt node) {
@@ -165,7 +198,8 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAArrayDeclArrayDeclarator(AArrayDeclArrayDeclarator node) {
-        defaultIn(node);
+        System.out.print("array with dims= ");
+        System.out.print(node.getIntConst().toString());
     }
 
     public void inANoArrayDeclArrayDeclarator(ANoArrayDeclArrayDeclarator node) {
@@ -173,7 +207,7 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAArrayDeclaratorTail(AArrayDeclaratorTail node) {
-        defaultIn(node);
+        System.out.print(node.getIntConst().toString());
     }
 
     public void inAEmptyArrayDeclarator(AEmptyArrayDeclarator node) {
