@@ -1,0 +1,230 @@
+Package compiler;
+
+Helpers
+
+    all         = [0 .. 127];
+    sp          = ' ';
+    tab         = 9;
+    lf          = 10;
+    ff          = 12;
+    cr          = 13; 
+    eol         = lf | cr | cr lf;
+    not_eol     = [all - [cr + lf]];
+    white_space = (sp | tab | ff | eol)*;
+    
+    underscore    = '_';
+    letter        = [['a' .. 'z'] + ['A' .. 'Z']];
+    digit         = ['0' .. '9'];
+    hex_digit     = [digit + [['a' .. 'f'] + ['A' .. 'F']]];
+
+    simple_escape_sequence = '\' ''' | '\"' | '\\' | '\n' | '\r' | '\t' | '\0';
+    hex_escape_sequence    = '\x' hex_digit hex_digit;
+    escape_sequence        = simple_escape_sequence | hex_escape_sequence;
+    c_char                 = [all - [''' + ['"' + ['\' + [cr + lf]]]]] | escape_sequence;
+    s_char                 = [all - ['"' + ['\' + [cr + lf]]]] | escape_sequence;
+    
+    not_dollar = [all - '$'];
+  
+Tokens
+
+    white_space = white_space;
+    
+    /* Comments */
+    comment = ('$' not_dollar not_eol* eol |
+               '$$' '$'* ((not_dollar+ '$'? not_dollar+) | (not_dollar*))* '$$');
+    
+    l_par     = '(';
+    r_par     = ')';
+    l_bracket = '[';
+    r_bracket = ']';
+    l_brace   = '{';
+    r_brace   = '}';
+    colon     = ':';
+    semicolon = ';';
+    comma     = ',';
+    assign    = '<-';
+    plus      = '+';
+    minus     = '-';
+    mult      = '*';
+    eq        = '=';
+    neq       = '#';
+    lt        = '<';
+    gt        = '>';
+    lteq      = '<=';
+    gteq      = '>=';
+
+    /* Keywords */
+    kw_and     = 'and';
+    kw_or      = 'or';
+    kw_int     = 'int';
+    kw_then    = 'then';
+    kw_char    = 'char';
+    kw_mod     = 'mod';
+    kw_var     = 'var';
+    kw_div     = 'div';
+    kw_not     = 'not';
+    kw_while   = 'while';
+    kw_do      = 'do';
+    kw_if      = 'if';
+    kw_else    = 'else';
+    kw_fun     = 'fun';
+    kw_return  = 'return';
+    kw_ref     = 'ref';
+    kw_nothing = 'nothing';
+
+    /* Constants */
+    int_const      = digit+;
+    char_const     = ''' c_char? ''';
+    string_literal = '"' s_char* '"';
+
+    /* Boolean Constants */
+    true  = 'TRUE';
+    false = 'FALSE';
+
+    /* Identifiers */
+    id = letter (letter | digit | underscore)*;
+    
+Ignored Tokens
+    comment,
+    white_space;
+
+Productions
+
+    program = func_def;
+    
+    func_def = header local_def* block;
+
+    func_decl = header semicolon;
+
+    local_def =
+        {inner_decl} func_decl |
+        {inner_def}  func_def  |
+        {inner_var}  var_def;
+
+    header = kw_fun id l_par fpar_list? r_par colon ret_type;
+
+    fpar_list =
+        {multi}  fpar_def semicolon fpar_list |
+        {single} fpar_def;
+
+    fpar_def = kw_ref? id_list colon fpar_type;
+
+    var_def = kw_var id_list colon type semicolon;
+
+    id_list =
+        {multi}  id comma id_list |
+        {single} id;
+
+    fpar_type = data_type empty_array_declarator? array_declarator;
+
+    type = data_type array_declarator;
+
+    ret_type =
+        {data}    data_type |
+        {nothing} kw_nothing;
+
+    data_type =
+        {int}  kw_int |
+        {char} kw_char;
+
+    stmt =
+        {matched}   matched  |
+        {unmatched} unmatched;
+
+    matched =
+        {if}        matched_if                    |
+        {while}     matched_while                 |
+        {noop}      semicolon                     |
+        {assign}    l_value assign expr semicolon |
+        {block}     block                         |
+        {func_call} func_call semicolon           |
+        {return}    kw_return expr? semicolon;
+
+    unmatched =
+        {if}    unmatched_if   |
+        {while} unmatched_while;
+
+    matched_if = kw_if cond kw_then [inner]:matched kw_else [outer]:matched;
+
+    unmatched_if =
+        {no_else}   kw_if cond kw_then stmt                     |
+        {with_else} kw_if cond kw_then matched kw_else unmatched;
+
+    matched_while = kw_while cond kw_do matched;
+
+    unmatched_while = kw_while cond kw_do unmatched;
+
+    block = l_brace stmt* r_brace;
+
+    func_call = id l_par expr_list? r_par;
+
+    expr_list =
+        {multi} expr expr_list_tail* |
+        {empty} ;
+
+    expr_list_tail = comma expr;
+
+    array_declarator =
+        {array_decl}    l_bracket int_const r_bracket array_declarator_tail* |
+        {no_array_decl} ;
+
+    array_declarator_tail = l_bracket int_const r_bracket;
+
+    empty_array_declarator = l_bracket r_bracket;
+
+    l_value =
+        {id}   id                              |
+        {str}  string_literal                  |
+        {expr} l_value l_bracket expr r_bracket;
+
+    expr =
+        {add}  expr plus term  |
+        {sub}  expr minus term |
+        {term} term;
+
+    term =
+        {mult}     term mult signed_factor   |
+        {div}      term kw_div signed_factor |
+        {mod}      term kw_mod signed_factor |
+        {s_factor} signed_factor;
+
+    signed_factor =
+        {pos}    plus signed_factor  |
+        {neg}    minus signed_factor |
+        {factor} factor;
+
+    factor =
+        {int}    int_const       |
+        {char}   char_const      |
+        {lval}   l_value         |
+        {func}   func_call       |
+        {parens} l_par expr r_par;
+
+    cond =
+        {or} cond kw_or cond1 |
+        {cond1} cond1;
+
+    cond1 =
+        {and}   cond1 kw_and cond2 |
+        {cond2} cond2;
+
+    cond2 =
+        {not}   kw_not cond3 |
+        {cond3} cond3;
+
+    cond3 =
+        {expr_cmp} [left]:expr cmp_op [right]:expr |
+        {bool}     bool;
+
+    bool =
+        {true}     true            |
+        {false}    false           |
+        {c_parens} l_par cond r_par;
+
+    cmp_op =
+        {eq}  eq   |
+        {neq} neq  |
+        {lt}  lt   |
+        {gt}  gt   |
+        {leq} lteq |
+        {geq} gteq;
