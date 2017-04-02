@@ -61,7 +61,7 @@ public class Translation extends DepthFirstAdapter {
     public void inAHeader(AHeader node) {
         System.out.print(node.getId().toString());
         printNLineIndent();
-        System.out.println("parameters: [");
+        System.out.print("parameters:");
     }
 
     public void outAHeader(AHeader node) {
@@ -69,6 +69,7 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAFparList(AFparList node) {
+        System.out.println(" [");
         addIndentationLevel();
         printIndentation();
     }
