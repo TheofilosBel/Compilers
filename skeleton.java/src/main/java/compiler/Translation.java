@@ -40,6 +40,10 @@ public class Translation extends DepthFirstAdapter {
         System.out.print("name: ");
     }
 
+    public void outAFuncDef(AFuncDef node) {
+        removeIndentationLevel();
+    }
+    
     public void inAFuncDecl(AFuncDecl node) {
         printIndentation();
         printNLineIndent("type: function declaration");
@@ -71,21 +75,27 @@ public class Translation extends DepthFirstAdapter {
     public void inAFparList(AFparList node) {
         System.out.println(" [");
         addIndentationLevel();
-        printIndentation();
     }
     
     public void outAFparList(AFparList node) {
         removeIndentationLevel();
-        printNLineIndent();
+        printIndentation();
         System.out.print("]");
     }
 
     public void inAFparDef(AFparDef node) {
+        printIndentation();
+        if (node.getKwRef() != null) {
+            System.out.print("Pass by ref: ");
+        } else {
+            System.out.print("Pass by val: ");
+        }
+            
         System.out.print("name: ");
     }
     
     public void outAFparDef(AFparDef node) {
-        defaultOut(node);
+        System.out.println();
     }
 
     public void inAVarDef(AVarDef node) {
@@ -196,9 +206,15 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAReturnMatched(AReturnMatched node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("type: return statement");
+        addIndentationLevel();
     }
 
+    public void outAReturnMatched(AReturnMatched node) {
+        removeIndentationLevel();
+    }
+    
     public void inAIfUnmatched(AIfUnmatched node) {
         printIndentation();
         System.out.println("type: if-only statement");
@@ -241,6 +257,7 @@ public class Translation extends DepthFirstAdapter {
         removeIndentationLevel();
         printIndentation();
         System.out.println("}");
+        //System.out.println();
     }
 
     public void inAFuncCall(AFuncCall node) {
@@ -274,8 +291,12 @@ public class Translation extends DepthFirstAdapter {
         defaultIn(node);
     }
 
+    public void inAEmptyArrayDeclarator(AEmptyArrayDeclarator node) {
+        System.out.print("array with empty dimension ");
+    }
+    
     public void inAArrayDeclArrayDeclarator(AArrayDeclArrayDeclarator node) {
-        System.out.print("array with dimensions: ");
+        System.out.print("array with dimension(s): ");
         System.out.print(node.getIntConst().toString());
     }
 
@@ -294,9 +315,57 @@ public class Translation extends DepthFirstAdapter {
         System.out.println("String literal: " + node.getStringLiteral().toString());
     }
 
+    
+    /* CASE OVERRIDE of AExprLValue HERE */
     public void inAExprLValue(AExprLValue node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("type = ArrayAcces expretion");
+        addIndentationLevel();
+        printIndentation();
+        System.out.println("Array = [");
+        addIndentationLevel();
     }
+    
+    public void outAExprLValue(AExprLValue node) {
+        removeIndentationLevel();
+        printIndentation();
+        System.out.println("]");
+        removeIndentationLevel();
+    }
+    
+    @Override
+    public void caseAExprLValue(AExprLValue node)
+    {
+        inAExprLValue(node);
+        if(node.getLValue() != null)
+        {
+            node.getLValue().apply(this);
+        }
+        if(node.getLBracket() != null)
+        {
+            node.getLBracket().apply(this);
+        }
+        
+        /*Print the array Access */
+        removeIndentationLevel();
+        printIndentation();
+        System.out.println("]" );
+        printIndentation();
+        System.out.println("Index = [" );
+        addIndentationLevel();
+                
+        if(node.getExpr() != null)
+        {
+            node.getExpr().apply(this);
+        }
+        if(node.getRBracket() != null)
+        {
+            node.getRBracket().apply(this);
+        }
+        outAExprLValue(node);
+    }
+    
+    /*----------------------------*/
 
     public void inAAddExpr(AAddExpr node) {
         printIndentation();
@@ -456,6 +525,7 @@ public class Translation extends DepthFirstAdapter {
     
     public void outAExprCmpCond3(AExprCmpCond3 node) {
         removeIndentationLevel();
+        //System.out.println();
     }
     
     public void inABoolCond3(ABoolCond3 node) {
