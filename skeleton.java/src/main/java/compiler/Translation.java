@@ -339,7 +339,7 @@ public class Translation extends DepthFirstAdapter {
         addIndentationLevel();
     }
 
-    public void outADivTerm(AMultTerm node) {
+    public void outADivTerm(ADivTerm node) {
         removeIndentationLevel();
     }
 
@@ -349,7 +349,7 @@ public class Translation extends DepthFirstAdapter {
         addIndentationLevel();
     }
 
-    public void outAModTerm(AMultTerm node) {
+    public void outAModTerm(AModTerm node) {
         removeIndentationLevel();
     }
 
