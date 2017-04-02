@@ -133,9 +133,8 @@ public class Translation extends DepthFirstAdapter {
         addIndentationLevel();
     }
     
-    public void outANothingRetType(ADataRetType node) {
+    public void outANothingRetType(ANothingRetType node) {
         System.out.println();
-        addIndentationLevel();
     }
 
     public void inAIntDataType(AIntDataType node) {
@@ -170,7 +169,7 @@ public class Translation extends DepthFirstAdapter {
         addIndentationLevel();
     }
 
-    public void outAWhileMatched(AIfMatched node) {
+    public void outAWhileMatched(AWhileMatched node) {
         removeIndentationLevel();
     }
 
