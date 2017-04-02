@@ -10,4 +10,5 @@ fun p1 (a ,b : int) : nothing
         x <- 3;
         f(x+5, 3);
         x <- (a-5) + 3;
+        if a > 5 or a < 4 then a <- 3;
     }

@@ -339,7 +339,7 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inACharFactor(ACharFactor node) {
-        System.out.print(node.getCharConst().toString());
+        System.out.print("Char const = " + node.getCharConst().toString());
     }
 
     public void inALvalFactor(ALvalFactor node) {
@@ -355,7 +355,14 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAOrCond(AOrCond node) {
-        defaultIn(node);
+        printIndentation();
+        printNLineIndent("type = condition");
+        System.out.println("Operand = OR");
+        addIndentationLevel();
+    }
+    
+    public void outAOrCond(AOrCond node) {
+        removeIndentationLevel();
     }
 
     public void inACond1Cond(ACond1Cond node) {
@@ -363,7 +370,14 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAAndCond1(AAndCond1 node) {
-        defaultIn(node);
+        printIndentation();
+        printNLineIndent("type = condition");
+        System.out.println("Operand = And");
+        addIndentationLevel();
+    }
+    
+    public void outAAndCond1(AAndCond1 node) {
+        removeIndentationLevel();
     }
 
     public void inACond2Cond1(ACond2Cond1 node) {
@@ -379,9 +393,16 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAExprCmpCond3(AExprCmpCond3 node) {
-        defaultIn(node);
+        printIndentation();
+        printNLineIndent("type = condition");
+        System.out.println("Operand = " + node.getCmpOp());
+        addIndentationLevel();
     }
-
+    
+    public void outAExprCmpCond3(AExprCmpCond3 node) {
+        removeIndentationLevel();
+    }
+    
     public void inABoolCond3(ABoolCond3 node) {
         defaultIn(node);
     }
