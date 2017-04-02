@@ -464,38 +464,16 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inATrueBool(ATrueBool node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("boolean value: TRUE");
     }
 
     public void inAFalseBool(AFalseBool node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("boolean value: FALSE");
     }
 
     public void inACParensBool(ACParensBool node) {
-        defaultIn(node);
-    }
-
-    public void inAEqCmpOp(AEqCmpOp node) {
-        defaultIn(node);
-    }
-
-    public void inANeqCmpOp(ANeqCmpOp node) {
-        defaultIn(node);
-    }
-
-    public void inALtCmpOp(ALtCmpOp node) {
-        defaultIn(node);
-    }
-
-    public void inAGtCmpOp(AGtCmpOp node) {
-        defaultIn(node);
-    }
-
-    public void inALeqCmpOp(ALeqCmpOp node) {
-        defaultIn(node);
-    }
-
-    public void inAGeqCmpOp(AGeqCmpOp node) {
         defaultIn(node);
     }
 }
