@@ -291,7 +291,8 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAStrLValue(AStrLValue node) {
-        System.out.println(node.getStringLiteral().toString());
+        printIndentation();
+        System.out.println("String literal: " + node.getStringLiteral().toString());
     }
 
     public void inAExprLValue(AExprLValue node) {
@@ -357,13 +358,25 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAPosSignedFactor(APosSignedFactor node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("type: Possitive Factor");
+        addIndentationLevel();
     }
-
+    
+    public void outAPosSignedFactor(APosSignedFactor node) {
+        removeIndentationLevel();
+    }
+    
     public void inANegSignedFactor(ANegSignedFactor node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("type: Negative Factor");
+        addIndentationLevel();
     }
-
+    
+    public void outANegSignedFactor(ANegSignedFactor node) {
+        removeIndentationLevel();
+    }
+    
     public void inAFactorSignedFactor(AFactorSignedFactor node) {
         defaultIn(node);
     }
@@ -374,6 +387,7 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inACharFactor(ACharFactor node) {
+        printIndentation();
         System.out.print("Char const: " + node.getCharConst().toString());
     }
 
@@ -420,7 +434,14 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inANotCond2(ANotCond2 node) {
-        defaultIn(node);
+        printIndentation();
+        printNLineIndent("type: condition");
+        System.out.println("Operand: Not");
+        addIndentationLevel();
+    }
+    
+    public void outANotCond2(ANotCond2 node) {
+        removeIndentationLevel();
     }
 
     public void inACond3Cond2(ACond3Cond2 node) {

@@ -10,8 +10,10 @@ fun p1 (a ,b : int) : nothing
         x <- 3;
         f(x+5, 3);
         x <- (a-5) + 3;
+        if not TRUE then 
+        	muffin <- "MUFFIN\n";
         
-        if a > 5 or a < 4 then
+        if a > -5 or a < 4 then
             a <- 3 * b div 5;
         $else
         $    a <- 9;
