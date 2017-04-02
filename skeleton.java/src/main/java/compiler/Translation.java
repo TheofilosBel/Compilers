@@ -36,14 +36,14 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAFuncDef(AFuncDef node) {
         printIndentation();
-        printNLineIndent("type = function definition");
-        System.out.print("name = ");
+        printNLineIndent("type: function definition");
+        System.out.print("name: ");
     }
 
     public void inAFuncDecl(AFuncDecl node) {
         printIndentation();
-        printNLineIndent("type = function declaration");
-        System.out.print("name = ");
+        printNLineIndent("type: function declaration");
+        System.out.print("name: ");
     }
 
     public void inAInnerDeclLocalDef(AInnerDeclLocalDef node) {
@@ -61,7 +61,7 @@ public class Translation extends DepthFirstAdapter {
     public void inAHeader(AHeader node) {
         System.out.print(node.getId().toString());
         printNLineIndent();
-        System.out.println("parameters = [");
+        System.out.println("parameters: [");
     }
 
     public void outAHeader(AHeader node) {
@@ -80,7 +80,7 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAFparDef(AFparDef node) {
-        System.out.print("name = ");
+        System.out.print("name: ");
     }
     
     public void outAFparDef(AFparDef node) {
@@ -89,9 +89,9 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAVarDef(AVarDef node) {
         printIndentation();
-        System.out.println("type = variable definition");
+        System.out.println("type: variable definition");
         printIndentation();
-        System.out.print("name = ");
+        System.out.print("name: ");
     }
     
     public void outAVarDef(AVarDef node) {
@@ -109,17 +109,17 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAFparType(AFparType node) {
         printNLineIndent();
-        System.out.print("type = ");
+        System.out.print("type: ");
     }
 
     public void inAType(AType node) {
         printNLineIndent();
-        System.out.print("type = ");
+        System.out.print("type: ");
     }
 
     public void inADataRetType(ADataRetType node) {
         printNLineIndent();
-        System.out.print("return type = ");
+        System.out.print("return type: ");
     }
     
     public void outADataRetType(ADataRetType node) {
@@ -128,7 +128,7 @@ public class Translation extends DepthFirstAdapter {
 
     public void inANothingRetType(ANothingRetType node) {
         printNLineIndent();
-        System.out.print("return type = nothing");
+        System.out.print("return type: nothing");
         addIndentationLevel();
     }
     
@@ -154,21 +154,33 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAIfMatched(AIfMatched node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("type: if-else statement");
+        addIndentationLevel();
+    }
+
+    public void outAIfMatched(AIfMatched node) {
+        removeIndentationLevel();
     }
 
     public void inAWhileMatched(AWhileMatched node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("type: while statement");
+        addIndentationLevel();
+    }
+
+    public void outAWhileMatched(AIfMatched node) {
+        removeIndentationLevel();
     }
 
     public void inANoopMatched(ANoopMatched node) {
         printIndentation();
-        System.out.println("type = no operation statement");
+        System.out.println("type: no operation statement");
     }
 
     public void inAAssignMatched(AAssignMatched node) {
         printIndentation();
-        System.out.println("type = assignment");
+        System.out.println("type: assignment");
     }
 
     public void outAAssignMatched(AAssignMatched node) {
@@ -188,11 +200,23 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAIfUnmatched(AIfUnmatched node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("type: if-only statement");
+        addIndentationLevel();
+    }
+
+    public void outAIfUnmatched(AIfUnmatched node) {
+        removeIndentationLevel();
     }
 
     public void inAWhileUnmatched(AWhileUnmatched node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("type: while statement");
+        addIndentationLevel();
+    }
+
+    public void outAWhileUnmatched(AWhileUnmatched node) {
+        removeIndentationLevel();
     }
 
     public void inAMatchedIf(AMatchedIf node) {
@@ -204,14 +228,6 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAWithElseUnmatchedIf(AWithElseUnmatchedIf node) {
-        defaultIn(node);
-    }
-
-    public void inAMatchedWhile(AMatchedWhile node) {
-        defaultIn(node);
-    }
-
-    public void inAUnmatchedWhile(AUnmatchedWhile node) {
         defaultIn(node);
     }
 
@@ -229,11 +245,11 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAFuncCall(AFuncCall node) {
         printIndentation();
-        printNLineIndent("type = function call");
-        System.out.print("name = ");
+        printNLineIndent("type: function call");
+        System.out.print("name: ");
         System.out.println(node.getId().toString());
         printIndentation();
-        System.out.println("parameters = [");
+        System.out.println("parameters: [");
     }
     
     public void outAFuncCall(AFuncCall node) {
@@ -259,7 +275,7 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAArrayDeclArrayDeclarator(AArrayDeclArrayDeclarator node) {
-        System.out.print("array with dimensions = ");
+        System.out.print("array with dimensions: ");
         System.out.print(node.getIntConst().toString());
     }
 
@@ -269,7 +285,7 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAIdLValue(AIdLValue node) {
         printIndentation();
-        System.out.print("identifier name = ");
+        System.out.print("identifier name: ");
         System.out.println(node.getId().toString());
     }
 
@@ -283,7 +299,7 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAAddExpr(AAddExpr node) {
         printIndentation();
-        System.out.println("type = add expression");
+        System.out.println("type: add expression");
         addIndentationLevel();
     }
     
@@ -293,7 +309,7 @@ public class Translation extends DepthFirstAdapter {
     
     public void inASubExpr(ASubExpr node) {
         printIndentation();
-        System.out.println("type = sub expression");
+        System.out.println("type: sub expression");
         addIndentationLevel();
     }
     
@@ -306,15 +322,33 @@ public class Translation extends DepthFirstAdapter {
     }
 
     public void inAMultTerm(AMultTerm node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("type: mult expression");
+        addIndentationLevel();
+    }
+
+    public void outAMultTerm(AMultTerm node) {
+        removeIndentationLevel();
     }
 
     public void inADivTerm(ADivTerm node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("type: div expression");
+        addIndentationLevel();
+    }
+
+    public void outADivTerm(AMultTerm node) {
+        removeIndentationLevel();
     }
 
     public void inAModTerm(AModTerm node) {
-        defaultIn(node);
+        printIndentation();
+        System.out.println("type: mod expression");
+        addIndentationLevel();
+    }
+
+    public void outAModTerm(AMultTerm node) {
+        removeIndentationLevel();
     }
 
     public void inASFactorTerm(ASFactorTerm node) {
@@ -335,11 +369,11 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAIntFactor(AIntFactor node) {
         printIndentation();
-        System.out.println("Integer value = " + node.getIntConst().toString());
+        System.out.println("Integer value: " + node.getIntConst().toString());
     }
 
     public void inACharFactor(ACharFactor node) {
-        System.out.print("Char const = " + node.getCharConst().toString());
+        System.out.print("Char const: " + node.getCharConst().toString());
     }
 
     public void inALvalFactor(ALvalFactor node) {
@@ -356,8 +390,8 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAOrCond(AOrCond node) {
         printIndentation();
-        printNLineIndent("type = condition");
-        System.out.println("Operand = OR");
+        printNLineIndent("type: condition");
+        System.out.println("Operand: OR");
         addIndentationLevel();
     }
     
@@ -371,8 +405,8 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAAndCond1(AAndCond1 node) {
         printIndentation();
-        printNLineIndent("type = condition");
-        System.out.println("Operand = And");
+        printNLineIndent("type: condition");
+        System.out.println("Operand: And");
         addIndentationLevel();
     }
     
@@ -394,8 +428,8 @@ public class Translation extends DepthFirstAdapter {
 
     public void inAExprCmpCond3(AExprCmpCond3 node) {
         printIndentation();
-        printNLineIndent("type = condition");
-        System.out.println("Operand = " + node.getCmpOp());
+        printNLineIndent("type: condition");
+        System.out.println("Operand: " + node.getCmpOp());
         addIndentationLevel();
     }
     
