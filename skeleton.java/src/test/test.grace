@@ -7,16 +7,20 @@ fun p1 (a ,b : int) : nothing
     var donut, muffin : char ;
     
     {
-        x <- 3;
+        x[4] <- 3;
+        $$
         f(x+5, 3);
+        
         x <- (a-5) + 3;
+        
         if not TRUE then 
         	muffin <- "MUFFIN\n";
         
         if a > -5 or a < 4 then
             a <- 3 * b div 5;
-        $else
-        $    a <- 9;
+        else
+            a <- 9;
 
-        $while x > 3 do x <- x + 1;
+        while x > 3 do x <- x + 1;
+        $$
     }
