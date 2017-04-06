@@ -107,19 +107,6 @@ Productions
         {inner_decl} func_decl    {-> New local_def.func_dec(func_decl.func_dec)}|
         {inner_def}  func_def  	  {-> New local_def.func_def(func_def)}|
         {inner_vars} var_def      {-> New local_def.var(var_def.var)};
-        
-
-	/*------------------------Prototype--------------------------      
-    local_def {-> local_def*} =
-    	    {inner_vars} var_def_list local_def1 {-> New local_def.vars(var_def_list.var_list)}|
-    	    {others}	 local_def1 {-> local_def};
-    local_def1 {-> local_def}=
-    	{inner_decl} func_decl local_def2 {-> New local_def.func_dec(func_decl.func_dec)}|
-    	{others}     local_def2;    	
-    local_def2 {-> local_def} = 
-    	{inner_def}  func_def local_def {-> New local_def.func_def(func_def)}|
-    	loca_def;
-	-----------------------------------------------------------*/
     	
         
 
