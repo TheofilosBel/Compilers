@@ -7,7 +7,7 @@ fun p1 (a ,b : int) : nothing
     var donut, muffin : char ;
     
     {
-        x[4] <- 3;
+        x[4][8] <- 3 div 10;
         $$
         f(x+5, 3);
         
