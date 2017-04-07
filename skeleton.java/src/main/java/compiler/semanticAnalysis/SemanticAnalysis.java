@@ -1,15 +1,15 @@
-package compiler.schematicAnalysis;
+package compiler.semanticAnalysis;
 
 import compiler.analysis.*;
 import compiler.node.*;
 import java.util.Collections;
 
-public class SchematicAnalysis extends DepthFirstAdapter{
+public class SemanticAnalysis extends DepthFirstAdapter{
     
     int indentation = 0;
     SymbolTable symbolTable;
     
-    public SchematicAnalysis()
+    public SemanticAnalysis()
     {
         System.out.println("Constructing Symbol_table");
         this.symbolTable = new SymbolTable();  
