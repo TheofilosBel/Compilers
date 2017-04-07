@@ -2,20 +2,12 @@ package compiler;
 
 import compiler.analysis.*;
 import compiler.node.*;
-import compiler.schematicAnalysis.*;
 import java.util.Collections;
 
 
 public class Translation extends DepthFirstAdapter{
 
     int indentation = 0;
-    SymbolTable symbolTable;
-    
-    public Translation()
-    {
-        System.out.println("Constructing Symbol_table");
-        this.symbolTable = new SymbolTable();  
-    }
 
     private void addIndentationLevel() {
         indentation++;
@@ -34,16 +26,10 @@ public class Translation extends DepthFirstAdapter{
         printIndentation();
         System.out.println(msg);
     }
-    
-    
 
     @Override
     public void inAFuncDef(AFuncDef node)
     {
-        /* SymbolTable Handling : In every new func_def we have a new scope*/
-        this.symbolTable.enter(node);
-        
-        
         /* Printing */
         indentNprint("type: func_def");
         indentNprint("name: " + node.getName());
@@ -64,9 +50,6 @@ public class Translation extends DepthFirstAdapter{
     
     public void outAFuncDef(AFuncDef node)
     {
-        /* SymbolTable Handling */
-        this.symbolTable.exit();
-        
         removeIndentationLevel();
     }
     
@@ -99,13 +82,8 @@ public class Translation extends DepthFirstAdapter{
     @Override 
     public void inAName(AName node)
     {
-        printIndentation();
-        /* Lookup the symbol table */
-        if (this.symbolTable.lookup(node) != true)
-        {
-            /*Insert it in case it's a new name */
-            this.symbolTable.insert(node);
-        }
+        //printIndentation();
+
     }
     
     

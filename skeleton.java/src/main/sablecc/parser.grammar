@@ -94,7 +94,7 @@ Productions
         {func_def} func_def {-> New program(func_def.func_def) };
         
     func_def {-> func_def}=
-                {func_def}   header local_def_list block {->New func_def(header.name, local_def_list, header.fpar_list, header.type)};
+                {func_def}   header local_def_list block {->New func_def(header.name, header.fpar_list, header.type, local_def_list)};
         
     func_decl {-> func_dec} =
         {func_decl} header semicolon {-> New func_dec(header.name, header.fpar_list, header.type)};
@@ -257,7 +257,7 @@ Abstract Syntax Tree
     			{func_dec} func_dec |
     			{var_def}  var_def ;
     			
-    func_def  = name [local_defs]:local_def_list [vars]:fpar_list [ret_type]:type;
+    func_def  = name [vars]:fpar_list [ret_type]:type [local_defs]:local_def_list;
     
     func_dec  = name [vars]:fpar_list [ret_type]:type;
     

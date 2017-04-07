@@ -1,6 +1,7 @@
 package compiler;
 
 import compiler.parser.*;
+import compiler.schematicAnalysis.*;
 import compiler.lexer.*;
 import compiler.node.*;
 import java.io.*;
@@ -21,6 +22,7 @@ public class Compiler {
             
             /* Apply the translation */
             tree.apply(new Translation());
+            tree.apply(new SchematicAnalysis());
 
             input.close();
         }

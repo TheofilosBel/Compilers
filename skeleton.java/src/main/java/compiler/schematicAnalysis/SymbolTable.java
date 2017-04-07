@@ -4,7 +4,7 @@ import compiler.node.*;
 import java.util.Stack;
 import java.util.TreeMap;
 
-public class SymbolTable extends SchematicAnalysis {
+public class SymbolTable {
 
     /* We need a stack to keep the scopes */
     public Stack<TreeMap<String, String>> scope_st;
@@ -37,28 +37,38 @@ public class SymbolTable extends SchematicAnalysis {
         String key = null;
         boolean bool = false;
         
-        /* Check if the tree map contains the var_name */
         key =  node.getId().toString();
         
-        
-        try {
-            bool = this.scope_st.peek().containsKey(key);
-        } catch (Exception e){
-            System.out.println("Error in loukup: " + e.getMessage());
+        /* Loop all the stack from the top to the start */
+        for (int scope_n = 0; scope_n  < this.scope_st.size(); scope_n++)
+        {
+            
+            /* Check if the tree map contains the var_name */
+            try 
+            {
+                bool = this.scope_st.get(scope_n).containsKey(key);
+            } 
+            catch (Exception e)
+            {
+                System.out.println("Error in loukup: " + e.getMessage());
+                return false;
+            }
+            
+            System.out.println();
+            
+            if ( bool == true)
+            {
+                System.out.println("Found id:" + key);
+                return bool;
+            } 
+            else 
+            {
+                System.out.println("Id " + key + "not found :");
+            }
         }
         
-        System.out.println();
-        if ( bool == true)
-        {
-            System.out.println("Found id:" + key);
-        } 
-        else 
-        {
-            System.out.println("Id " + key + "not found :");
-        }
-        
-        /* Return the boolean */
-        return bool;
+        /* Return's false in case the serached failed */
+        return false;
     }
     
     public void exit()
