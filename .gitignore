@@ -1,5 +1,5 @@
 #dont upload sablecc
 ./skeleton.java/src/sablecc.jar
 /bin/
-./skeleton.java/src/main/sablecc/compiler/*
-./skeleton.java/target/*
+./skeleton.java/src/main/sablecc/compiler/
+./skeleton.java/target/
