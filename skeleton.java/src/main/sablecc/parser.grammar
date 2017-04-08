@@ -94,10 +94,10 @@ Productions
         {func_def} func_def {-> New program(func_def.func_def) };
         
     func_def {-> func_def}=
-                {func_def}   header local_def_list block {->New func_def(header.name, header.fpar_list, header.type, local_def_list)};
+                {func_def}   header local_def_list block {->New func_def(header.id, header.fpar_list, header.type, local_def_list)};
         
     func_decl {-> func_dec} =
-        {func_decl} header semicolon {-> New func_dec(header.name, header.fpar_list, header.type)};
+        {func_decl} header semicolon {-> New func_dec(header.id, header.fpar_list, header.type)};
  
  	local_def_list {-> local_def_list} =
  		{non_empty}	 local_def+  {-> New local_def_list.existing([local_def])}|
@@ -108,8 +108,8 @@ Productions
         {inner_def}  func_def  	  {-> New local_def.func_def(func_def)}          |
         {inner_vars} var_def      {-> New local_def.var_def(var_def.var_def)};
     	
-    header {-> name fpar_list type} = 
-        {header} kw_fun id l_par fpar_list r_par colon ret_type {-> New name(id) fpar_list ret_type.type};
+    header {-> id fpar_list type} = 
+        {header} kw_fun id l_par fpar_list r_par colon ret_type {-> id fpar_list ret_type.type};
         
     fpar_list {-> fpar_list}=
         {multi_fpar}  fpar_def fpar_list_tail* {-> New fpar_list.existing([fpar_def.var_def, fpar_list_tail.var_def])}|
@@ -119,14 +119,13 @@ Productions
     	semicolon fpar_def {-> fpar_def.var_def};
 
     fpar_def {-> var_def} =
-        {fpar_def} kw_ref? id_list colon fpar_type    {-> New var_def( [id_list.name], fpar_type.type )};
+        {fpar_def} kw_ref? id id_list_tail* colon fpar_type    {-> New var_def()};
 
     var_def {-> var_def} =
-        {var_def} kw_var id_list colon type semicolon {-> New var_def( [id_list.name], type )};
+        {var_def} kw_var id id_list_tail* colon type semicolon {-> New var_def( [New  variable(id, type), New variable(id_list_tail.id, type)  ] )};
 
-    id_list {-> name*} =
-        {multi}    id comma id_list {-> [New name(id), id_list.name]}|
-        {single}   id               {-> [New name(id)]};
+    id_list_tail {-> id} =
+        {multi}    comma id;
 
     fpar_type {-> type}=
         {fpar_type} data_type empty_array_declarator? array_declarator {-> New type( data_type.data_type, array_declarator.array_dec)};
@@ -257,21 +256,21 @@ Abstract Syntax Tree
     			{func_dec} func_dec |
     			{var_def}  var_def ;
     			
-    func_def  = name [vars]:fpar_list [ret_type]:type [local_defs]:local_def_list;
+    func_def  = id [vars]:fpar_list [ret_type]:type [local_defs]:local_def_list;
     
-    func_dec  = name [vars]:fpar_list [ret_type]:type;
+    func_dec  = id [vars]:fpar_list [ret_type]:type;
     
     fpar_list = {existing} [vars]:var_def*|
     			{non_existing} ;
     
-    var_def   = [var_list]:name*  [type]:type;
+    var_def   = [var_list]:variable*;
     
-    name  	  = id;
+    variable  = id  type;
     
     type      = data_type  array_dec;
     
     array_dec = {existing}    int_const* |
-                {not_existing}  ;
+                {not_existing} ;
     
     data_type = {int}  kw_int |
                 {char} kw_char|

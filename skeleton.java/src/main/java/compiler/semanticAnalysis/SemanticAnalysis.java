@@ -38,15 +38,17 @@ public class SemanticAnalysis extends DepthFirstAdapter{
     @Override
     public void inAFuncDef(AFuncDef node)
     {
-        /* SymbolTable Handling : In every new func_def we have a new scope*/
-        this.symbolTable.enter(node);   
-        addIndentationLevel();        
+        /* SymbolTable Handling : In every new func_def we have a new scope */
+        this.symbolTable.enter(node);
+        this.symbolTable.insert(node);
+        
+        addIndentationLevel();     
     }
     
     
     public void outAFuncDef(AFuncDef node)
     {
-        /* SymbolTable Handling */
+        /* SymbolTable Handling : When we leave from a function leave it's scope */
         this.symbolTable.exit();
         removeIndentationLevel();
     }

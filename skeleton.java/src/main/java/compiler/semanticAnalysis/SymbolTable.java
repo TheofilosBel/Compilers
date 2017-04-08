@@ -7,7 +7,7 @@ import java.util.TreeMap;
 public class SymbolTable {
 
     /* We need a stack to keep the scopes */
-    public Stack<TreeMap<String, String>> scope_st;
+    public Stack<TreeMap<String, Node>> scope_st;
     
     public SymbolTable()
     {
@@ -20,24 +20,24 @@ public class SymbolTable {
         System.out.println("Entered new Scope");
         
         /*Create the Tree map*/
-        TreeMap<String, String> emptyMap = new TreeMap<String, String>();
+        TreeMap<String, Node> emptyMap = new TreeMap<String, Node>();
         this.scope_st.push(emptyMap);
     }
     
-    public void insert(AName node) {
+    public void insert(Node node) {
         
-        System.out.println("Inserting Id: " + node.getId().toString() + " to symbol table");
+        System.out.println("Inserting Id: " + node.toString() + " to symbol table");
         
         /* Insert name to symbol Table */
-        this.scope_st.peek().put(node.getId().toString(), "");
+        this.scope_st.peek().put(node.toString(), node);
     }
 
-    public boolean lookup(AName node)
+    public boolean lookup(Node node)
     {
         String key = null;
         boolean bool = false;
         
-        key =  node.getId().toString();
+        key =  node.toString();
         
         /* Loop all the stack from the top to the start */
         for (int scope_n = 0; scope_n  < this.scope_st.size(); scope_n++)
