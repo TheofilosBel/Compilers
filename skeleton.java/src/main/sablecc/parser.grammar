@@ -194,49 +194,49 @@ Productions
         {str}  string_literal                  |
         {expr} l_value l_bracket expr r_bracket;
 
-    expr =
-        {add}  expr plus term  |
-        {sub}  expr minus term |
-        {term} term;
+    expr {-> expr} =
+        {add}  expr plus term  {-> New expr.add(expr, term.expr)} |
+        {sub}  expr minus term {-> New expr.sub(expr, term.expr)} |
+        {term} term            {-> term.expr};
 
-    term =
-        {mult}     term mult signed_factor   |
-        {div}      term kw_div signed_factor |
-        {mod}      term kw_mod signed_factor |
-        {s_factor} signed_factor;
+    term {-> expr} =
+        {mult}     term mult signed_factor   {-> New expr.mult(term.expr, signed_factor.expr)} |
+        {div}      term kw_div signed_factor {-> New expr.div(term.expr, signed_factor.expr)} |
+        {mod}      term kw_mod signed_factor {-> New expr.mod(term.expr, signed_factor.expr)} |
+        {s_factor} signed_factor             {-> signed_factor.expr};
 
-    signed_factor =
-        {pos}    plus signed_factor  |
-        {neg}    minus signed_factor |
-        {factor} factor;
+    signed_factor {-> expr} =
+        {pos}    plus signed_factor  {-> New expr.pos(signed_factor.expr)} |
+        {neg}    minus signed_factor {-> New expr.neg(signed_factor.expr)} |
+        {factor} factor              {-> factor.expr};
 
-    factor =
-        {int}    int_const       |
-        {char}   char_const      |
-        {lval}   l_value         |
-        {func}   func_call       |
-        {parens} l_par expr r_par;
+    factor {-> expr} =
+        {int}    int_const        {-> New expr.int(int_const)} |
+        {char}   char_const       {-> New expr.char(char_const)} |
+        {lval}   l_value          {-> New expr.lval(l_value)} |
+        {func}   func_call        {-> New expr.func(func_call)} |
+        {parens} l_par expr r_par {-> expr};
 
-    cond =
-        {or} cond kw_or cond1 |
-        {cond1} cond1;
+    cond {-> cond} =
+        {or} cond kw_or cond1 {-> New cond.or(cond, cond1.cond)} |
+        {cond1} cond1         {-> New cond.cond1(cond1.cond)};
 
-    cond1 =
-        {and}   cond1 kw_and cond2 |
-        {cond2} cond2;
+    cond1 {-> cond} =
+        {and}   cond1 kw_and cond2 {-> New cond.and(cond1, cond2.cond)} |
+        {cond2} cond2              {-> New cond.cond2(cond2.cond)};
 
-    cond2 =
-        {not}   kw_not cond3 |
-        {cond3} cond3;
+    cond2 {-> cond} =
+        {not}   kw_not cond3 {-> New cond.not(cond3.cond)} |
+        {cond3} cond3        {-> New cond.cond3(cond3.cond)};
 
-    cond3 =
-        {expr_cmp} [left]:expr cmp_op [right]:expr |
-        {bool}     bool;
+    cond3 {-> cond} =
+        {expr_cmp} [left]:expr cmp_op [right]:expr {-> New cond.expr_cmp(left.expr, right.expr)} |
+        {bool}     bool                            {-> New cond.bool(bool.cond)};
 
-    bool =
-        {true}     true            |
-        {false}    false           |
-        {c_parens} l_par cond r_par;
+    bool {-> cond} =
+        {true}     true             {-> New cond.true(true)} |
+        {false}    false            {-> New cond.false(false)} |
+        {c_parens} l_par cond r_par {-> cond} ;
 
     cmp_op =
         {eq}  eq   |
