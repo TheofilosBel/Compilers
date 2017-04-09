@@ -119,13 +119,14 @@ Productions
     	semicolon fpar_def {-> fpar_def.var_def};
 
     fpar_def {-> var_def} =
-        {fpar_def} kw_ref? id id_list_tail* colon fpar_type    {-> New var_def()};
+        {fpar_def} kw_ref? id_list colon fpar_type    {-> New var_def([id_list.variable], fpar_type.type)};
 
     var_def {-> var_def} =
-        {var_def} kw_var id id_list_tail* colon type semicolon {-> New var_def( [New  variable(id, type), New variable(id_list_tail.id, type)  ] )};
+        {var_def} kw_var id_list colon type semicolon          {-> New var_def([id_list.variable], type)};
 
-    id_list_tail {-> id} =
-        {multi}    comma id;
+    id_list {-> variable*} =
+        {multi}    id comma id_list  {-> [New variable(id, New type( New data_type.none() , New array_dec.not_existing())), id_list.variable] }|
+        {singel}   id                {-> [New variable(id, New type( New data_type.none() , New array_dec.not_existing()))]};
 
     fpar_type {-> type}=
         {fpar_type} data_type empty_array_declarator? array_declarator {-> New type( data_type.data_type, array_declarator.array_dec)};
@@ -170,14 +171,13 @@ Productions
 
     block = l_brace stmt* r_brace;
 
-    func_call = id l_par expr_list? r_par;
+    func_call {-> func_call} = id l_par expr_list? r_par {-> New func_call(id, [expr_list.expr])};
 
-    expr_list =
-        {multi} expr expr_list_tail* |
-        {empty} ;
+    expr_list {-> expr*}=
+        {multi} expr expr_list_tail* {-> [expr, expr_list_tail.expr]};
+        // do we need that ? {empty} ;
 
-    expr_list_tail = comma expr;
-
+    expr_list_tail {-> expr} = comma expr {-> expr};
 
     array_declarator {-> array_dec} =
         {array_decl}    l_bracket int_const r_bracket array_declarator_tail* {-> New array_dec.existing([int_const, array_declarator_tail.int_const])}|
@@ -189,10 +189,10 @@ Productions
     empty_array_declarator =
         {empty_array_decl} l_bracket r_bracket;
 
-    l_value =
-        {id}   id                              |
-        {str}  string_literal                  |
-        {expr} l_value l_bracket expr r_bracket;
+    l_value {-> lvalue} =
+        {id}   id                               {-> New lvalue.id(id)}|
+        {str}  string_literal                   {-> New lvalue.str(string_literal)}|
+        {expr} l_value l_bracket expr r_bracket {-> New lvalue.array(l_value.lvalue, expr)};
 
     expr {-> expr} =
         {add}  expr plus term  {-> New expr.add(expr, term.expr)} |
@@ -213,38 +213,38 @@ Productions
     factor {-> expr} =
         {int}    int_const        {-> New expr.int(int_const)} |
         {char}   char_const       {-> New expr.char(char_const)} |
-        {lval}   l_value          {-> New expr.lval(l_value)} |
+        {lval}   l_value          {-> New expr.lval(l_value.lvalue)} |
         {func}   func_call        {-> New expr.func(func_call)} |
         {parens} l_par expr r_par {-> expr};
 
     cond {-> cond} =
         {or} cond kw_or cond1 {-> New cond.or(cond, cond1.cond)} |
-        {cond1} cond1         {-> New cond.cond1(cond1.cond)};
+        {cond1} cond1         {-> cond1.cond};
 
     cond1 {-> cond} =
-        {and}   cond1 kw_and cond2 {-> New cond.and(cond1, cond2.cond)} |
-        {cond2} cond2              {-> New cond.cond2(cond2.cond)};
+        {and}   cond1 kw_and cond2 {-> New cond.and(cond1.cond, cond2.cond)} |
+        {cond2} cond2              {-> cond2.cond};
 
     cond2 {-> cond} =
         {not}   kw_not cond3 {-> New cond.not(cond3.cond)} |
-        {cond3} cond3        {-> New cond.cond3(cond3.cond)};
+        {cond3} cond3        {-> cond3.cond};
 
     cond3 {-> cond} =
-        {expr_cmp} [left]:expr cmp_op [right]:expr {-> New cond.expr_cmp(left.expr, right.expr)} |
-        {bool}     bool                            {-> New cond.bool(bool.cond)};
+        {expr_cmp} [left]:expr cmp_op [right]:expr {-> New cond.expr_cmp(left.expr, cmp_op, right.expr)} |
+        {bool}     bool                            {-> bool.cond};
 
     bool {-> cond} =
         {true}     true             {-> New cond.true(true)} |
         {false}    false            {-> New cond.false(false)} |
         {c_parens} l_par cond r_par {-> cond} ;
 
-    cmp_op =
-        {eq}  eq   |
-        {neq} neq  |
-        {lt}  lt   |
-        {gt}  gt   |
-        {leq} lteq |
-        {geq} gteq;
+    cmp_op {-> cmp_op} =
+        {eq}  eq   {-> New cmp_op.eq(eq)}   |
+        {neq} neq  {-> New cmp_op.neq(neq)} |
+        {lt}  lt   {-> New cmp_op.lt(lt)}   |
+        {gt}  gt   {-> New cmp_op.gt(gt)}   |
+        {leq} lteq {-> New cmp_op.leq(lteq)}|
+        {geq} gteq {-> New cmp_op.geq(gteq)};
 
 Abstract Syntax Tree
     program = func_def;
@@ -260,10 +260,12 @@ Abstract Syntax Tree
     
     func_dec  = id [vars]:fpar_list [ret_type]:type;
     
+    func_call = id [expr_list]:expr*;
+    
     fpar_list = {existing} [vars]:var_def*|
     			{non_existing} ;
     
-    var_def   = [var_list]:variable*;
+    var_def   = [var_list]:variable* type;
     
     variable  = id  type;
     
@@ -274,4 +276,37 @@ Abstract Syntax Tree
     
     data_type = {int}  kw_int |
                 {char} kw_char|
-                {noth} kw_nothing;
+                {noth} kw_nothing|
+                {none} ;
+
+    expr      = {add}  [l]:expr [r]:expr |
+    			{sub}  [l]:expr [r]:expr |
+    			{mult} [l]:expr [r]:expr |
+    			{div}  [l]:expr [r]:expr |
+    			{mod}  [l]:expr [r]:expr |
+    			{pos}  expr              |
+    			{neg}  expr              |
+    			{int}  int_const         |
+    			{char} char_const        |
+    			{lval} lvalue            |
+    			{func} func_call;
+                
+    lvalue    = {str}   string_literal |
+                {id}    id             |
+                {array} lvalue expr;
+                
+    cond      = {or}  [l]:cond [r]:cond |
+    			{and} [l]:cond [r]:cond |
+    			{not} cond              |
+    			{expr_cmp} [l]:expr cmp_op [r]:expr|
+    			{true}  true            |
+    			{false} false;
+    			
+    cmp_op    = {eq}  eq |
+    			{neq} neq	|
+    			{lt}  lt |
+    			{gt}  gt |
+    			{geq} gteq|
+    			{leq} lteq;
+    			
+    
