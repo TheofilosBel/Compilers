@@ -15,7 +15,7 @@ public class SemanticAnalysis extends DepthFirstAdapter{
         this.symbolTable = new SymbolTable();  
     }
 
-    /* For debuging reasons */
+    /* For debugging reasons */
     private void addIndentationLevel() {
         indentation++;
     }
@@ -53,10 +53,25 @@ public class SemanticAnalysis extends DepthFirstAdapter{
         removeIndentationLevel();
     }
     
+    @Override
+    public void inAVarDef(AVarDef node)
+    {
+    	/* Put the right types to the variables on the def */
+    	for (int varnum = 0; varnum < node.getVarList().size(); varnum++)
+    	{
+    		AVariable var = (AVariable) node.getVarList().get(varnum);
+    		var.setType(node.getType());
+    	}
+    	
+    }
+    		
+    
     @Override 
-    public void inAName(AName node)
+    public void inAVariable(AVariable node)
     {
         printIndentation();
+        System.out.println("Variable:" + node.getId());
+        indentNprint("Type: " + node.getType());
         /* Lookup the symbol table */
         if (this.symbolTable.lookup(node) != true)
         {

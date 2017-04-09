@@ -32,7 +32,7 @@ public class Translation extends DepthFirstAdapter{
     {
         /* Printing */
         indentNprint("type: func_def");
-        indentNprint("name: " + node.getName());
+        indentNprint("name: " + node.getId());
         indentNprint("return_type: " + node.getRetType().toString());
         
         addIndentationLevel();        
@@ -43,7 +43,7 @@ public class Translation extends DepthFirstAdapter{
     {
         /* Printing */
         indentNprint("type: func_def");
-        indentNprint("name: " + node.getName());
+        indentNprint("name: " + node.getId());
         indentNprint("return_type: " + node.getRetType().toString());   
     }
     
@@ -79,14 +79,6 @@ public class Translation extends DepthFirstAdapter{
         //System.out.println();
     }
 
-    @Override 
-    public void inAName(AName node)
-    {
-        //printIndentation();
-
-    }
-    
-    
     @Override
     public void inAVarDef(AVarDef node)
     {        
