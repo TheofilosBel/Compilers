@@ -21,15 +21,13 @@ public class Translation extends DepthFirstAdapter{
         System.out.print(String.join("", Collections.nCopies(indentation, "   ")));
     }
     
-    private void indentNprint(String msg) 
-    {
+    private void indentNprint(String msg) {
         printIndentation();
         System.out.println(msg);
     }
 
     @Override
-    public void inAFuncDef(AFuncDef node)
-    {
+    public void inAFuncDef(AFuncDef node) {
         /* Printing */
         indentNprint("type: func_def");
         indentNprint("name: " + node.getId());
@@ -37,54 +35,44 @@ public class Translation extends DepthFirstAdapter{
         
         addIndentationLevel();        
     }
-    
+
     @Override
-    public void inAFuncDec(AFuncDec node)
-    {
+    public void inAFuncDec(AFuncDec node) {
         /* Printing */
         indentNprint("type: func_def");
         indentNprint("name: " + node.getId());
         indentNprint("return_type: " + node.getRetType().toString());   
     }
-    
-    
-    public void outAFuncDef(AFuncDef node)
-    {
+
+    public void outAFuncDef(AFuncDef node) {
         removeIndentationLevel();
-    }
-    
-    
-    @Override
-    public void inAType(AType node)
-    {
-        /* See if its an array or not */
-        //System.out.print("type: ");
-        //System.out.print(node.getDataType().toString());
-        
     }
 
     @Override
-    public void inAExistingArrayDec(AExistingArrayDec node)
-    {
+    public void inAType(AType node) {
+        /* See if its an array or not */
+        //System.out.print("type: ");
+        //System.out.print(node.getDataType().toString());
+    }
+
+    @Override
+    public void inAExistingArrayDec(AExistingArrayDec node) {
         //System.out.print(" with dimensions =");
         //System.out.print(node.getIntConst().size());
         //System.out.print(" and vals =");
         //System.out.println(node.getIntConst());
-        
     }
 
     @Override
-    public void inANotExistingArrayDec(ANotExistingArrayDec node)
-    {
+    public void inANotExistingArrayDec(ANotExistingArrayDec node) {
         //System.out.println();
     }
 
     @Override
-    public void inAVarDef(AVarDef node)
-    {        
+    public void inAVarDef(AVarDef node) {
         indentNprint("type: var_def");
         indentNprint("names: " + node.getVarList());
         indentNprint("type: " + node.getType());
-
     }
+    
 }
