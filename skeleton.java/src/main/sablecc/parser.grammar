@@ -90,98 +90,102 @@ Ignored Tokens
     
 Productions
 
-    program  {->program} =
-        {func_def} func_def {-> New program(func_def.func_def) };
+    program {->program} =
+        {func_def} func_def {-> New program(func_def.func_def)};
         
-    func_def {-> func_def}=
-                {func_def}   header local_def_list block {->New func_def(header.id, header.fpar_list, header.type, local_def_list)};
+    func_def {-> func_def} =
+                {func_def} header local_def_list block {->New func_def(header.id, header.fpar_list, header.type, local_def_list)};
         
     func_decl {-> func_dec} =
         {func_decl} header semicolon {-> New func_dec(header.id, header.fpar_list, header.type)};
  
- 	local_def_list {-> local_def_list} =
- 		{non_empty}	 local_def+  {-> New local_def_list.existing([local_def])}|
- 		{empty}		             {-> New local_def_list.non_existing()};
- 		
+    local_def_list {-> local_def_list} =
+        {non_empty} local_def+ {-> New local_def_list.existing([local_def])} |
+        {empty}                {-> New local_def_list.non_existing()};
+        
     local_def {-> local_def} =
-        {inner_decl} func_decl    {-> New local_def.func_dec(func_decl.func_dec)}|
-        {inner_def}  func_def  	  {-> New local_def.func_def(func_def)}          |
-        {inner_vars} var_def      {-> New local_def.var_def(var_def.var_def)};
-    	
+        {inner_decl} func_decl {-> New local_def.func_dec(func_decl.func_dec)} |
+        {inner_def}  func_def  {-> New local_def.func_def(func_def)}           |
+        {inner_vars} var_def   {-> New local_def.var_def(var_def.var_def)};
+        
     header {-> id fpar_list type} = 
         {header} kw_fun id l_par fpar_list r_par colon ret_type {-> id fpar_list ret_type.type};
         
-    fpar_list {-> fpar_list}=
-        {multi_fpar}  fpar_def fpar_list_tail* {-> New fpar_list.existing([fpar_def.var_def, fpar_list_tail.var_def])}|
-        {empty} 	                           {-> New fpar_list.non_existing()};
+    fpar_list {-> fpar_list} =
+        {multi_fpar}  fpar_def fpar_list_tail* {-> New fpar_list.existing([fpar_def.var_def, fpar_list_tail.var_def])} |
+        {empty}                                {-> New fpar_list.non_existing()};
         
     fpar_list_tail {-> var_def} =
-    	semicolon fpar_def {-> fpar_def.var_def};
+        semicolon fpar_def {-> fpar_def.var_def};
 
     fpar_def {-> var_def} =
-        {fpar_def} kw_ref? id_list colon fpar_type    {-> New var_def([id_list.variable], fpar_type.type)};
+        {fpar_def} kw_ref? id_list colon fpar_type {-> New var_def([id_list.variable], fpar_type.type)};
 
     var_def {-> var_def} =
-        {var_def} kw_var id_list colon type semicolon          {-> New var_def([id_list.variable], type)};
+        {var_def} kw_var id_list colon type semicolon {-> New var_def([id_list.variable], type)};
 
     id_list {-> variable*} =
-        {multi}    id comma id_list  {-> [New variable(id, New type( New data_type.none() , New array_dec.not_existing())), id_list.variable] }|
-        {singel}   id                {-> [New variable(id, New type( New data_type.none() , New array_dec.not_existing()))]};
+        {multi} id comma id_list
+                {-> [New variable(id, New type(New data_type.none(), New array_dec.not_existing())), id_list.variable]} |
+        {single} id {-> [New variable(id, New type(New data_type.none(), New array_dec.not_existing()))]};
 
     fpar_type {-> type}=
-        {fpar_type} data_type empty_array_declarator? array_declarator {-> New type( data_type.data_type, array_declarator.array_dec)};
+        {fpar_type} data_type empty_array_declarator? array_declarator {-> New type(data_type.data_type, array_declarator.array_dec)};
 
     type {-> type} =
-        {type} data_type array_declarator {-> New type( data_type.data_type, array_declarator.array_dec)};
+        {type} data_type array_declarator {-> New type(data_type.data_type, array_declarator.array_dec)};
 
     ret_type {-> type} =
-        {ret_data} data_type  {-> New type(data_type.data_type, New array_dec.not_existing())}|
-        {ret_noth} kw_nothing {-> New type( New data_type.noth(kw_nothing), New array_dec.not_existing())};
+        {ret_data} data_type  {-> New type(data_type.data_type, New array_dec.not_existing())}            |
+        {ret_noth} kw_nothing {-> New type(New data_type.noth(kw_nothing), New array_dec.not_existing())};
 
     data_type {-> data_type} =
         {type_int}  kw_int  {-> New data_type.int(kw_int)}  |
         {type_char} kw_char {-> New data_type.char(kw_char)};
 
-    stmt =
-        {matched}   matched  |
-        {unmatched} unmatched;
+    stmt {-> stmt} =
+        {matched}   matched   {-> New stmt.matched(matched)}    |
+        {unmatched} unmatched {-> New stmt.unmatched(unmatched)};
 
-    matched =
-        {if}        matched_if                    |
-        {while}     matched_while                 |
-        {noop}      semicolon                     |
-        {assign}    l_value assign expr semicolon |
-        {block}     block                         |
-        {func_call} func_call semicolon           |
-        {return}    kw_return expr? semicolon;
+    matched {-> matched} =
+        {if}        matched_if                    {-> New matched.if(matched_if)}                    |
+        {while}     matched_while                 {-> New matched.while(matched_while)}              |
+        {noop}      semicolon                     {-> New matched.noop()}                            |
+        {assign}    l_value assign expr semicolon {-> New matched.assign(l_value.lvalue, expr.expr)} |
+        {block}     block                         {-> New matched.block(block)}                      |
+        {func_call} func_call semicolon           {-> New matched.func_call(func_call)}              |
+        {return}    kw_return expr? semicolon     {-> New matched.return(kw_return, expr)};
 
-    unmatched =
-        {if}    unmatched_if   |
-        {while} unmatched_while;
+    unmatched {-> unmatched} =
+        {if}    unmatched_if    {-> New unmatched.if(unmatched_if)}         |
+        {while} unmatched_while {-> New unmatched.while(unmatched_while)};
 
-    matched_if = kw_if cond kw_then [inner]:matched kw_else [outer]:matched;
+    matched_if {-> matched_if} = kw_if cond kw_then [inner]:matched kw_else [outer]:matched
+                                 {-> New matched_if(kw_if, cond, kw_then, inner.matched, kw_else, outer.matched)};
 
-    unmatched_if =
-        {no_else}   kw_if cond kw_then stmt                     |
-        {with_else} kw_if cond kw_then matched kw_else unmatched;
+    unmatched_if {-> unmatched_if} =
+        {no_else}   kw_if cond kw_then stmt {-> New unmatched_if.no_else(kw_if, cond, kw_then, stmt)} |
+        {with_else} kw_if cond kw_then matched kw_else unmatched 
+                    {-> New unmatched_if.with_else(kw_if, cond, kw_then, matched, kw_else, unmatched)};
 
-    matched_while = kw_while cond kw_do matched;
+    matched_while {-> matched_while} = kw_while cond kw_do matched {-> New matched_while(kw_while, cond, kw_do, matched)};
 
-    unmatched_while = kw_while cond kw_do unmatched;
+    unmatched_while {-> unmatched_while} = kw_while cond kw_do unmatched {-> New unmatched_while(kw_while, cond, kw_do, unmatched)};
 
-    block = l_brace stmt* r_brace;
+    block {-> block} = l_brace stmt* r_brace {-> New block([stmt])};
 
     func_call {-> func_call} = id l_par expr_list? r_par {-> New func_call(id, [expr_list.expr])};
 
-    expr_list {-> expr*}=
+    expr_list {-> expr*} =
         {multi} expr expr_list_tail* {-> [expr, expr_list_tail.expr]};
         // do we need that ? {empty} ;
 
     expr_list_tail {-> expr} = comma expr {-> expr};
 
     array_declarator {-> array_dec} =
-        {array_decl}    l_bracket int_const r_bracket array_declarator_tail* {-> New array_dec.existing([int_const, array_declarator_tail.int_const])}|
-        {no_array_decl}                                                      {-> New array_dec.not_existing()};
+        {array_decl} l_bracket int_const r_bracket array_declarator_tail*
+                     {-> New array_dec.existing([int_const, array_declarator_tail.int_const])} |
+        {no_array_decl} {-> New array_dec.not_existing()};
 
     array_declarator_tail {->int_const} =
         {multiple} l_bracket int_const r_bracket {-> int_const};
@@ -190,8 +194,8 @@ Productions
         {empty_array_decl} l_bracket r_bracket;
 
     l_value {-> lvalue} =
-        {id}   id                               {-> New lvalue.id(id)}|
-        {str}  string_literal                   {-> New lvalue.str(string_literal)}|
+        {id}   id                               {-> New lvalue.id(id)}                     |
+        {str}  string_literal                   {-> New lvalue.str(string_literal)}        |
         {expr} l_value l_bracket expr r_bracket {-> New lvalue.array(l_value.lvalue, expr)};
 
     expr {-> expr} =
@@ -201,8 +205,8 @@ Productions
 
     term {-> expr} =
         {mult}     term mult signed_factor   {-> New expr.mult(term.expr, signed_factor.expr)} |
-        {div}      term kw_div signed_factor {-> New expr.div(term.expr, signed_factor.expr)} |
-        {mod}      term kw_mod signed_factor {-> New expr.mod(term.expr, signed_factor.expr)} |
+        {div}      term kw_div signed_factor {-> New expr.div(term.expr, signed_factor.expr)}  |
+        {mod}      term kw_mod signed_factor {-> New expr.mod(term.expr, signed_factor.expr)}  |
         {s_factor} signed_factor             {-> signed_factor.expr};
 
     signed_factor {-> expr} =
@@ -211,10 +215,10 @@ Productions
         {factor} factor              {-> factor.expr};
 
     factor {-> expr} =
-        {int}    int_const        {-> New expr.int(int_const)} |
-        {char}   char_const       {-> New expr.char(char_const)} |
+        {int}    int_const        {-> New expr.int(int_const)}       |
+        {char}   char_const       {-> New expr.char(char_const)}     |
         {lval}   l_value          {-> New expr.lval(l_value.lvalue)} |
-        {func}   func_call        {-> New expr.func(func_call)} |
+        {func}   func_call        {-> New expr.func(func_call)}      |
         {parens} l_par expr r_par {-> expr};
 
     cond {-> cond} =
@@ -234,78 +238,117 @@ Productions
         {bool}     bool                            {-> bool.cond};
 
     bool {-> cond} =
-        {true}     true             {-> New cond.true(true)} |
+        {true}     true             {-> New cond.true(true)}   |
         {false}    false            {-> New cond.false(false)} |
         {c_parens} l_par cond r_par {-> cond} ;
 
     cmp_op {-> cmp_op} =
-        {eq}  eq   {-> New cmp_op.eq(eq)}   |
-        {neq} neq  {-> New cmp_op.neq(neq)} |
-        {lt}  lt   {-> New cmp_op.lt(lt)}   |
-        {gt}  gt   {-> New cmp_op.gt(gt)}   |
-        {leq} lteq {-> New cmp_op.leq(lteq)}|
-        {geq} gteq {-> New cmp_op.geq(gteq)};
+        {eq}  eq   {-> New cmp_op.eq(eq)}    |
+        {neq} neq  {-> New cmp_op.neq(neq)}  |
+        {lt}  lt   {-> New cmp_op.lt(lt)}    |
+        {gt}  gt   {-> New cmp_op.gt(gt)}    |
+        {leq} lteq {-> New cmp_op.leq(lteq)} |
+        {geq} gteq {-> New cmp_op.geq(gteq)} ;
 
 Abstract Syntax Tree
+
     program = func_def;
     
-    local_def_list = {existing} local_def*|
-    				 {non_existing} ;
+    local_def_list =
+        {existing} local_def* |
+        {non_existing} ;
     
-    local_def = {func_def} func_def |
-    			{func_dec} func_dec |
-    			{var_def}  var_def ;
-    			
-    func_def  = id [vars]:fpar_list [ret_type]:type [local_defs]:local_def_list;
+    local_def =
+        {func_def} func_def |
+        {func_dec} func_dec |
+        {var_def}  var_def;
+                
+    func_def = id [vars]:fpar_list [ret_type]:type [local_defs]:local_def_list;
     
-    func_dec  = id [vars]:fpar_list [ret_type]:type;
+    func_dec = id [vars]:fpar_list [ret_type]:type;
     
     func_call = id [expr_list]:expr*;
     
-    fpar_list = {existing} [vars]:var_def*|
-    			{non_existing} ;
+    fpar_list =
+        {existing} [vars]:var_def* |
+        {non_existing};
     
-    var_def   = [var_list]:variable* type;
+    var_def = [var_list]:variable* type;
     
-    variable  = id  type;
+    variable = id type;
     
-    type      = data_type  array_dec;
+    type = data_type array_dec;
     
-    array_dec = {existing}    int_const* |
-                {not_existing} ;
+    array_dec =
+        {existing} int_const* |
+        {not_existing} ;
     
-    data_type = {int}  kw_int |
-                {char} kw_char|
-                {noth} kw_nothing|
-                {none} ;
+    data_type =
+        {int}  kw_int     |
+        {char} kw_char    |
+        {noth} kw_nothing |
+        {none} ;
 
-    expr      = {add}  [l]:expr [r]:expr |
-    			{sub}  [l]:expr [r]:expr |
-    			{mult} [l]:expr [r]:expr |
-    			{div}  [l]:expr [r]:expr |
-    			{mod}  [l]:expr [r]:expr |
-    			{pos}  expr              |
-    			{neg}  expr              |
-    			{int}  int_const         |
-    			{char} char_const        |
-    			{lval} lvalue            |
-    			{func} func_call;
+    stmt =
+        {matched}   matched  |
+        {unmatched} unmatched;
+
+    matched =
+        {if}        matched_if      |
+        {while}     matched_while   |
+        {assign}    lvalue expr     |
+        {block}     block           |
+        {func_call} func_call       |
+        {return}    kw_return expr? |
+        {noop}      ;
+
+    unmatched =
+        {if}    unmatched_if   |
+        {while} unmatched_while;
+
+    matched_if = kw_if cond kw_then [inner]:matched kw_else [outer]:matched;
+
+    unmatched_if =
+        {no_else}   kw_if cond kw_then stmt                     |
+        {with_else} kw_if cond kw_then matched kw_else unmatched;
+
+    matched_while = kw_while cond kw_do matched;
+
+    unmatched_while = kw_while cond kw_do unmatched;
+
+    block = stmt*;
+
+    expr =
+        {add}  [l]:expr [r]:expr |
+        {sub}  [l]:expr [r]:expr |
+        {mult} [l]:expr [r]:expr |
+        {div}  [l]:expr [r]:expr |
+        {mod}  [l]:expr [r]:expr |
+        {pos}  expr              |
+        {neg}  expr              |
+        {int}  int_const         |
+        {char} char_const        |
+        {lval} lvalue            |
+        {func} func_call;
                 
-    lvalue    = {str}   string_literal |
-                {id}    id             |
-                {array} lvalue expr;
+    lvalue =
+        {str}   string_literal |
+        {id}    id             |
+        {array} lvalue expr;
                 
-    cond      = {or}  [l]:cond [r]:cond |
-    			{and} [l]:cond [r]:cond |
-    			{not} cond              |
-    			{expr_cmp} [l]:expr cmp_op [r]:expr|
-    			{true}  true            |
-    			{false} false;
-    			
-    cmp_op    = {eq}  eq |
-    			{neq} neq	|
-    			{lt}  lt |
-    			{gt}  gt |
-    			{geq} gteq|
-    			{leq} lteq;
-    			
+    cond =
+        {or}       [l]:cond [r]:cond        |
+        {and}      [l]:cond [r]:cond        |
+        {not}      cond                     |
+        {expr_cmp} [l]:expr cmp_op [r]:expr |
+        {true}     true                     |
+        {false}    false;
+                
+    cmp_op =
+        {eq}  eq   |
+        {neq} neq  |
+        {lt}  lt   |
+        {gt}  gt   |
+        {geq} gteq |
+        {leq} lteq;
+                
