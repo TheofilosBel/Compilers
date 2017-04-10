@@ -172,9 +172,9 @@ Productions
 
     unmatched_while {-> stmt} = kw_while cond kw_do unmatched {-> New stmt.while(cond.cond, unmatched.stmt)};
 
-    block {-> stmt} = l_brace block_stmt_list? r_brace {-> New stmt.block([block_stmt_list.stmt])};
+    block {-> stmt} = l_brace block_stmt_list r_brace {-> New stmt.block([block_stmt_list.stmt])};
 
-    block_stmt_list {-> stmt*} = stmt+ {-> [stmt]};
+    block_stmt_list {-> stmt*} = stmt* {-> [stmt]};
 
     func_call {-> func_call} = id l_par expr_list? r_par {-> New func_call(id, [expr_list.expr])};
 
