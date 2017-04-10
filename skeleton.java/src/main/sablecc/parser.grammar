@@ -172,13 +172,13 @@ Productions
 
     unmatched_while {-> stmt} = kw_while cond kw_do unmatched {-> New stmt.while(cond.cond, unmatched.stmt)};
 
-    block {-> stmt*} = l_brace stmt* r_brace {-> [stmt]};
+    block {-> stmt} = l_brace block_stmt_list? r_brace {-> New stmt.block([block_stmt_list.stmt])};
+
+    block_stmt_list {-> stmt*} = stmt+ {-> [stmt]};
 
     func_call {-> func_call} = id l_par expr_list? r_par {-> New func_call(id, [expr_list.expr])};
 
-    expr_list {-> expr*} =
-        {multi} expr expr_list_tail* {-> [expr, expr_list_tail.expr]};
-        // do we need that ? {empty} ;
+    expr_list {-> expr*} = {multi} expr expr_list_tail* {-> [expr, expr_list_tail.expr]};
 
     expr_list_tail {-> expr} = comma expr {-> expr};
 
@@ -290,12 +290,12 @@ Abstract Syntax Tree
         {none} ;
 
     stmt =
-        {if}        cond [then]:stmt [else]:stmt |
-        {while}     cond [body]:stmt             |
-        {assign}    lvalue expr                  |
-        {block}     [body]:stmt*                 |
-        {func_call} func_call                    |
-        {return}    expr?                        |
+        {if}        cond [then]:stmt [else]:stmt? |
+        {while}     cond [body]:stmt              |
+        {assign}    lvalue expr                   |
+        {block}     [body]:stmt*                  |
+        {func_call} func_call                     |
+        {return}    expr?                         |
         {noop}      ;
 
     expr =
