@@ -1,6 +1,8 @@
 package compiler.semanticAnalysis;
 
 import compiler.node.*;
+import compiler.semanticAnalysis.DataTransformation;
+
 import java.util.Stack;
 import java.util.TreeMap;
 
@@ -21,19 +23,30 @@ public class SymbolTable {
         TreeMap<String, Node> emptyMap = new TreeMap<String, Node>();
         this.scope_st.push(emptyMap);
     }
-
-    public void insert(Node node) {
-        System.out.println("Inserting Id: " + node.toString() + " to symbol table");
+    
+    public boolean insert(DataTransformation data) {
+        
+        boolean bool = false;
+        System.out.println("Inserting Id: " + data.getTableDataName() + " to symbol table");
+        
+        /* First search if the name exists in this scope only */
+        bool = this.scope_st.peek().containsKey(data.getTableDataName());
 
         /* Insert name to symbol Table */
-        this.scope_st.peek().put(node.toString(), node);
+        if (bool == false){
+            this.scope_st.peek().put(data.getTableDataName(), data.getTableDataNode());
+            return true;
+        }
+        
+        /* In case we found it inform calling func for the situation */
+        return false;
     }
 
-    public boolean lookup(Node node) {
+    public boolean lookup(DataTransformation data) {
         String key = null;
         boolean bool = false;
 
-        key =  node.toString();
+        key =  data.getTableDataName();
 
         /* Loop all the stack from the top to the start */
         for (int scope_n = 0; scope_n  < this.scope_st.size(); scope_n++) {

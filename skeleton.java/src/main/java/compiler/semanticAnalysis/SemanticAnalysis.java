@@ -1,6 +1,7 @@
 package compiler.semanticAnalysis;
 
 import compiler.analysis.*;
+import compiler.semanticAnalysis.DataTransformation.*;
 import compiler.node.*;
 import java.util.Collections;
 
@@ -11,7 +12,7 @@ public class SemanticAnalysis extends DepthFirstAdapter{
 
     public SemanticAnalysis() {
         System.out.println("Constructing Symbol_table");
-        this.symbolTable = new SymbolTable();  
+        this.symbolTable = new SymbolTable();
     }
 
     /* For debugging reasons */
@@ -37,7 +38,10 @@ public class SemanticAnalysis extends DepthFirstAdapter{
     public void inAFuncDef(AFuncDef node) {
         /* SymbolTable Handling : In every new func_def we have a new scope */
         this.symbolTable.enter(node);
-        this.symbolTable.insert(node);
+        
+        /* Create a DataTransformation object to pass in the insert func */
+        DataTransformation data = new DataTransformation(node.getId().toString(), node);
+        this.symbolTable.insert(data);
         
         addIndentationLevel();     
     }
@@ -59,14 +63,17 @@ public class SemanticAnalysis extends DepthFirstAdapter{
 
     @Override 
     public void inAVariable(AVariable node) {
-        printIndentation();
-        System.out.println("Variable:" + node.getId());
+        indentNprint("Variable:" + node.getId());
         indentNprint("Type: " + node.getType());
-        /* Lookup the symbol table */
-        if (this.symbolTable.lookup(node) != true) {
-            /*Insert it in case it's a new name */
-            this.symbolTable.insert(node);
+        
+        DataTransformation data = new DataTransformation(node.getId().toString(), node);
+        
+        /*Insert it in case it's a new name */
+        if (this.symbolTable.insert(data) == false){
+            System.out.println("Error Conflicting types : name \"" + node.getId() + "\" already existis");
+            System.exit(-1);
         }
+        
     }
 
 }
