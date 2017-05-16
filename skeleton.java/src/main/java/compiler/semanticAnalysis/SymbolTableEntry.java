@@ -1,23 +1,28 @@
 package compiler.semanticAnalysis;
 
 import compiler.node.*;
+import compiler.semanticAnalysis.Type;
 
-public class DataTransformation {
+public class SymbolTableEntry {
     
     
     /*Keep a string and a node type obj */
     private String name;
     private Node   node;
+    private Type   type;
     
     
-    public DataTransformation(String name, Node node){
-        this.name = name;
-        this.node = node;
+    public SymbolTableEntry(){
+     
+    }
+    
+    public SymbolTableEntry(Type type){
+        this.type = type;
     }
     
     /*---- Setters and Getters */
-    public String getTableDataName(){
-        return this.name;
+    public Type getType(){
+        return this.type;
     }
     
     public Node getTableDataNode(){

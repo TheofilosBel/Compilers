@@ -1,7 +1,7 @@
 package compiler.semanticAnalysis;
 
 import compiler.node.*;
-import compiler.semanticAnalysis.DataTransformation;
+import compiler.semanticAnalysis.SymbolTableEntry;
 
 import java.util.Stack;
 import java.util.TreeMap;
@@ -9,7 +9,7 @@ import java.util.TreeMap;
 public class SymbolTable {
 
     /* We need a stack to keep the scopes */
-    public Stack<TreeMap<String, Node>> scope_st;
+    public Stack<TreeMap<String, SymbolTableEntry>> scope_st;
 
     public SymbolTable() {
         /* Create an empty stack with an empty tree */
@@ -20,21 +20,21 @@ public class SymbolTable {
         System.out.println("Entered new Scope");
 
         /*Create the Tree map*/
-        TreeMap<String, Node> emptyMap = new TreeMap<String, Node>();
+        TreeMap<String, SymbolTableEntry> emptyMap = new TreeMap<String, SymbolTableEntry>();
         this.scope_st.push(emptyMap);
     }
     
-    public boolean insert(DataTransformation data) {
+    public boolean insert(String SymbolName, SymbolTableEntry data) {
         
         boolean bool = false;
-        System.out.println("Inserting Id: " + data.getTableDataName() + " to symbol table");
+        System.out.println("Inserting Id: " + SymbolName + " to symbol table");
         
         /* First search if the name exists in this scope only */
-        bool = this.scope_st.peek().containsKey(data.getTableDataName());
+        bool = this.scope_st.peek().containsKey(SymbolName);
 
         /* Insert name to symbol Table */
         if (bool == false){
-            this.scope_st.peek().put(data.getTableDataName(), data.getTableDataNode());
+            this.scope_st.peek().put(SymbolName, data);
             return true;
         }
         
@@ -42,11 +42,9 @@ public class SymbolTable {
         return false;
     }
 
-    public boolean lookup(DataTransformation data) {
-        String key = null;
+    public SymbolTableEntry lookup(String key) {
         boolean bool = false;
 
-        key =  data.getTableDataName();
 
         /* Loop all the stack from the top to the start */
         for (int scope_n = 0; scope_n  < this.scope_st.size(); scope_n++) {
@@ -56,22 +54,20 @@ public class SymbolTable {
             }
             catch (Exception e) {
                 System.out.println("Error in loukup: " + e.getMessage());
-                return false;
+                return null;
             }
 
             System.out.println();
 
             if ( bool == true) {
                 System.out.println("Found id:" + key);
-                return bool;
-            } 
-            else {
-                System.out.println("Id " + key + "not found :");
+                return  this.scope_st.get(scope_n).get(key);
             }
         }
 
         /* Return's false in case the serached failed */
-        return false;
+        System.out.println("Id " + key + "not found :");
+        return null;
     }
 
     public void exit() {

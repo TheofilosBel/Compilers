@@ -46,6 +46,7 @@ public class Translation extends DepthFirstAdapter{
     }
 
     public void outAFuncDef(AFuncDef node) {
+        System.out.println("Skata");    
         removeIndentationLevel();
     }
 
@@ -71,10 +72,11 @@ public class Translation extends DepthFirstAdapter{
 
     @Override
     public void inAVarDef(AVarDef node) {
-        indentNprint("type: var_def");
+        indentNprint("type: var_deff");
         indentNprint("names: " + node.getVarList());
         indentNprint("type: " + node.getType());
         System.out.println();
     }
+    
     
 }
