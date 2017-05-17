@@ -37,21 +37,27 @@ public class FunctionType extends Type {
                 if (fpar_def instanceof AByvallFparDef) {
                     
                     /* Get the PVariable list from the var def */
-                    argsByVall.addAll( ((AVarDef) ((AByvallFparDef) fpar_def).getVars()).getVarList() );
+                    argsByVall.addAll( ((AByvallFparDef) fpar_def).getVarList() );
                     
-                    /* The Variable don't have the type ready , add them from the var_def*/
-                    
+                    /* The Variable don't have the type ready , add them from the type in fpar_def*/
                     for (int vars = 0; vars < argsByVall.size(); vars++) {
                         var = (AVariable) argsByVall.get(vars);
-                        tempType = (PType) ((AType) ((AVarDef) ((AByvallFparDef) fpar_def).getVars()).getType()).clone() ;
+                        tempType = (PType) ((AType) (((AByvallFparDef) fpar_def).getType())).clone() ;
                         var.setType(tempType);
                     }
+
                 }
                 else if (fpar_def instanceof AByrefFparDef) {
                     
                     /* Get the PVariable list from the var def */
-
-                    argsByRef.addAll( ((AVarDef) ((AByrefFparDef) fpar_def).getVars()).getVarList() );
+                    argsByRef.addAll( ((AByrefFparDef) fpar_def).getVarList() );
+                    
+                    /* The Variable don't have the type ready , add them from the type in fpar_def*/
+                    for (int vars = 0; vars < argsByRef.size(); vars++) {
+                        var = (AVariable) argsByRef.get(vars);
+                        tempType = (PType) ((AType) (((AByrefFparDef) fpar_def).getType())).clone() ;
+                        var.setType(tempType);
+                    }
                 }
 
             } 

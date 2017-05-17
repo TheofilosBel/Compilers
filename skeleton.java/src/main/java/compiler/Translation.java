@@ -29,7 +29,6 @@ public class Translation extends DepthFirstAdapter{
     @Override
     public void inAFuncDef(AFuncDef node) {
         /* Printing */
-        indentNprint("type: func_def");
         indentNprint("name: " + node.getId());
         indentNprint("return_type: " + node.getRetType().toString());
         
@@ -40,7 +39,6 @@ public class Translation extends DepthFirstAdapter{
     @Override
     public void inAFuncDec(AFuncDec node) {
         /* Printing */
-        indentNprint("type: func_def");
         indentNprint("name: " + node.getId());
         indentNprint("return_type: " + node.getRetType().toString());   
     }

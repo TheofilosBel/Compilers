@@ -43,7 +43,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     public void inAFuncDec(AFuncDec node) {
         
         /* Create a SymbolTableEntry object to pass to the insert function */
-        SymbolTableEntry data = new SymbolTableEntry(new FunctionType((AType) node.getRetType(), node.getVars()));
+        SymbolTableEntry data = new SymbolTableEntry(new FunctionType((AType) node.getRetType(), node.getFplist()));
         this.symbolTable.insert(node.getId().toString(), data);
         
         addIndentationLevel();
@@ -56,8 +56,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         this.symbolTable.enter();
         
         /* Create a SymbolTableEntry object to pass to the insert function */
-        //SymbolTableEntry data = new SymbolTableEntry(new FunctionType((AType) node.getRetType()));
-        //this.symbolTable.insert(node.getId().toString(), data);
+        SymbolTableEntry data = new SymbolTableEntry(new FunctionType((AType) node.getRetType(), node.getFplist()));
+        this.symbolTable.insert(node.getId().toString(), data);
         
         addIndentationLevel();
     }

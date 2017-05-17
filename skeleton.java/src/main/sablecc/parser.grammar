@@ -119,8 +119,8 @@ Productions
         semicolon fpar_def {-> fpar_def};
 
     fpar_def {-> fpar_def} =
-        {by_ref}  kw_ref id_list colon fpar_type {-> New fpar_def.byref(New var_def([id_list.variable], fpar_type.type), kw_ref)} |
-        {by_vall} id_list colon fpar_type {-> New fpar_def.byvall(New var_def([id_list.variable], fpar_type.type))};
+        {by_ref}  kw_ref id_list colon fpar_type {-> New fpar_def.byref([id_list.variable], fpar_type.type, kw_ref)} |
+        {by_vall} id_list colon fpar_type {-> New fpar_def.byvall([id_list.variable], fpar_type.type)};
 
     var_def {-> var_def} =
         {var_def} kw_var id_list colon type semicolon {-> New var_def([id_list.variable], type)};
@@ -264,9 +264,9 @@ Abstract Syntax Tree
         {func_dec} func_dec |
         {var_def}  var_def;
                 
-    func_def = id [vars]:fpar_list [ret_type]:type [local_defs]:local_def_list [block]:stmt;
+    func_def = id [fplist]:fpar_list [ret_type]:type [local_defs]:local_def_list [block]:stmt;
     
-    func_dec = id [vars]:fpar_list [ret_type]:type;
+    func_dec = id [fplist]:fpar_list [ret_type]:type;
     
     func_call = id [expr_list]:expr*;
     
@@ -275,8 +275,8 @@ Abstract Syntax Tree
         {non_existing};
         
     fpar_def = 
-    	{byref}  [vars]:var_def [passby]:kw_ref |
-    	{byvall} [vars]:var_def;
+    	{byref}  [var_list]:variable* type [passby]:kw_ref |
+    	{byvall} [var_list]:variable* type;
     	
     
     var_def = [var_list]:variable* type;
