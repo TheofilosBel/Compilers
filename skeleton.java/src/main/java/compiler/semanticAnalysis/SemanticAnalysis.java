@@ -71,15 +71,16 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void inAVarDef(AVarDef node) {
         AVariable var = null;
-        PType type = null;
+        PType type = node.getType();
     	
         /* Put the right types to the variables on the def */
     	for (int varnum = 0; varnum < node.getVarList().size(); varnum++) { 
     		var = (AVariable) node.getVarList().get(varnum);
-    		type = (PType) ((AType) node.getType()).clone(); 
+    		type = (PType) ((AType) type).clone();
+    		System.out.println(type);
     		var.setType(type);
 
-    		System.out.println(var.getId().toString() + "  " + var.getType().toString());
+    		System.out.println(var.getId().toString() + "  " + var.getType());
 
     		// Add all th vars in the symbol table
     		//SymbolTableEntry data = new SymbolTableEntry(new VariableType(type));
