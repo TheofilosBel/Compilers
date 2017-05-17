@@ -112,14 +112,15 @@ Productions
         {header} kw_fun id l_par fpar_list r_par colon ret_type {-> id fpar_list ret_type.type};
         
     fpar_list {-> fpar_list} =
-        {multi_fpar}  fpar_def fpar_list_tail* {-> New fpar_list.existing([fpar_def.var_def, fpar_list_tail.var_def])} |
+        {multi_fpar}  fpar_def fpar_list_tail* {-> New fpar_list.existing([fpar_def, fpar_list_tail.fpar_def])} |
         {empty}                                {-> New fpar_list.non_existing()};
         
-    fpar_list_tail {-> var_def} =
-        semicolon fpar_def {-> fpar_def.var_def};
+    fpar_list_tail {-> fpar_def} =
+        semicolon fpar_def {-> fpar_def};
 
-    fpar_def {-> var_def} =
-        {fpar_def} kw_ref? id_list colon fpar_type {-> New var_def([id_list.variable], fpar_type.type)};
+    fpar_def {-> fpar_def} =
+        {by_ref}  kw_ref id_list colon fpar_type {-> New fpar_def.byref(New var_def([id_list.variable], fpar_type.type), kw_ref)} |
+        {by_vall} id_list colon fpar_type {-> New fpar_def.byvall(New var_def([id_list.variable], fpar_type.type))};
 
     var_def {-> var_def} =
         {var_def} kw_var id_list colon type semicolon {-> New var_def([id_list.variable], type)};
@@ -270,8 +271,13 @@ Abstract Syntax Tree
     func_call = id [expr_list]:expr*;
     
     fpar_list =
-        {existing} [vars]:var_def* |
+        {existing} [args]:fpar_def* |
         {non_existing};
+        
+    fpar_def = 
+    	{byref}  [vars]:var_def [passby]:kw_ref |
+    	{byvall} [vars]:var_def;
+    	
     
     var_def = [var_list]:variable* type;
     

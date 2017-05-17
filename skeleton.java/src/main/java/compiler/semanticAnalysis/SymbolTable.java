@@ -16,7 +16,7 @@ public class SymbolTable {
         this.scope_st = new Stack<>();
     }
 
-    public void enter(AFuncDef node) {
+    public void enter() {
         System.out.println("Entered new Scope");
 
         /* Create an empty TreeMap */

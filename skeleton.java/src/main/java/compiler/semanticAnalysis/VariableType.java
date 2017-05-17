@@ -10,6 +10,7 @@ public class VariableType extends Type {
     public String type;
 
     public VariableType(AType type) {
+        super();
         this.type = type.getDataType().toString();
     }
 
