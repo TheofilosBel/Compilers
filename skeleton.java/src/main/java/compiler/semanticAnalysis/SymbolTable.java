@@ -19,38 +19,36 @@ public class SymbolTable {
     public void enter(AFuncDef node) {
         System.out.println("Entered new Scope");
 
-        /*Create the Tree map*/
+        /* Create an empty TreeMap */
         TreeMap<String, SymbolTableEntry> emptyMap = new TreeMap<String, SymbolTableEntry>();
         this.scope_st.push(emptyMap);
     }
     
-    public boolean insert(String SymbolName, SymbolTableEntry data) {
-        
-        boolean bool = false;
-        System.out.println("Inserting Id: " + SymbolName + " to symbol table");
+    public boolean insert(String symbolName, SymbolTableEntry data) {
+        boolean found = false;
+        System.out.println("Inserting Id: " + symbolName + " to symbol table");
         
         /* First search if the name exists in this scope only */
-        bool = this.scope_st.peek().containsKey(SymbolName);
+        found = this.scope_st.peek().containsKey(symbolName);
 
         /* Insert name to symbol Table */
-        if (bool == false){
-            this.scope_st.peek().put(SymbolName, data);
+        if (found == false) {
+            this.scope_st.peek().put(symbolName, data);
             return true;
         }
         
-        /* In case we found it inform calling func for the situation */
+        /* In case we found it inform calling function for the situation */
         return false;
     }
 
     public SymbolTableEntry lookup(String key) {
-        boolean bool = false;
-
+        boolean found = false;
 
         /* Loop all the stack from the top to the start */
-        for (int scope_n = 0; scope_n  < this.scope_st.size(); scope_n++) {
-            /* Check if the tree map contains the var_name */
+        for (int scope_n = 0; scope_n < this.scope_st.size(); scope_n++) {
+            /* Check if the TreeMap contains the key */
             try {
-                bool = this.scope_st.get(scope_n).containsKey(key);
+                found = this.scope_st.get(scope_n).containsKey(key);
             }
             catch (Exception e) {
                 System.out.println("Error in loukup: " + e.getMessage());
@@ -59,13 +57,13 @@ public class SymbolTable {
 
             System.out.println();
 
-            if ( bool == true) {
+            if (found == true) {
                 System.out.println("Found id:" + key);
-                return  this.scope_st.get(scope_n).get(key);
+                return this.scope_st.get(scope_n).get(key);
             }
         }
 
-        /* Return's false in case the serached failed */
+        /* Return false in case the search failed */
         System.out.println("Id " + key + "not found :");
         return null;
     }

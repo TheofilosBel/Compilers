@@ -6,7 +6,7 @@ import compiler.semanticAnalysis.Type;
 import compiler.semanticAnalysis.SymbolTableEntry.*;
 import java.util.Collections;
 
-public class SemanticAnalysis extends DepthFirstAdapter{
+public class SemanticAnalysis extends DepthFirstAdapter {
 
     int indentation = 0;
     SymbolTable symbolTable;
@@ -37,45 +37,41 @@ public class SemanticAnalysis extends DepthFirstAdapter{
 
     @Override
     public void inAFuncDef(AFuncDef node) {
-        /* SymbolTable Handling : In every new func_def we have a new scope */
+        /* In every new func_def we create a new scope */
         this.symbolTable.enter(node);
         
-        /* Create a DataTransformation object to pass in the insert func */
-        SymbolTableEntry data = new SymbolTableEntry(new Type((AType) node.getRetType()));
+        /* Create a SymbolTableEntry object to pass to the insert function */
+        SymbolTableEntry data = new SymbolTableEntry(new FunctionType((AType) node.getRetType()));
         this.symbolTable.insert(node.getId().toString(), data);
         
         addIndentationLevel();
     }
 
     public void outAFuncDef(AFuncDef node) {
-        /* SymbolTable Handling : When we leave from a function leave it's scope */
+        /* When we leave from a function we exit its scope */
         this.symbolTable.exit();
         removeIndentationLevel();
     }
 
     @Override
     public void inAVarDef(AVarDef node) {
-        AVariable var=null;
+        AVariable var = null;
         AType type = (AType) node.getType();
-    	/* Put the right types to the variables on the def */
-    	for (int varnum = 0; varnum < node.getVarList().size(); varnum++) {
-    	    
-    	    
+    	
+        /* Put the right types to the variables on the def */
+    	for (int varnum = 0; varnum < node.getVarList().size(); varnum++) { 
     		var = (AVariable) node.getVarList().get(varnum);
     		var.setType(type);
-    		
+
     		System.out.println(var.getId().toString() + "  " + var.getType().toString());
-    		
-    		
+
     		// Add all th vars in the symbol table
-    		SymbolTableEntry data = new SymbolTableEntry(new Type(type));
-    		
+    		SymbolTableEntry data = new SymbolTableEntry(new VariableType(type));
+
     		if (this.symbolTable.insert(var.getId().toString(), data) == false){
                 System.out.println("Error Conflicting types : name \"" + var.getId() + "\" already existis");
                 System.exit(-1);
             }
-    		
-    		
     	}
     }
 
@@ -93,20 +89,15 @@ public class SemanticAnalysis extends DepthFirstAdapter{
         }
         */
     }
-    
-    
+
     @Override
     public void outAAssignStmt(AAssignStmt node){
-        
-        
-        
-        // Type check if we assing somthing to a var
+        /* Type check if we assing something to a var */
         if (node.getLvalue() instanceof AIdLvalue) {
-            
             AIdLvalue lvalue = (AIdLvalue) node.getLvalue();
             SymbolTableEntry varInfo = this.symbolTable.lookup(lvalue.getId().toString());
             
-            /* If it's not decalred */
+            /* If it's not declared */
             if (varInfo == null) {
                 System.out.println("Error Undefined variable : \"" + lvalue.getId() + "\"");
                 System.exit(-1);
@@ -115,30 +106,17 @@ public class SemanticAnalysis extends DepthFirstAdapter{
                 /* Type check */
                 Type varType  = varInfo.getType();
                 Type exprType = new Type(node.getExpr()); 
-                
-                
+
                 /* Equivalent check */
-                
             }
         }
-        
+
         System.out.println("Edw mpainw omws");
     }
-    
+
     @Override
     public void inABlockStmt(ABlockStmt node){
        //System.out.println("Edw omws 8a mpw");        
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-  
+
 }

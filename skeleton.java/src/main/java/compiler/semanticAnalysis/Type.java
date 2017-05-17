@@ -1,34 +1,19 @@
 package compiler.semanticAnalysis;
 
-
 import compiler.node.*;
 
-
-public class Type {
-    
-    public String type;
-    
-    
+/*
+This is an abstract class used in the SymbolTableEntry
+to save the type of each entry
+It is extended by classes FunctionType and VariableType
+*/
+public abstract class Type {
     /* Simple Type Constructor (Primitive types) */
-    public Type(AType type) {
-       String str =  type.getDataType().toString();
-       
-       if (str == "int")
-           this.type = "int";       
-       else if (str == "char")
-           this.type = "char";
+    public Type(AType type) {}
 
-    }
-    
     /* Expression Type Constructor (Complex type) */
-    public Type(PExpr expr) {
-        
+    public Type(PExpr expr) {}
 
-     }
-    
-    
-    public String getType(){
-        return this.type;
-    }
-    
+    public String getType() {}
+
 }

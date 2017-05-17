@@ -46,7 +46,6 @@ public class Translation extends DepthFirstAdapter{
     }
 
     public void outAFuncDef(AFuncDef node) {
-        System.out.println("Skata");    
         removeIndentationLevel();
     }
 
