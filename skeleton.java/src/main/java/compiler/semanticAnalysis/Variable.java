@@ -40,6 +40,13 @@ public class Variable {
             this.dimensionsList = null;
         }
     }
+    
+    /* Simple constructor for int char vars */
+    public Variable(String name, String type){
+        this.name = new String(name);
+        this.type = new String(type);
+        this.dimensionsList = null;
+    }
 
     /* Getter Functions */
     public String getName() {

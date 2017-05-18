@@ -80,6 +80,28 @@ public class FunctionType extends Type {
         System.out.println();
     }
     
+    public FunctionType(String rettype, LinkedList<Variable> arglist, LinkedList<String> passBy ){
+        
+        super();
+        this.rettype = rettype;
+        this.argsByRef  = new LinkedList<Variable>();
+        this.argsByVal = new LinkedList<Variable>();
+        
+        for (int var = 0; var < arglist.size(); var++) {
+            
+            /* Get all the definitions and place them in the 2 lists depending on the pass method */
+            if (passBy.get(var) == "val") {
+                
+                System.out.println("In by val");
+                this.argsByVal.add(arglist.get(var));
+            } else {
+                this.argsByRef.add(arglist.get(var));
+            }
+        }
+        
+        
+    }
+    
     public void addAlltoList(LinkedList<PVariable> list, AType type, Boolean ByRef){
         LinkedList<Variable> temp = new LinkedList<Variable>();
         

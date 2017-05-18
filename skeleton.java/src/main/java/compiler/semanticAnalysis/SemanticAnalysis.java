@@ -3,8 +3,11 @@ package compiler.semanticAnalysis;
 import compiler.analysis.*;
 import compiler.node.*;
 import compiler.semanticAnalysis.Type;
+import compiler.semanticAnalysis.Variable;
 import compiler.semanticAnalysis.SymbolTableEntry;
 import java.util.Collections;
+import java.util.LinkedList;
+
 
 public class SemanticAnalysis extends DepthFirstAdapter {
 
@@ -16,8 +19,44 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         this.symbolTable = new SymbolTable();
         
         /* Add the first scope that will have the built in func */
+        this.symbolTable.enter();
         
+        /* Add func : fun puti (n : int) : nothing; */
+        LinkedList<Variable> arglist = new LinkedList<Variable>();
+        LinkedList<String> passby = new LinkedList<String>();
+        arglist.add(new Variable("n", "int"));
+        passby.add("val");
+        SymbolTableEntry data = new SymbolTableEntry(new FunctionType("nothing", arglist, passby));
+        this.symbolTable.insert("puti", data);
+        data = null;
+        arglist =null;
+        passby = null;
+        
+        /* Add func : fun putc (c : char) : nothing; */
+        arglist = new LinkedList<Variable>();
+        passby = new LinkedList<String>();
+        arglist.add(new Variable("c", "char"));
+        passby.add("val");
+        data = new SymbolTableEntry(new FunctionType("nothing", arglist, passby));
+        this.symbolTable.insert("putc", data);
+        data = null;
+        arglist =null;
+        passby = null;
+        
+        /* Add func : fun puts (ref s : char[]) : nothing; */
+        arglist = new LinkedList<Variable>();
+        passby = new LinkedList<String>();
+        arglist.add(new Variable("s", "char"));
+        passby.add("ref");
+        data = new SymbolTableEntry(new FunctionType("nothing", arglist, passby));
+        this.symbolTable.insert("putc", data);
+        data = null;
+        arglist =null;
+        passby = null;
+   
     }
+    
+    
 
     /* For debugging reasons */
     private void addIndentationLevel() {
@@ -45,7 +84,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Create a SymbolTableEntry object to pass to the insert function */
         SymbolTableEntry data = new SymbolTableEntry(new FuncDecType((AType) node.getRetType(), node.getFplist(), node.getId().toString()));
         this.symbolTable.insert(node.getId().toString(), data);
-        
+
         addIndentationLevel();
     }
     
