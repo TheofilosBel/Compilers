@@ -6,11 +6,9 @@ import compiler.semanticAnalysis.Type;
 public class SymbolTableEntry {
 
     /*
-    Keep a string that indicates the name of the entry,
-    a Node object and a Type object that saves info about
-    the type of the entry
+    Keep a Type object that saves info about the type of the entry
     */
-    private Type   type;
+    private Type type;
 
     public SymbolTableEntry() {}
 

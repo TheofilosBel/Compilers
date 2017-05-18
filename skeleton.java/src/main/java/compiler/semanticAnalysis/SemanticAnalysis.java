@@ -71,39 +71,22 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void inAVarDef(AVarDef node) {
         AVariable var = null;
-        PType type = null;
-    	
-        /* Put the right types to the variables on the def */
-    	for (int varnum = 0; varnum < node.getVarList().size(); varnum++) { 
-    		var = (AVariable) node.getVarList().get(varnum);
-    		type = (PType) ((AType) node.getType()).clone(); 
-    		var.setType(type);
+        /* Get the type of the variables in the current definition */
+        PType type = (PType) ((AType) node.getType()).clone();
 
-    		System.out.println(var.getId().toString() + "  " + var.getType().toString());
+        /* Extract multiple variables from a single definition and save their types */
+        for (int varnum = 0; varnum < node.getVarList().size(); varnum++) { 
+            var = (AVariable) node.getVarList().get(varnum);
+            var.setType(type);
 
-    		// Add all th vars in the symbol table
-    		//SymbolTableEntry data = new SymbolTableEntry(new VariableType(type));
+            // Add all th vars in the symbol table
+            //SymbolTableEntry data = new SymbolTableEntry(new VariableType(type));
 
-    		//if (this.symbolTable.insert(var.getId().toString(), data) == false){
+            //if (this.symbolTable.insert(var.getId().toString(), data) == false){
             //    System.out.println("Error Conflicting types : name \"" + var.getId() + "\" already existis");
             //    System.exit(-1);
             //}
-    	}
-    }
-
-    @Override 
-    public void inAVariable(AVariable node) {
-        indentNprint("Variable:" + node.getId().toString());
-        indentNprint("Type: " + node.getType());
-        
-        //SymbolTableEntry data = new SymbolTableEntry(new Type(node.getType()));
-        
-        /*Insert it in case it's a new name 
-        if (this.symbolTable.insert(node.getId().toString(), data) == false){
-            System.out.println("Error Conflicting types : name \"" + node.getId() + "\" already existis");
-            System.exit(-1);
         }
-        */
     }
 
     @Override

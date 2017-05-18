@@ -21,7 +21,7 @@ public class Compiler {
             Start tree = p.parse();
             
             /* Apply the translation */
-            tree.apply(new Translation());
+            //tree.apply(new Translation());
             tree.apply(new SemanticAnalysis());
 
             input.close();
