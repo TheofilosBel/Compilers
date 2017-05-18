@@ -5,25 +5,23 @@ import java.util.List;
 
 import compiler.node.*;
 import compiler.semanticAnalysis.Type;
+import compiler.semanticAnalysis.Variable;
 
 /*
 This is a class to save the info needed for a function
 */
 public class FunctionType extends Type {
     
-    private String       rettype;
-    private LinkedList<PVariable>    argsByRef;
-    private LinkedList<PVariable>    argsByVall;
+    private String                  rettype;
+    private LinkedList<Variable>    argsByRef;
+    private LinkedList<Variable>    argsByVall;
     
 
     public FunctionType(AType rettype, PFparList argList) {
         super();
         this.rettype = rettype.toString();
-        this.argsByRef  = new LinkedList<PVariable>();
-        this.argsByVall = new LinkedList<PVariable>();
-        
-        AVariable var = null;
-        AType tempType = null;
+        this.argsByRef  = new LinkedList<Variable>();
+        this.argsByVall = new LinkedList<Variable>();
         
         /* If the func has arguments clone it else make an empty one */
         if (argList instanceof AExistingFparList) {
@@ -36,35 +34,17 @@ public class FunctionType extends Type {
                 if (fpar_def instanceof AByvallFparDef) {
                     
                     /* Get the PVariable list from the var def */
-                    argsByVall.addAll( ((AByvallFparDef) fpar_def).getVarList() );
-                    int vars2write = ((AByvallFparDef) fpar_def).getVarList().size();
-                    
-                    /* The Variable don't have the type ready , add them from the type in fpar_def*/
-                    tempType = (AType) (((AByvallFparDef) fpar_def).getType()) ;
-                    for (int vars = argsByVall.size() - vars2write ; vars < argsByVall.size(); vars++) {
-                        var = (AVariable) argsByVall.get(vars);
-                        tempType = (AType) tempType.clone();
-                        var.setType((PType) tempType);
-                    }
-
+                    addAlltoList(((AByvallFparDef) fpar_def).getVarList(), (AType) ((AByvallFparDef) fpar_def).getType(), false);                    
                 }
                 else if (fpar_def instanceof AByrefFparDef) {
                     
                     /* Get the PVariable list from the var def */
-                    argsByRef.addAll( ((AByrefFparDef) fpar_def).getVarList() );
-                    int vars2write = ((AByrefFparDef) fpar_def).getVarList().size();
-                    
-                    /* The Variable don't have the type ready , add them from the type in fpar_def*/
-                    tempType = (AType) (((AByrefFparDef) fpar_def).getType()) ;
-                    for (int vars = argsByRef.size() - vars2write; vars < argsByRef.size(); vars++) {
-                        var = (AVariable) argsByRef.get(vars);
-                        tempType = (AType) tempType.clone();
-                        var.setType((PType) tempType);
-                    }
+                    addAlltoList(((AByrefFparDef) fpar_def).getVarList(), (AType) ((AByvallFparDef) fpar_def).getType(), true);
                 }
 
             } 
-        } else {
+        } 
+        else {
             this.argsByRef  = null;
             this.argsByVall = null;
         }
@@ -73,22 +53,37 @@ public class FunctionType extends Type {
         /* Print the 2 lists */
         System.out.println("Vars by ref in func");
         for (int vars = 0; vars < argsByRef.size(); vars++) {
-            var = (AVariable) argsByRef.get(vars);
-            System.out.println("-->Name " + var.getId().toString());
-            System.out.println("   Type " + var.getType());
+            System.out.println("-->Name " + argsByRef.get(vars).name);
+            System.out.println("   Type " + argsByRef.get(vars).type);
         }
         
         System.out.println("Vars by vall in func");
         for (int vars = 0; vars < argsByVall.size(); vars++) {
-            var = (AVariable) argsByVall.get(vars);
-            System.out.println("-->Name " + var.getId().toString());
-            System.out.println("   Type " + var.getType());
+            System.out.println("-->Name " + argsByRef.get(vars).name);
+            System.out.println("   Type " + argsByRef.get(vars).type);
         }
         System.out.println();
         
         
         
     }
+    
+    public void addAlltoList(LinkedList<PVariable> list, AType type, Boolean byref){
+        LinkedList<Variable> temp = new LinkedList<Variable>();
+        
+        
+        for(int var=0; var < list.size(); var++) {
+           temp.add(new Variable(((AVariable) list.get(var)).getId().toString(), type)); 
+        }
+        
+        /* Add the temp list to the correct list */
+        if (byref = true)
+            this.argsByRef.addAll(temp);
+        else 
+            this.argsByVall.addAll(temp);
+        
+    }
+    
 
     public String getType() {
         return this.rettype;
