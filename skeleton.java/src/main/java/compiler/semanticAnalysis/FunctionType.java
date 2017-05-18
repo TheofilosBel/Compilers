@@ -1,7 +1,6 @@
 package compiler.semanticAnalysis;
 
 import java.util.LinkedList;
-import java.util.List;
 
 import compiler.node.*;
 import compiler.semanticAnalysis.Type;
@@ -39,7 +38,7 @@ public class FunctionType extends Type {
                 else if (fpar_def instanceof AByrefFparDef) {
                     
                     /* Get the PVariable list from the var def */
-                    addAlltoList(((AByrefFparDef) fpar_def).getVarList(), (AType) ((AByvallFparDef) fpar_def).getType(), true);
+                    addAlltoList(((AByrefFparDef) fpar_def).getVarList(), (AType) ((AByrefFparDef) fpar_def).getType(), true);
                 }
 
             } 
@@ -71,9 +70,10 @@ public class FunctionType extends Type {
     public void addAlltoList(LinkedList<PVariable> list, AType type, Boolean byref){
         LinkedList<Variable> temp = new LinkedList<Variable>();
         
-        
-        for(int var=0; var < list.size(); var++) {
-           temp.add(new Variable(((AVariable) list.get(var)).getId().toString(), type)); 
+        System.out.println("Makeing the table");
+        for(int var = 0; var < list.size(); var++) {
+            System.out.println(((AVariable) list.get(var)).getId().toString() + type);
+            temp.add(new Variable(((AVariable) list.get(var)).getId().toString(), type)); 
         }
         
         /* Add the temp list to the correct list */

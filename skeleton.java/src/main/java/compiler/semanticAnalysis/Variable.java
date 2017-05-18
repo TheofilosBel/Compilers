@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import compiler.node.AExistingArrayDec;
 import compiler.node.AType;
+import compiler.node.AVariable;
 
 public class Variable{
     
@@ -21,6 +22,7 @@ public class Variable{
         this.type = new String(type.getDataType().toString());
         
         /* Create the dim array if it exists, else make an empty list */
+        System.out.println("In constructor");
         if (type.getArrayDec() instanceof AExistingArrayDec) {
             
             this.dimlist = new LinkedList<Integer>();
@@ -31,13 +33,15 @@ public class Variable{
                 dimlist.add( Integer.parseInt(e));
             }
             
+            
+            /* Print the list
+            for (int dim = 0; dim < this.dimlist.size(); dim++){
+                System.out.println(this.dimlist.get(dim));
+            } 
+            */
+            
         } else {
             this.dimlist = null;
-        }
-        
-        /* Print the list */
-        for (int dim = 0; this.dimlist != null & dim < this.dimlist.size(); dim++){
-            System.out.println(this.dimlist.get(dim));
         }
     }
 }
