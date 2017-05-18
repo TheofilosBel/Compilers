@@ -70,9 +70,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             /* Check equivalence */
             
         }
-        
-        
-        
+
         /* In every new func_def we create a new scope */
         this.symbolTable.enter();
         
