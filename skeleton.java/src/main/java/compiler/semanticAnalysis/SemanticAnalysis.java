@@ -103,12 +103,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             System.out.println(var.getId().toString() + "  " + type.toString());
 
             /* Add all the variables in the symbol table */
-            //SymbolTableEntry data = new SymbolTableEntry(new VariableType(type));
+            SymbolTableEntry data = new SymbolTableEntry(new VariableType(var.getId().toString(), (AType) type));
 
-            //if (this.symbolTable.insert(var.getId().toString(), data) == false){
-            //    System.out.println("Error Conflicting types : name \"" + var.getId() + "\" already existis");
-            //    System.exit(-1);
-            //}
+            if (this.symbolTable.insert(var.getId().toString(), data) == false){
+                System.out.println("Error Conflicting types : name \"" + var.getId() + "\" already existis");
+                System.exit(-1);
+            }
             
         }
     }

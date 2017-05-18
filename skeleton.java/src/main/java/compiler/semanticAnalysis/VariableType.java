@@ -7,15 +7,15 @@ This is a class to save the info needed for a variable
 */
 public class VariableType extends Type {
     
-    public String type;
+    private Variable var;
 
-    public VariableType(AType type) {
+    public VariableType(String name, AType type) {
         super();
-        this.type = type.getDataType().toString();
+        this.var = new Variable(name, type);
     }
 
     public String getType() {
-        return this.type;
+        return var.getType();
     }
 
 }
