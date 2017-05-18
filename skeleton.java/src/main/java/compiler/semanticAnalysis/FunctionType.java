@@ -55,20 +55,18 @@ public class FunctionType extends Type {
         
         /* Print the 2 lists */
         System.out.println("Vars by ref in func");
-        for (int vars = 0; vars < this.argsByRef.size(); vars++) {
-            System.out.println("-->Name " + this.argsByRef.get(vars).name);
-            System.out.println("   Type " + this.argsByRef.get(vars).type);
+        for (int vars = 0; vars < argsByRef.size(); vars++) {
+            System.out.println("-->Name " + argsByRef.get(vars).getName());
+            System.out.println("   Type " + argsByRef.get(vars).getType());
         }
         
         System.out.println("Vars by vall in func");
-        for (int vars = 0; vars < this.argsByVall.size(); vars++) {
-            System.out.println("-->Name " + this.argsByVall.get(vars).name);
-            System.out.println("   Type " + this.argsByVall.get(vars).type);
+        for (int vars = 0; vars < argsByVall.size(); vars++) {
+            System.out.println("-->Name " + argsByRef.get(vars).getName());
+            System.out.println("   Type " + argsByRef.get(vars).getType());
         }
+        
         System.out.println();
-        
-        
-        
     }
     
     public void addAlltoList(LinkedList<PVariable> list, AType type, Boolean byref){

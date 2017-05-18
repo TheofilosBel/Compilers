@@ -79,7 +79,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             var = (AVariable) node.getVarList().get(varnum);
             var.setType(type);
 
-            // Add all th vars in the symbol table
+            System.out.println(var.getId().toString() + "  " + type.toString());
+
+            /* Add all the variables in the symbol table */
             //SymbolTableEntry data = new SymbolTableEntry(new VariableType(type));
 
             //if (this.symbolTable.insert(var.getId().toString(), data) == false){
