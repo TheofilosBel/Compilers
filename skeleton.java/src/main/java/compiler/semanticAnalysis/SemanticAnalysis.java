@@ -3,7 +3,7 @@ package compiler.semanticAnalysis;
 import compiler.analysis.*;
 import compiler.node.*;
 import compiler.semanticAnalysis.Type;
-import compiler.semanticAnalysis.SymbolTableEntry.*;
+import compiler.semanticAnalysis.SymbolTableEntry;
 import java.util.Collections;
 
 public class SemanticAnalysis extends DepthFirstAdapter {
@@ -43,7 +43,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     public void inAFuncDec(AFuncDec node) {
         
         /* Create a SymbolTableEntry object to pass to the insert function */
-        SymbolTableEntry data = new SymbolTableEntry(new FunctionType((AType) node.getRetType(), node.getFplist()));
+        SymbolTableEntry data = new SymbolTableEntry(new FuncDecType((AType) node.getRetType(), node.getFplist()));
         this.symbolTable.insert(node.getId().toString(), data);
         
         addIndentationLevel();
@@ -52,11 +52,32 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void inAFuncDef(AFuncDef node) {
+        
+        /* Check for a function declaration in the same nesting */
+        SymbolTableEntry result = this.symbolTable.lookup(node.getId().toString());
+        if (result != null) {
+            
+            /* If a func def or var with the same name found raise exception */
+            if( !(result.getType() instanceof FuncDecType)) {
+                
+                System.out.println("Error: Function with name " + node.getId().toString() + " cat be used, name already in use");
+                System.exit(-1);
+            }
+            
+            /* Declaration of function found, update its flag (matched definition with declaration) */
+            ((FuncDecType) result.getType()).setDefFlag(true);
+            
+            /* Check equivalence */
+            
+        }
+        
+        
+        
         /* In every new func_def we create a new scope */
         this.symbolTable.enter();
         
         /* Create a SymbolTableEntry object to pass to the insert function */
-        SymbolTableEntry data = new SymbolTableEntry(new FunctionType((AType) node.getRetType(), node.getFplist()));
+        SymbolTableEntry data = new SymbolTableEntry(new FuncDefType((AType) node.getRetType(), node.getFplist()));
         this.symbolTable.insert(node.getId().toString(), data);
         
         addIndentationLevel();
@@ -88,6 +109,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             //    System.out.println("Error Conflicting types : name \"" + var.getId() + "\" already existis");
             //    System.exit(-1);
             //}
+            
         }
     }
 
