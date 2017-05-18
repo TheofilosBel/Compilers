@@ -23,27 +23,28 @@ public class FunctionType extends Type {
         this.argsByVall = new LinkedList<PVariable>();
         
         AVariable var = null;
-        PType tempType = null;
+        AType tempType = null;
         
         /* If the func has arguments clone it else make an empty one */
         if (argList instanceof AExistingFparList) {
             
-            /* Get all the arguments and place them in the 2 lists depending on the pass method */
+            /* Get all the definitions and place them in the 2 lists depending on the pass method */
             PFparDef fpar_def = null;
-            LinkedList<PVariable> tempList = new LinkedList<PVariable>();
-            for(int arg = 0; arg < ((AExistingFparList) argList).getArgs().size() ; arg++) {
+            for(int def = 0; def < ((AExistingFparList) argList).getArgs().size() ; def++) {
                 
-                fpar_def = ((AExistingFparList) argList).getArgs().get(arg);
+                fpar_def = ((AExistingFparList) argList).getArgs().get(def);
                 if (fpar_def instanceof AByvallFparDef) {
                     
                     /* Get the PVariable list from the var def */
                     argsByVall.addAll( ((AByvallFparDef) fpar_def).getVarList() );
+                    int vars2write = ((AByvallFparDef) fpar_def).getVarList().size();
                     
                     /* The Variable don't have the type ready , add them from the type in fpar_def*/
-                    for (int vars = 0; vars < argsByVall.size(); vars++) {
+                    tempType = (AType) (((AByvallFparDef) fpar_def).getType()) ;
+                    for (int vars = argsByVall.size() - vars2write ; vars < argsByVall.size(); vars++) {
                         var = (AVariable) argsByVall.get(vars);
-                        tempType = (PType) ((AType) (((AByvallFparDef) fpar_def).getType())).clone() ;
-                        var.setType(tempType);
+                        tempType = (AType) tempType.clone();
+                        var.setType((PType) tempType);
                     }
 
                 }
@@ -51,12 +52,14 @@ public class FunctionType extends Type {
                     
                     /* Get the PVariable list from the var def */
                     argsByRef.addAll( ((AByrefFparDef) fpar_def).getVarList() );
+                    int vars2write = ((AByrefFparDef) fpar_def).getVarList().size();
                     
                     /* The Variable don't have the type ready , add them from the type in fpar_def*/
-                    for (int vars = 0; vars < argsByRef.size(); vars++) {
+                    tempType = (AType) (((AByrefFparDef) fpar_def).getType()) ;
+                    for (int vars = argsByRef.size() - vars2write; vars < argsByRef.size(); vars++) {
                         var = (AVariable) argsByRef.get(vars);
-                        tempType = (PType) ((AType) (((AByrefFparDef) fpar_def).getType())).clone() ;
-                        var.setType(tempType);
+                        tempType = (AType) tempType.clone();
+                        var.setType((PType) tempType);
                     }
                 }
 
