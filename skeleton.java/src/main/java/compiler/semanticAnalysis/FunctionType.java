@@ -62,8 +62,8 @@ public class FunctionType extends Type {
         
         System.out.println("Vars by vall in func");
         for (int vars = 0; vars < argsByVall.size(); vars++) {
-            System.out.println("-->Name " + argsByRef.get(vars).getName());
-            System.out.println("   Type " + argsByRef.get(vars).getType());
+            System.out.println("-->Name " + argsByVall.get(vars).getName());
+            System.out.println("   Type " + argsByVall.get(vars).getType());
         }
         
         System.out.println();
