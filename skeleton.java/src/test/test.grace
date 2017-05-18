@@ -1,7 +1,9 @@
-fun p1 (ref a,b : int ) : nothing
+fun main () : nothing
 
 	var c, d, f : int;
 	
-	fun p2(a,b : int[1]) : int;
-	
+	fun p2 (ref h : int[1]) : int
+
     {}
+
+{}

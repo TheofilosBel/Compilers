@@ -9,7 +9,7 @@ import java.util.Collections;
 public class SemanticAnalysis extends DepthFirstAdapter {
 
     int indentation = 0;
-    SymbolTable symbolTable;
+    SymbolTable symbolTable; /* The structure of the symbol table */
 
     public SemanticAnalysis() {
         System.out.println("Constructing Symbol_table");
@@ -52,7 +52,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void inAFuncDef(AFuncDef node) {
-        
         /* Check for a function declaration in the same nesting */
         SymbolTableEntry result = this.symbolTable.lookup(node.getId().toString());
         if (result != null) {
@@ -65,7 +64,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             }
             
             /* Declaration of function found, update its flag (matched definition with declaration) */
-            ((FuncDecType) result.getType()).setDefFlag(true);
+            ((FuncDecType) result.getType()).setFuncDefined(true);
             
             /* Check equivalence */
             
@@ -75,7 +74,28 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         this.symbolTable.enter();
         
         /* Create a SymbolTableEntry object to pass to the insert function */
-        SymbolTableEntry data = new SymbolTableEntry(new FuncDefType((AType) node.getRetType(), node.getFplist(), node.getId().toString()));
+        SymbolTableEntry data = new SymbolTableEntry(new FuncDefType((AType) node.getRetType(),
+                                node.getFplist(), node.getId().toString()));
+        
+        /* Check if this is the definition of the main function */
+        if ((this.symbolTable.getIsMainDefined()) == false) {
+            /* The main function should have no arguments and returns nothing */
+            if (node.getFplist() instanceof AExistingFparList) {
+                /* TODO: Raise exception */
+                System.out.println("Main should have no parameters");
+                System.exit(-1);
+            }
+
+            if ((((AType) node.getRetType()).toString()) != "nothing") {
+                /* TODO: Raise exception */
+                System.out.println("Main should return nothing");
+                System.exit(-1);
+            }
+
+            System.out.println("Main OK");
+            this.symbolTable.setIsMainDefined();
+        }
+
         this.symbolTable.insert(node.getId().toString(), data);
         
         addIndentationLevel();

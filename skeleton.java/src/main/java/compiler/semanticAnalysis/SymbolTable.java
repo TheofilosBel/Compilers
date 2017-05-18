@@ -8,12 +8,13 @@ import java.util.TreeMap;
 
 public class SymbolTable {
 
-    /* We need a stack to keep the scopes */
-    public Stack<TreeMap<String, SymbolTableEntry>> scope_st;
+    private Stack<TreeMap<String, SymbolTableEntry>> scope_st; /* We need a stack to keep the scopes */
+    private boolean isMainDefined;
 
     public SymbolTable() {
         /* Create an empty stack with an empty tree */
         this.scope_st = new Stack<>();
+        this.isMainDefined = false;
     }
 
     public void enter() {
@@ -76,5 +77,13 @@ public class SymbolTable {
             this.scope_st.pop();
         }
     }
+
+    public boolean getIsMainDefined() {
+        return this.isMainDefined;
+    }
+
+    public void setIsMainDefined() {
+        this.isMainDefined = true;
+    }    
 
 }

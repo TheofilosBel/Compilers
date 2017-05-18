@@ -7,7 +7,6 @@ public class FuncDefType extends FunctionType {
 
     public FuncDefType(AType rettype, PFparList argList, String name) {
         super(rettype, argList, name);
-        // TODO Auto-generated constructor stub
     }
 
 }
