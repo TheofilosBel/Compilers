@@ -16,7 +16,7 @@ public class FunctionType extends Type {
     private LinkedList<Variable>    argsByVal;
     
 
-    public FunctionType(AType rettype, PFparList argList) {
+    public FunctionType(AType rettype, PFparList argList, String name) {
         super();
         this.rettype = rettype.toString();
         this.argsByRef  = new LinkedList<Variable>();
@@ -33,6 +33,13 @@ public class FunctionType extends Type {
                 if (fpar_def instanceof AByValFparDef) {
                     
                     System.out.println("By val");
+                    
+                    /* In case we have any array_dec by vall we throw exception */
+                    if ( ((AType) ((AByValFparDef) fpar_def).getType()).getArrayDec() instanceof AExistingArrayDec) {
+                        System.out.println("Error: passing by val an array as argument in " + name);
+                        System.exit(-1);
+                    }
+                    
                     
                     /* Get the PVariable list from the var def */
                     addAlltoList(((AByValFparDef) fpar_def).getVarList(), (AType) ((AByValFparDef) fpar_def).getType(), false);                    

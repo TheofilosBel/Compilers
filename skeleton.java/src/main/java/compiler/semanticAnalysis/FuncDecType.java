@@ -8,8 +8,8 @@ public class FuncDecType extends FunctionType {
     
     private boolean funcDefined;
 
-    public FuncDecType(AType rettype, PFparList argList) {
-        super(rettype, argList);
+    public FuncDecType(AType rettype, PFparList argList, String name) {
+        super(rettype, argList, name);
         // TODO Auto-generated constructor stub
     }
     
