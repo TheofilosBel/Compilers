@@ -13,14 +13,14 @@ public class FunctionType extends Type {
     
     private String                  rettype;
     private LinkedList<Variable>    argsByRef;
-    private LinkedList<Variable>    argsByVall;
+    private LinkedList<Variable>    argsByVal;
     
 
     public FunctionType(AType rettype, PFparList argList) {
         super();
         this.rettype = rettype.toString();
         this.argsByRef  = new LinkedList<Variable>();
-        this.argsByVall = new LinkedList<Variable>();
+        this.argsByVal = new LinkedList<Variable>();
         
         /* If the func has arguments clone it else make an empty one */
         if (argList instanceof AExistingFparList) {
@@ -30,26 +30,26 @@ public class FunctionType extends Type {
             for(int def = 0; def < ((AExistingFparList) argList).getArgs().size() ; def++) {
                 
                 fpar_def = ((AExistingFparList) argList).getArgs().get(def);
-                if (fpar_def instanceof AByvallFparDef) {
+                if (fpar_def instanceof AByValFparDef) {
                     
-                    System.out.println("By vall");
+                    System.out.println("By val");
                     
                     /* Get the PVariable list from the var def */
-                    addAlltoList(((AByvallFparDef) fpar_def).getVarList(), (AType) ((AByvallFparDef) fpar_def).getType(), false);                    
+                    addAlltoList(((AByValFparDef) fpar_def).getVarList(), (AType) ((AByValFparDef) fpar_def).getType(), false);                    
                 }
-                else if (fpar_def instanceof AByrefFparDef) {
+                else if (fpar_def instanceof AByRefFparDef) {
                     
                     System.out.println("By ref");
                     
                     /* Get the PVariable list from the var def */
-                    addAlltoList(((AByrefFparDef) fpar_def).getVarList(), (AType) ((AByrefFparDef) fpar_def).getType(), true);
+                    addAlltoList(((AByRefFparDef) fpar_def).getVarList(), (AType) ((AByRefFparDef) fpar_def).getType(), true);
                 }
 
             } 
         } 
         else {
             this.argsByRef  = null; 
-            this.argsByVall = null;
+            this.argsByVal = null;
         }
         
         
@@ -60,16 +60,16 @@ public class FunctionType extends Type {
             System.out.println("   Type " + argsByRef.get(vars).getType());
         }
         
-        System.out.println("Vars by vall in func");
-        for (int vars = 0; vars < argsByVall.size(); vars++) {
-            System.out.println("-->Name " + argsByVall.get(vars).getName());
-            System.out.println("   Type " + argsByVall.get(vars).getType());
+        System.out.println("Vars by val in func");
+        for (int vars = 0; vars < argsByVal.size(); vars++) {
+            System.out.println("-->Name " + argsByVal.get(vars).getName());
+            System.out.println("   Type " + argsByVal.get(vars).getType());
         }
         
         System.out.println();
     }
     
-    public void addAlltoList(LinkedList<PVariable> list, AType type, Boolean byref){
+    public void addAlltoList(LinkedList<PVariable> list, AType type, Boolean ByRef){
         LinkedList<Variable> temp = new LinkedList<Variable>();
         
         System.out.println("Makeing the table");
@@ -79,10 +79,10 @@ public class FunctionType extends Type {
         }
         
         /* Add the temp list to the correct list */
-        if (byref == true)
+        if (ByRef == true)
             this.argsByRef.addAll(temp);
         else
-            this.argsByVall.addAll(temp);
+            this.argsByVal.addAll(temp);
     }
     
 
