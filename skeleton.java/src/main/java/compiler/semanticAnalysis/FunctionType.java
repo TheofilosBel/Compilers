@@ -32,10 +32,14 @@ public class FunctionType extends Type {
                 fpar_def = ((AExistingFparList) argList).getArgs().get(def);
                 if (fpar_def instanceof AByvallFparDef) {
                     
+                    System.out.println("By vall");
+                    
                     /* Get the PVariable list from the var def */
                     addAlltoList(((AByvallFparDef) fpar_def).getVarList(), (AType) ((AByvallFparDef) fpar_def).getType(), false);                    
                 }
                 else if (fpar_def instanceof AByrefFparDef) {
+                    
+                    System.out.println("By ref");
                     
                     /* Get the PVariable list from the var def */
                     addAlltoList(((AByrefFparDef) fpar_def).getVarList(), (AType) ((AByrefFparDef) fpar_def).getType(), true);
@@ -44,22 +48,22 @@ public class FunctionType extends Type {
             } 
         } 
         else {
-            this.argsByRef  = null;
+            this.argsByRef  = null; 
             this.argsByVall = null;
         }
         
         
         /* Print the 2 lists */
         System.out.println("Vars by ref in func");
-        for (int vars = 0; vars < argsByRef.size(); vars++) {
-            System.out.println("-->Name " + argsByRef.get(vars).name);
-            System.out.println("   Type " + argsByRef.get(vars).type);
+        for (int vars = 0; vars < this.argsByRef.size(); vars++) {
+            System.out.println("-->Name " + this.argsByRef.get(vars).name);
+            System.out.println("   Type " + this.argsByRef.get(vars).type);
         }
         
         System.out.println("Vars by vall in func");
-        for (int vars = 0; vars < argsByVall.size(); vars++) {
-            System.out.println("-->Name " + argsByRef.get(vars).name);
-            System.out.println("   Type " + argsByRef.get(vars).type);
+        for (int vars = 0; vars < this.argsByVall.size(); vars++) {
+            System.out.println("-->Name " + this.argsByVall.get(vars).name);
+            System.out.println("   Type " + this.argsByVall.get(vars).type);
         }
         System.out.println();
         
@@ -77,11 +81,10 @@ public class FunctionType extends Type {
         }
         
         /* Add the temp list to the correct list */
-        if (byref = true)
+        if (byref == true)
             this.argsByRef.addAll(temp);
-        else 
+        else
             this.argsByVall.addAll(temp);
-        
     }
     
 
