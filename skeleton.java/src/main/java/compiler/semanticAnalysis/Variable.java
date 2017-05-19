@@ -34,25 +34,31 @@ public class Variable {
             for (int dim = 0; dim < ((AExistingArrayDec) type.getArrayDec()).getIntConst().size(); dim++){
                 String e = new String(((AExistingArrayDec) type.getArrayDec()).getIntConst().get(dim).toString());
                 e = e.substring(0, e.length()-1);  /* Reduce the reduntant space at the end */
-                dimensionsList.add( Integer.parseInt(e));
+                this.dimensionsList.add(Integer.parseInt(e));
             }
-            
-            
+
             /* Print the list */
             for (int dim = 0; dim < this.dimensionsList.size(); dim++){
                 System.out.println(this.dimensionsList.get(dim));
-            } 
-            
-        } else {
+            }
+        }        
+        else {
             this.dimensionsList = null;
         }
     }
     
-    /* Simple constructor for int char vars */
+    /* This constructor is used for the parameters of the built in functions only */
     public Variable(String name, String type){
         this.name = new String(name);
         this.type = new String(type);
-        this.dimensionsList = null;
+
+        /* If the argument has been passed by ref then it is a one dimensional array of unknown length */
+        if (type.equals(new String("ref"))) {
+            this.dimensionsList.add(0);
+        }
+        else {
+            this.dimensionsList = null;
+        }
     }
 
     /* Getter Functions */

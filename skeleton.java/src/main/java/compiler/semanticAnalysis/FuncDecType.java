@@ -13,11 +13,11 @@ public class FuncDecType extends FunctionType {
         this.funcDefined = false;
     }
     
-    public boolean getFuncDefined(){
+    public boolean getFuncDefined() {
         return this.funcDefined;
     }
     
-    public void setFuncDefined(boolean flag){
+    public void setFuncDefined(boolean flag) {
         this.funcDefined = flag;
     }
 

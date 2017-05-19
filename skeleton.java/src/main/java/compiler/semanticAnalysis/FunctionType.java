@@ -12,18 +12,14 @@ This is a class to save the info needed for a function
 */
 public class FunctionType extends Type {
     
-    /*--------------DATA-----------------------*/
-    private String                  rettype;
-    private LinkedList<Variable>    argsByRef;
-    private LinkedList<Variable>    argsByVal;
-    /*----------------------------------------*/
-
+    private String               rettype;
+    private LinkedList<Variable> argsByRef;
+    private LinkedList<Variable> argsByVal;
     
-     /*--------------Constructors/Destructors--------------------------*/
- /**/public FunctionType(AType rettype, PFparList argList, String name) {
+    public FunctionType(AType rettype, PFparList argList, String name) {
         super();
-        this.rettype = rettype.toString();
-        this.argsByRef  = new LinkedList<Variable>();
+        this.rettype   = rettype.toString();
+        this.argsByRef = new LinkedList<Variable>();
         this.argsByVal = new LinkedList<Variable>();
         
         /* If the func has arguments clone it else make an empty one */
@@ -56,12 +52,7 @@ public class FunctionType extends Type {
                 }
 
             } 
-        } 
-        else {
-            //this.argsByRef  = null; 
-            //this.argsByVal = null;
         }
-        
         
         /* Print the 2 lists */        
         System.out.println("Vars by ref in func");
@@ -78,31 +69,24 @@ public class FunctionType extends Type {
 
         System.out.println();
     }
-    
-/**/public FunctionType(String rettype, LinkedList<Variable> arglist, LinkedList<String> passBy ){
-        
+
+    public FunctionType(String rettype, LinkedList<Variable> arglist, LinkedList<String> passBy) {
         super();
-        this.rettype = rettype;
-        this.argsByRef  = new LinkedList<Variable>();
+        this.rettype   = rettype;
+        this.argsByRef = new LinkedList<Variable>();
         this.argsByVal = new LinkedList<Variable>();
-        
+
+        /* Get all the arguments and place them in the two lists depending on the pass method */
         for (int var = 0; var < arglist.size(); var++) {
-            
-            /* Get all the definitions and place them in the 2 lists depending on the pass method */
             if (passBy.get(var) == "val") {
-                
                 System.out.println("In by val");
                 this.argsByVal.add(arglist.get(var));
             } else {
                 this.argsByRef.add(arglist.get(var));
             }
-        }
-        
-        
+        }   
     }
-    /*-----------------------------------------------------------*/
-    
-    
+
     public void addAlltoList(LinkedList<PVariable> list, AType type, Boolean ByRef){
         LinkedList<Variable> temp = new LinkedList<Variable>();
         
@@ -119,8 +103,7 @@ public class FunctionType extends Type {
             this.argsByVal.addAll(temp);
     }
     
-    
-    /*------------Getters/Setters-------------*/
+    /* Getter Functions */
     public LinkedList<Variable> getArgsByRef() {
         return this.argsByRef;
     }
@@ -132,5 +115,5 @@ public class FunctionType extends Type {
     public String getType() {
         return this.rettype;
     }
-    /*----------------------------------------*/
+
 }

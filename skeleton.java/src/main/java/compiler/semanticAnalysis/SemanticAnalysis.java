@@ -9,54 +9,129 @@ import compiler.semanticAnalysis.SymbolTableEntry;
 import java.util.Collections;
 import java.util.LinkedList;
 
-
 public class SemanticAnalysis extends DepthFirstAdapter {
 
     int indentation = 0;
     SymbolTable symbolTable; /* The structure of the symbol table */
 
     public SemanticAnalysis() {
+        /* Create a new symbol table */
         System.out.println("Constructing Symbol_table");
         this.symbolTable = new SymbolTable();
         
-        /* Add the first scope that will have the built in func */
+        /* Add the first scope that will hold the built in library functions */
         this.symbolTable.enter();
         
-        /* Add func : fun puti (n : int) : nothing; */
-        LinkedList<Variable> arglist = new LinkedList<Variable>();
-        LinkedList<String> passby = new LinkedList<String>();
-        arglist.add(new Variable("n", "int"));
-        passby.add("val");
-        SymbolTableEntry data = new SymbolTableEntry(new FunctionType("nothing", arglist, passby));
+        LinkedList<Variable> argList; /* A list containing the arguments to each function */
+        LinkedList<String> passBy;    /* A list containing the pass method (by reference / by value) of each argument */
+        SymbolTableEntry data;        /* An object that is inserted in the symbol table for each function */
+
+        /* fun puti (n : int) : nothing */
+        argList = new LinkedList<Variable>();
+        passBy  = new LinkedList<String>();
+        /* Add the only argument to the list */
+        argList.add(new Variable("n", "int"));
+        passBy.add("val");
+        data = new SymbolTableEntry(new FunctionType(new String("nothing"), argList, passBy));
         this.symbolTable.insert("puti", data);
-        data = null;
-        arglist =null;
-        passby = null;
+        data    = null;
+        argList = null;
+        passBy  = null;
         
-        /* Add func : fun putc (c : char) : nothing; */
-        arglist = new LinkedList<Variable>();
-        passby = new LinkedList<String>();
-        arglist.add(new Variable("c", "char"));
-        passby.add("val");
-        data = new SymbolTableEntry(new FunctionType("nothing", arglist, passby));
+        /* fun putc (c : char) : nothing */
+        argList = new LinkedList<Variable>();
+        passBy = new LinkedList<String>();
+        /* Add the only argument to the list */
+        argList.add(new Variable("c", "char"));
+        passBy.add("val");
+        data = new SymbolTableEntry(new FunctionType(new String("nothing"), argList, passBy));
         this.symbolTable.insert("putc", data);
-        data = null;
-        arglist =null;
-        passby = null;
+        data    = null;
+        argList = null;
+        passBy  = null;
         
-        /* Add func : fun puts (ref s : char[]) : nothing; */
-        arglist = new LinkedList<Variable>();
-        passby = new LinkedList<String>();
-        arglist.add(new Variable("s", "char"));
-        passby.add("ref");
-        data = new SymbolTableEntry(new FunctionType("nothing", arglist, passby));
-        this.symbolTable.insert("putc", data);
-        data = null;
-        arglist =null;
-        passby = null;
+        /* fun puts (ref s : char[]) : nothing */
+        argList = new LinkedList<Variable>();
+        passBy = new LinkedList<String>();
+        /* Add the only argument to the list */
+        argList.add(new Variable("s", "char"));
+        passBy.add("ref");
+        data = new SymbolTableEntry(new FunctionType(new String("nothing"), argList, passBy));
+        this.symbolTable.insert("puts", data);
+        data    = null;
+        argList = null;
+        passBy  = null;
+    
+        /* fun geti () : int */
+        argList = new LinkedList<Variable>();
+        passBy  = new LinkedList<String>();
+        /* No arguments to be added to the list */
+        data = new SymbolTableEntry(new FunctionType(new String("int"), argList, passBy));
+        this.symbolTable.insert("geti", data);
+        data    = null;
+        argList = null;
+        passBy  = null;
+
+        /* fun getc () : char */
+        argList = new LinkedList<Variable>();
+        passBy  = new LinkedList<String>();
+        /* No arguments to be added to the list */
+        data = new SymbolTableEntry(new FunctionType(new String("char"), argList, passBy));
+        this.symbolTable.insert("getc", data);
+        data    = null;
+        argList = null;
+        passBy  = null;
+        
+        /* fun gets (n : int, ref s : char[]) : nothing */
+        argList = new LinkedList<Variable>();
+        passBy = new LinkedList<String>();
+        /* Add the two arguments to the list */
+        argList.add(new Variable("n", "int"));
+        passBy.add("val");
+        argList.add(new Variable("s", "char"));
+        passBy.add("ref");
+        data = new SymbolTableEntry(new FunctionType(new String("nothing"), argList, passBy));
+        this.symbolTable.insert("gets", data);
+        data    = null;
+        argList = null;
+        passBy  = null;
+
+        /* fun abs (n : int) : int */
+        argList = new LinkedList<Variable>();
+        passBy  = new LinkedList<String>();
+        /* Add the only argument to the list */
+        argList.add(new Variable("n", "int"));
+        passBy.add("val");
+        data = new SymbolTableEntry(new FunctionType(new String("int"), argList, passBy));
+        this.symbolTable.insert("abs", data);
+        data    = null;
+        argList = null;
+        passBy  = null;
+
+        /* fun ord (c : char) : int */
+        argList = new LinkedList<Variable>();
+        passBy  = new LinkedList<String>();
+        /* Add the only argument to the list */
+        argList.add(new Variable("c", "char"));
+        passBy.add("val");
+        data = new SymbolTableEntry(new FunctionType(new String("int"), argList, passBy));
+        this.symbolTable.insert("ord", data);
+        data    = null;
+        argList = null;
+        passBy  = null;
+
+        /* fun chr (n : int) : char */
+        argList = new LinkedList<Variable>();
+        passBy  = new LinkedList<String>();
+        /* Add the only argument to the list */
+        argList.add(new Variable("n", "int"));
+        passBy.add("val");
+        data = new SymbolTableEntry(new FunctionType(new String("char"), argList, passBy));
+        this.symbolTable.insert("ord", data);
+        data    = null;
+        argList = null;
+        passBy  = null;
     }
-    
-    
 
     /* For debugging reasons */
     private void addIndentationLevel() {
