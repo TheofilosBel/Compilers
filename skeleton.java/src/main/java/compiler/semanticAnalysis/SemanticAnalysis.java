@@ -19,10 +19,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         this.symbolTable = new SymbolTable();
         
         /* Add the first scope that will have the built in func */
-        this.symbolTable.enter();
+        //this.symbolTable.enter();
         
         /* Add func : fun puti (n : int) : nothing; */
-        LinkedList<Variable> arglist = new LinkedList<Variable>();
+        /*LinkedList<Variable> arglist = new LinkedList<Variable>();
         LinkedList<String> passby = new LinkedList<String>();
         arglist.add(new Variable("n", "int"));
         passby.add("val");
@@ -31,9 +31,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         data = null;
         arglist =null;
         passby = null;
-        
+        */
         /* Add func : fun putc (c : char) : nothing; */
-        arglist = new LinkedList<Variable>();
+        /*arglist = new LinkedList<Variable>();
         passby = new LinkedList<String>();
         arglist.add(new Variable("c", "char"));
         passby.add("val");
@@ -42,9 +42,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         data = null;
         arglist =null;
         passby = null;
-        
+        */
         /* Add func : fun puts (ref s : char[]) : nothing; */
-        arglist = new LinkedList<Variable>();
+        /*arglist = new LinkedList<Variable>();
         passby = new LinkedList<String>();
         arglist.add(new Variable("s", "char"));
         passby.add("ref");
@@ -53,7 +53,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         data = null;
         arglist =null;
         passby = null;
-   
+        */
     }
     
     
@@ -125,7 +125,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 System.exit(-1);
             }
 
-            if ((((AType) node.getRetType()).toString()) != "nothing") {
+            if (!(((AType) node.getRetType()).toString()).equals(new String("nothing "))) {
                 /* TODO: Raise exception */
                 System.out.println("Main should return nothing");
                 System.exit(-1);
