@@ -200,14 +200,14 @@ Productions
         {expr} l_value l_bracket expr r_bracket {-> New lvalue.array(l_value.lvalue, expr)};
 
     expr {-> expr} =
-        {add}  expr plus term  {-> New expr.add(expr, term.expr)} |
-        {sub}  expr minus term {-> New expr.sub(expr, term.expr)} |
+        {add}  expr plus term  {-> New expr.op(expr, term.expr, New type(New data_type.none(), New array_dec.not_existing()), New operator.add(plus))} |
+        {sub}  expr minus term {-> New expr.op(expr, term.expr, New type(New data_type.none(), New array_dec.not_existing()), New operator.sub(minus))}|
         {term} term            {-> term.expr};
 
     term {-> expr} =
-        {mult}     term mult signed_factor   {-> New expr.mult(term.expr, signed_factor.expr)} |
-        {div}      term kw_div signed_factor {-> New expr.div(term.expr, signed_factor.expr)}  |
-        {mod}      term kw_mod signed_factor {-> New expr.mod(term.expr, signed_factor.expr)}  |
+        {mult}     term mult signed_factor   {-> New expr.op(term.expr, signed_factor.expr, New type(New data_type.none(), New array_dec.not_existing()), New operator.mult(mult))}  |
+        {div}      term kw_div signed_factor {-> New expr.op(term.expr, signed_factor.expr, New type(New data_type.none(), New array_dec.not_existing()), New operator.div(kw_div))} |
+        {mod}      term kw_mod signed_factor {-> New expr.op(term.expr, signed_factor.expr, New type(New data_type.none(), New array_dec.not_existing()), New operator.mod(kw_mod))} |
         {s_factor} signed_factor             {-> signed_factor.expr};
 
     signed_factor {-> expr} =
@@ -216,10 +216,10 @@ Productions
         {factor} factor              {-> factor.expr};
 
     factor {-> expr} =
-        {int}    int_const        {-> New expr.int(int_const)}       |
-        {char}   char_const       {-> New expr.char(char_const)}     |
-        {lval}   l_value          {-> New expr.lval(l_value.lvalue)} |
-        {func}   func_call        {-> New expr.func(func_call)}      |
+        {int}    int_const        {-> New expr.int(int_const, New data_type.none())}   |
+        {char}   char_const       {-> New expr.char(char_const, New data_type.none())} |
+        {lval}   l_value          {-> New expr.lval(l_value.lvalue)}                   |
+        {func}   func_call        {-> New expr.func(func_call)}                        |
         {parens} l_par expr r_par {-> expr};
 
     cond {-> cond} =
@@ -234,7 +234,7 @@ Productions
         {not}   kw_not cond3 {-> New cond.not(cond3.cond)} |
         {cond3} cond3        {-> cond3.cond};
 
-    cond3 {-> cond} =
+    cond3 {-> cond} =       
         {expr_cmp} [left]:expr cmp_op [right]:expr {-> New cond.expr_cmp(left.expr, cmp_op, right.expr)} |
         {bool}     bool                            {-> bool.cond};
 
@@ -305,21 +305,25 @@ Abstract Syntax Tree
         {noop}      ;
 
     expr =
-        {add}  [l]:expr [r]:expr |
-        {sub}  [l]:expr [r]:expr |
-        {mult} [l]:expr [r]:expr |
-        {div}  [l]:expr [r]:expr |
-        {mod}  [l]:expr [r]:expr |
-        {pos}  expr              |
-        {neg}  expr              |
-        {int}  int_const         |
-        {char} char_const        |
-        {lval} lvalue            |
+        {op}   [l]:expr [r]:expr type operator |
+        {pos}  expr                            |
+        {neg}  expr                            |
+        {int}  int_const  data_type            |
+        {char} char_const data_type            |
+        {lval} lvalue                          |
         {func} func_call;
                 
+    operator =
+    	{add}  plus   |
+    	{sub}  minus  |
+    	{div}  kw_div |
+    	{mod}  kw_mod |
+    	{mult} mult;
+    	        
+                
     lvalue =
-        {str}   string_literal |
-        {id}    id             |
+        {str}   string_literal  |
+        {id}    id              |
         {array} lvalue expr;
                 
     cond =

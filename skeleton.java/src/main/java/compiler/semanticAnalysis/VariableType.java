@@ -13,6 +13,11 @@ public class VariableType extends Type {
         super();
         this.var = new Variable(name, type);
     }
+    
+    public VariableType (Variable var) {
+        super();
+        this.var = var;
+    }
 
     public String getType() {
         return var.getType();

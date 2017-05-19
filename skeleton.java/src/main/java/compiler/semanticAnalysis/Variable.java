@@ -13,6 +13,13 @@ public class Variable {
     private LinkedList<Integer> dimensionsList;
 
     public Variable() {}
+    
+    /* Copy Constructor */
+    public Variable(Variable var) {
+        this.name = new String(var.getName());
+        this.type = new String(var.getType());
+        this.dimensionsList = new LinkedList<Integer>(var.getDimList());
+    }
 
     public Variable(String name, AType type){
         this.name = new String(name);

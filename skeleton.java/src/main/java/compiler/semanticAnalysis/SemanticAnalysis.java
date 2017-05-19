@@ -128,13 +128,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             
             this.symbolTable.insert(node.getId().toString(), data);
         }
-
-        /* In every new func_def we create a new scope */
-        this.symbolTable.enter();
         
-        /* Create a SymbolTableEntry object to pass to the insert function */
-        SymbolTableEntry data = new SymbolTableEntry(new FuncDefType((AType) node.getRetType(),
-                                node.getFplist(), node.getId().toString()));
         
         /* Check if this is the definition of the main function */
         if ((this.symbolTable.getIsMainDefined()) == false) {
@@ -151,8 +145,36 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             System.out.println("Main OK");
             this.symbolTable.setIsMainDefined();
         }
+        
 
+        /* In every new func_def we create a new scope */
+        this.symbolTable.enter();
+        
+        /* Create a SymbolTableEntry object to pass to the insert function */
+        SymbolTableEntry data = new SymbolTableEntry(new FuncDefType((AType) node.getRetType(),
+                                node.getFplist(), node.getId().toString()));
+        
+        /* Insert the function definition */
         this.symbolTable.insert(node.getId().toString(), data);
+        
+        
+        /* Insert the function's arguments to the symbol table (fist byRef) */
+        for (int var = 0;  var < ((FunctionType) data.getType()).getArgsByRef().size(); var++) {
+            this.symbolTable.insert(
+                    ((FunctionType) data.getType()).getArgsByRef().get(var).getName(),
+                    new SymbolTableEntry(new VariableType(((FunctionType) data.getType()).getArgsByRef().get(var))) 
+                    );
+            
+        }
+        
+        /* Insert the function's arguments to the symbol table (now byVal) */
+        for (int var = 0; var < ((FunctionType) data.getType()).getArgsByVal().size(); var++) {
+            this.symbolTable.insert(
+                    ((FunctionType) data.getType()).getArgsByVal().get(var).getName(),
+                    new SymbolTableEntry(new VariableType(((FunctionType) data.getType()).getArgsByVal().get(var))) 
+                    );
+            
+        }
         
         addIndentationLevel();
     }
@@ -186,6 +208,59 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
     }
 
+    
+    
+    
+    
+    @Override
+    public void outAIntExpr(AIntExpr node){
+        
+        /* Make the type (it's integer) */
+        AIntDataType newType = new AIntDataType(new TKwInt());
+        node.setDataType((PDataType) newType);
+    }
+    
+    public void outACharExpr(ACharExpr node){
+        
+        /* Make the type (it's integer) */
+        ACharDataType newType = new ACharDataType(new TKwChar());
+        node.setDataType((PDataType) newType);
+    }
+    
+    
+    
+    @Override
+    public void outAOpExpr(AOpExpr node){
+        
+        /* Type Check */
+        if (node.getL() instanceof AIntExpr) {            
+            if (node.getR() instanceof AIntExpr) {
+                
+                /* Set the time of the add expr to int */
+                AType newType = new AType((PDataType) new AIntDataType(new TKwInt()),
+                                          (PArrayDec) new ANotExistingArrayDec()     );
+                node.setType((PType) newType);
+            }
+            else 
+                throw new TypeCheckingException("Error: invalid type of variable " +
+                                                node.getR().toString() +
+                                                " in "
+                                               );
+        }
+        else 
+            throw new TypeCheckingException("Error: invalid type of variable " +
+                                            node.getL().toString() +
+                                            " in "
+                                           );
+        
+        
+        /* Print type */
+        if (node.getType() != null)
+            System.out.println("Type of "+ node.getOperator().toString() +"expr is " + node.getType().toString());
+        
+    }
+    
+    
     @Override
     public void outAAssignStmt(AAssignStmt node){
         /* Type check if we assing something to a var */

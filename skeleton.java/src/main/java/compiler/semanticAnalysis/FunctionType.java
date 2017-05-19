@@ -12,12 +12,15 @@ This is a class to save the info needed for a function
 */
 public class FunctionType extends Type {
     
+    /*--------------DATA-----------------------*/
     private String                  rettype;
     private LinkedList<Variable>    argsByRef;
     private LinkedList<Variable>    argsByVal;
-    
+    /*----------------------------------------*/
 
-    public FunctionType(AType rettype, PFparList argList, String name) {
+    
+     /*--------------Constructors/Destructors--------------------------*/
+ /**/public FunctionType(AType rettype, PFparList argList, String name) {
         super();
         this.rettype = rettype.toString();
         this.argsByRef  = new LinkedList<Variable>();
@@ -55,32 +58,28 @@ public class FunctionType extends Type {
             } 
         } 
         else {
-            this.argsByRef  = null; 
-            this.argsByVal = null;
+            //this.argsByRef  = null; 
+            //this.argsByVal = null;
         }
         
         
-        /* Print the 2 lists */
-        if (this.argsByRef != null) {
-            System.out.println("Vars by ref in func");
-            for (int vars = 0; vars < argsByRef.size(); vars++) {
-                System.out.println("-->Name " + argsByRef.get(vars).getName());
-                System.out.println("   Type " + argsByRef.get(vars).getType());
-            }
+        /* Print the 2 lists */        
+        System.out.println("Vars by ref in func");
+        for (int vars = 0; vars < argsByRef.size(); vars++) {
+            System.out.println("-->Name " + argsByRef.get(vars).getName());
+            System.out.println("   Type " + argsByRef.get(vars).getType());
         }
 
-        if (this.argsByVal != null) {
-            System.out.println("Vars by val in func");
-            for (int vars = 0; vars < argsByVal.size(); vars++) {
-                System.out.println("-->Name " + argsByVal.get(vars).getName());
-                System.out.println("   Type " + argsByVal.get(vars).getType());
-            }
+        System.out.println("Vars by val in func");
+        for (int vars = 0; vars < argsByVal.size(); vars++) {
+            System.out.println("-->Name " + argsByVal.get(vars).getName());
+            System.out.println("   Type " + argsByVal.get(vars).getType());
         }
-        
+
         System.out.println();
     }
     
-    public FunctionType(String rettype, LinkedList<Variable> arglist, LinkedList<String> passBy ){
+/**/public FunctionType(String rettype, LinkedList<Variable> arglist, LinkedList<String> passBy ){
         
         super();
         this.rettype = rettype;
@@ -101,6 +100,8 @@ public class FunctionType extends Type {
         
         
     }
+    /*-----------------------------------------------------------*/
+    
     
     public void addAlltoList(LinkedList<PVariable> list, AType type, Boolean ByRef){
         LinkedList<Variable> temp = new LinkedList<Variable>();
@@ -118,9 +119,18 @@ public class FunctionType extends Type {
             this.argsByVal.addAll(temp);
     }
     
-
+    
+    /*------------Getters/Setters-------------*/
+    public LinkedList<Variable> getArgsByRef() {
+        return this.argsByRef;
+    }
+    
+    public LinkedList<Variable> getArgsByVal() {
+        return this.argsByVal;
+    }
+   
     public String getType() {
         return this.rettype;
     }
-
+    /*----------------------------------------*/
 }
