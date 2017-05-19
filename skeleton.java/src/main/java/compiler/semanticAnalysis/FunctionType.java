@@ -2,6 +2,7 @@ package compiler.semanticAnalysis;
 
 import java.util.LinkedList;
 
+import compiler.exceptions.*;
 import compiler.node.*;
 import compiler.semanticAnalysis.Type;
 import compiler.semanticAnalysis.Variable;
@@ -36,8 +37,7 @@ public class FunctionType extends Type {
                     
                     /* In case we have any array_dec by vall we throw exception */
                     if ( ((AType) ((AByValFparDef) fpar_def).getType()).getArrayDec() instanceof AExistingArrayDec) {
-                        System.out.println("Error: passing by val an array as argument in " + name);
-                        System.exit(-1);
+                        throw new TypeCheckingException("Error: passing by val an array as argument in " + name);
                     }
                     
                     

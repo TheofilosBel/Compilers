@@ -2,6 +2,7 @@ package compiler.semanticAnalysis;
 
 import compiler.analysis.*;
 import compiler.node.*;
+import compiler.exceptions.*;
 import compiler.semanticAnalysis.Type;
 import compiler.semanticAnalysis.Variable;
 import compiler.semanticAnalysis.SymbolTableEntry;
@@ -94,18 +95,38 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         SymbolTableEntry result = this.symbolTable.lookup(node.getId().toString());
         if (result != null) {
             
-            /* If a func def or var with the same name found raise exception */
-            if( !(result.getType() instanceof FuncDecType)) {
-                
-                System.out.println("Error: Function with name " + node.getId().toString() + " cat be used, name already in use");
-                System.exit(-1);
+            /* If a function definition or variable with the same name as the function in node found raise exception */
+            if(!(result.getType() instanceof FuncDecType)) {
+
+                throw new SemanticAnalysisException("Error: Function with name " + node.getId().toString() + " cat be used, name already in use");
+            }
+            else if(((FuncDecType) result.getType()).getFuncDefined() == true){
+                /* Or the function declaration was already matched with another function definition */
+                throw new SemanticAnalysisException("Error: Function with name " + node.getId().toString() + " cat be used, name already in use");
             }
             
-            /* Declaration of function found, update its flag (matched definition with declaration) */
+            /* Declaration of function found (and not matched), update its flag (matched definition with declaration) */
             ((FuncDecType) result.getType()).setFuncDefined(true);
             
+
             /* Check equivalence */
             
+        }
+        else if ((this.symbolTable.getIsMainDefined()) == true) {
+            
+            /* In case we have a non matched function definition (except main) add a declaration 
+             * to the scope we are, before making a new scope , so it will be visible
+             * to function calls in this scope. */
+            
+            /* Create a SymbolTableEntry object to pass to the insert function */
+            FuncDecType type = new FuncDecType((AType) node.getRetType(),
+                    node.getFplist(), node.getId().toString());
+            SymbolTableEntry data = new SymbolTableEntry(type);
+            
+            /* Function is already matched because it has only a definition */
+            type.setFuncDefined(true);
+            
+            this.symbolTable.insert(node.getId().toString(), data);
         }
 
         /* In every new func_def we create a new scope */
@@ -117,17 +138,14 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         
         /* Check if this is the definition of the main function */
         if ((this.symbolTable.getIsMainDefined()) == false) {
+            
             /* The main function should have no arguments and returns nothing */
             if (node.getFplist() instanceof AExistingFparList) {
-                /* TODO: Raise exception */
-                System.out.println("Main should have no parameters");
-                System.exit(-1);
+                throw new TypeCheckingException("Main should have no parameters");
             }
 
-            if (!(((AType) node.getRetType()).toString()).equals(new String("nothing "))) {
-                /* TODO: Raise exception */
-                System.out.println("Main should return nothing");
-                System.exit(-1);
+            if (!(((AType) node.getRetType()).toString()).equals(new String("nothing "))) {                
+                throw new TypeCheckingException("Main should return nothing");
             }
 
             System.out.println("Main OK");
@@ -162,8 +180,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             SymbolTableEntry data = new SymbolTableEntry(new VariableType(var.getId().toString(), (AType) type));
 
             if (this.symbolTable.insert(var.getId().toString(), data) == false){
-                System.out.println("Error Conflicting types : name \"" + var.getId() + "\" already existis");
-                System.exit(-1);
+                throw new SemanticAnalysisException("Error Conflicting types : name \"" + var.getId() + "\" already existis");
             }
             
         }
