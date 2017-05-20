@@ -1,23 +1,22 @@
 package compiler.semanticAnalysis;
 
 import compiler.node.*;
-import compiler.types.Type;
 
 public class SymbolTableEntry {
 
     /*
     Keep a Type object that saves info about the type of the entry
     */
-    private Type type;
+    private Info type;
 
     public SymbolTableEntry() {}
 
-    public SymbolTableEntry(Type type) {
+    public SymbolTableEntry(Info type) {
         this.type = type;
     }
 
     /* Setters and Getters */
-    public Type getType() {
+    public Info getType() {
         return this.type;
     }
 

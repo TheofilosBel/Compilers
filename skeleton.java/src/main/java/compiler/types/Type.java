@@ -1,15 +1,29 @@
 package compiler.types;
 
-/*
-This is an abstract class used in the SymbolTableEntry
-to save the type of each entry
-It is extended by classes FunctionType and VariableType
-*/
 public abstract class Type {
-    
-    /* Simple Type Constructor (Primitive types) */
+
     public Type() {}
+    
+    @Override
+    public abstract String toString();
 
-    public abstract String getType();
-
+    public String getTypeName()         { return null;  }
+    
+    public boolean isInt()              { return false; }
+    
+    public boolean isChar()             { return false; }
+    
+    public boolean isArray()            { return false; }
+    
+    public boolean isAddable(Type type) { return false; }
+    
+    public boolean isSubed(Type type)   { return false; }
+    
+    public boolean isDived(Type type)   { return false; }
+    
+    public boolean isModed(Type type)   { return false; }
+    
+    public boolean isMulted(Type type)  { return false; }
+    
+    
 }

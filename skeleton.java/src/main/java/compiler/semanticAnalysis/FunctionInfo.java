@@ -1,26 +1,37 @@
-package compiler.types;
+package compiler.semanticAnalysis;
+
 
 import java.util.LinkedList;
 
-import compiler.exceptions.*;
 import compiler.node.*;
-import compiler.semanticAnalysis.Variable;
-import compiler.types.Type;
+import compiler.types.*;
+import compiler.exceptions.*;
+import compiler.semanticAnalysis.Info;
 
 /*
 This is a class to save the info needed for a function
 */
-public class FunctionType extends Type {
+public class FunctionInfo extends Info {
     
-    private String               rettype;
-    private LinkedList<Variable> argsByRef;
-    private LinkedList<Variable> argsByVal;
+    private Type                     rettype;
+    private LinkedList<VariableInfo> argsByRef;
+    private LinkedList<VariableInfo> argsByVal;
     
-    public FunctionType(AType rettype, PFparList argList, String name) {
-        super();
-        this.rettype   = rettype.toString();
-        this.argsByRef = new LinkedList<Variable>();
-        this.argsByVal = new LinkedList<Variable>();
+    public FunctionInfo(PDataType rettype, PFparList argList, String name) {
+        
+        if (rettype instanceof ANothDataType) {
+            this.rettype   = new BuiltInType("nothing");
+        }
+        else if (rettype instanceof AIntDataType) {
+            this.rettype   = new BuiltInType("int");
+        }
+        else if (rettype instanceof ACharDataType) {
+            this.rettype   = new BuiltInType("char");
+        } 
+        
+        
+        this.argsByRef = new LinkedList<VariableInfo>();
+        this.argsByVal = new LinkedList<VariableInfo>();
         
         /* If the func has arguments clone it else make an empty one */
         if (argList instanceof AExistingFparList) {
@@ -70,11 +81,10 @@ public class FunctionType extends Type {
         System.out.println();
     }
 
-    public FunctionType(String rettype, LinkedList<Variable> arglist, LinkedList<String> passBy) {
-        super();
-        this.rettype   = rettype;
-        this.argsByRef = new LinkedList<Variable>();
-        this.argsByVal = new LinkedList<Variable>();
+    public FunctionInfo(String rettype, LinkedList<VariableInfo> arglist, LinkedList<String> passBy) {
+        this.rettype   = new BuiltInType(rettype);
+        this.argsByRef = new LinkedList<VariableInfo>();
+        this.argsByVal = new LinkedList<VariableInfo>();
 
         /* Get all the arguments and place them in the two lists depending on the pass method */
         for (int var = 0; var < arglist.size(); var++) {
@@ -88,12 +98,12 @@ public class FunctionType extends Type {
     }
 
     public void addAlltoList(LinkedList<TId> list, AType type, Boolean ByRef){
-        LinkedList<Variable> temp = new LinkedList<Variable>();
+        LinkedList<VariableInfo> temp = new LinkedList<VariableInfo>();
         
         System.out.println("Makeing the table");
         for(int var = 0; var < list.size(); var++) {
             System.out.println(list.get(var).toString() + type);
-            temp.add(new Variable(list.get(var).toString(), type)); 
+            temp.add(new VariableInfo(list.get(var).toString(), type)); 
         }
         
         /* Add the temp list to the correct list */
@@ -104,15 +114,15 @@ public class FunctionType extends Type {
     }
     
     /* Getter Functions */
-    public LinkedList<Variable> getArgsByRef() {
+    public LinkedList<VariableInfo> getArgsByRef() {
         return this.argsByRef;
     }
     
-    public LinkedList<Variable> getArgsByVal() {
+    public LinkedList<VariableInfo> getArgsByVal() {
         return this.argsByVal;
     }
    
-    public String getType() {
+    public Type getType() {
         return this.rettype;
     }
 

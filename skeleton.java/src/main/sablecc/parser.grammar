@@ -94,10 +94,10 @@ Productions
         {func_def} func_def {-> New program(func_def.func_def)};
         
     func_def {-> func_def} =
-                {func_def} header local_def_list block {->New func_def(header.id, header.fpar_list, header.type, local_def_list, block.stmt)};
+                {func_def} header local_def_list block {->New func_def(header.id, header.fpar_list, header.data_type, local_def_list, block.stmt)};
         
     func_decl {-> func_dec} =
-        {func_decl} header semicolon {-> New func_dec(header.id, header.fpar_list, header.type)};
+        {func_decl} header semicolon {-> New func_dec(header.id, header.fpar_list, header.data_type)};
  
     local_def_list {-> local_def_list} =
         {non_empty} local_def+ {-> New local_def_list.existing([local_def])} |
@@ -108,8 +108,8 @@ Productions
         {inner_def}  func_def  {-> New local_def.func_def(func_def)}           |
         {inner_vars} var_def   {-> New local_def.var_def(var_def.var_def)};
         
-    header {-> id fpar_list type} = 
-        {header} kw_fun id l_par fpar_list r_par colon ret_type {-> id fpar_list ret_type.type};
+    header {-> id fpar_list data_type} = 
+        {header} kw_fun id l_par fpar_list r_par colon ret_type {-> id fpar_list ret_type.data_type};
         
     fpar_list {-> fpar_list} =
         {multi_fpar}  fpar_def fpar_list_tail* {-> New fpar_list.existing([fpar_def, fpar_list_tail.fpar_def])} |
@@ -135,9 +135,9 @@ Productions
     type {-> type} =
         {type} data_type array_declarator {-> New type(data_type.data_type, array_declarator.array_dec)};
 
-    ret_type {-> type} =
-        {ret_data} data_type  {-> New type(data_type.data_type, New array_dec.not_existing())}            |
-        {ret_noth} kw_nothing {-> New type(New data_type.noth(kw_nothing), New array_dec.not_existing())};
+    ret_type {-> data_type} =
+        {ret_data} data_type  {-> data_type}            |
+        {ret_noth} kw_nothing {-> New data_type.noth(kw_nothing)};
 
     data_type {-> data_type} =
         {type_int}  kw_int  {-> New data_type.int(kw_int)}  |
@@ -263,9 +263,9 @@ Abstract Syntax Tree
         {func_dec} func_dec |
         {var_def}  var_def;
                 
-    func_def = id [fplist]:fpar_list [ret_type]:type [local_defs]:local_def_list [block]:stmt;
+    func_def = id [fplist]:fpar_list [ret_type]:data_type [local_defs]:local_def_list [block]:stmt;
     
-    func_dec = id [fplist]:fpar_list [ret_type]:type;
+    func_dec = id [fplist]:fpar_list [ret_type]:data_type;
     
     func_call = id [expr_list]:expr*;
     
@@ -289,8 +289,7 @@ Abstract Syntax Tree
     data_type =
         {int}  kw_int     |
         {char} kw_char    |
-        {noth} kw_nothing |
-        {none} ;
+        {noth} kw_nothing ;
 
     stmt =
         {if}        cond [then]:stmt [else]:stmt? |

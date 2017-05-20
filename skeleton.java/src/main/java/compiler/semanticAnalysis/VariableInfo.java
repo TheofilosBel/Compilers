@@ -4,59 +4,63 @@ import java.util.LinkedList;
 
 import compiler.node.AExistingArrayDec;
 import compiler.node.AType;
+import compiler.types.*;
 
-public class Variable {
+public class VariableInfo extends Info {
 
-    private String              name;
-    private String              type;
-    private LinkedList<Integer> dimensionsList;
+    private String name;
+    private Type   type;
 
-    public Variable() {}
+    public VariableInfo() {}
     
     /* Copy Constructor */
-    public Variable(Variable var) {
+    public VariableInfo(VariableInfo var) {
         this.name = new String(var.getName());
-        this.type = new String(var.getType());
-        this.dimensionsList = new LinkedList<Integer>(var.getDimList());
     }
 
-    public Variable(String name, AType type){
+    public VariableInfo(String name, AType type){
         this.name = new String(name);
-        this.type = new String(type.getDataType().toString());
+        
+        LinkedList<Integer> dimensionsList = new LinkedList<Integer>();
         
         /* Create the dim array if it exists, else make an empty list */
         System.out.println("In constructor");
         if (type.getArrayDec() instanceof AExistingArrayDec) {
             
-            this.dimensionsList = new LinkedList<Integer>();
-            
             for (int dim = 0; dim < ((AExistingArrayDec) type.getArrayDec()).getIntConst().size(); dim++){
                 String e = new String(((AExistingArrayDec) type.getArrayDec()).getIntConst().get(dim).toString());
                 e = e.substring(0, e.length()-1);  /* Reduce the reduntant space at the end */
-                this.dimensionsList.add(Integer.parseInt(e));
+                dimensionsList.add(Integer.parseInt(e));
             }
+            
+            /* Pass the list to make the array type */
+            this.type = new ComplexType("array", dimensionsList, type.getDataType().toString());
 
             /* Print the list */
-            for (int dim = 0; dim < this.dimensionsList.size(); dim++){
-                System.out.println(this.dimensionsList.get(dim));
+            for (int dim = 0; dim < dimensionsList.size(); dim++){
+                System.out.println(dimensionsList.get(dim));
             }
-        }        
-        else {
-            this.dimensionsList = null;
         }
+        else {
+            
+            System.out.println("\"" + type.getDataType().toString() +"\"");
+            
+            /* Make a built in type */
+            this.type = new BuiltInType(type.getDataType().toString());
+        }
+        
     }
     
     /* This constructor is used for the parameters of the built in functions only */
-    public Variable(String name, String type){
+    public VariableInfo(String name, String type){
         this.name = new String(name);
-        this.type = new String(type);
 
         /* If the argument has been passed by ref then it is a one dimensional array of unknown length */
         if (type.equals(new String("ref"))) {
-            this.dimensionsList.add(0);
+            this.type = new ComplexType("array", new LinkedList<Integer>(), type);
         }
         else {
-            this.dimensionsList = null;
+            this.type = new BuiltInType(type); 
         }
     }
 
@@ -65,12 +69,8 @@ public class Variable {
         return this.name;
     }
 
-    public String getType() {
+    public Type getType() {
         return this.type;
-    }
-
-    public LinkedList<Integer> getDimList() {
-        return this.dimensionsList;
     }
 
 }

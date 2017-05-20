@@ -1,14 +1,14 @@
-package compiler.types;
+package compiler.semanticAnalysis;
 
-import compiler.node.AType;
+import compiler.node.PDataType;
 import compiler.node.PFparList;
-import compiler.types.FunctionType;
+import compiler.semanticAnalysis.FunctionInfo;
 
-public class FuncDecType extends FunctionType {
+public class FuncDecInfo extends FunctionInfo {
     
     private boolean funcDefined; /* A flag that indicates if the declaration has been matched to a defined function */
 
-    public FuncDecType(AType rettype, PFparList argList, String name) {
+    public FuncDecInfo(PDataType rettype, PFparList argList, String name) {
         super(rettype, argList, name);
         this.funcDefined = false;
     }
