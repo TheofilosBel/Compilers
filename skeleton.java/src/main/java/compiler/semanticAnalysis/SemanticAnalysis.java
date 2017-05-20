@@ -326,22 +326,17 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void inAVarDef(AVarDef node) {
-        AVariable var = null;
         /* Get the type of the variables in the current definition */
         PType type = (PType) ((AType) node.getType()).clone();
 
         /* Extract multiple variables from a single definition and save their types */
-        for (int varnum = 0; varnum < node.getVarList().size(); varnum++) { 
-            var = (AVariable) node.getVarList().get(varnum);
-            var.setType(type);
-
-            System.out.println(var.getId().toString() + "  " + type.toString());
+        for (int varnum = 0; varnum < node.getIdList().size(); varnum++) { 
 
             /* Add all the variables in the symbol table */
-            SymbolTableEntry data = new SymbolTableEntry(new VariableType(var.getId().toString(), (AType) type));
+            SymbolTableEntry data = new SymbolTableEntry(new VariableType(node.getIdList().get(varnum).toString(), (AType) type));
 
-            if (this.symbolTable.insert(var.getId().toString(), data) == false){
-                throw new SemanticAnalysisException("Error Conflicting types : name \"" + var.getId() + "\" already existis");
+            if (this.symbolTable.insert(node.getIdList().get(varnum).toString(), data) == false){
+                throw new SemanticAnalysisException("Error Conflicting types : name \"" + node.getIdList().get(varnum).toString() + "\" already existis");
             }
             
         }
@@ -354,22 +349,17 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void outAIntExpr(AIntExpr node){
         
-        /* Make the type (it's integer) */
-        AIntDataType newType = new AIntDataType(new TKwInt());
-        node.setDataType((PDataType) newType);
+        
     }
     
     public void outACharExpr(ACharExpr node){
         
-        /* Make the type (it's integer) */
-        ACharDataType newType = new ACharDataType(new TKwChar());
-        node.setDataType((PDataType) newType);
     }
     
     
     
     @Override
-    public void outAOpExpr(AOpExpr node){
+    public void outAAddExpr(AAddExpr node){
         
         /* Type Check for constants */
         if (node.getL() instanceof AIntExpr) {            
@@ -378,7 +368,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 /* Set the time of the add expr to int */
                 AType newType = new AType((PDataType) new AIntDataType(new TKwInt()),
                                           (PArrayDec) new ANotExistingArrayDec()     );
-                node.setType((PType) newType);
             }
             else 
                 throw new TypeCheckingException("Error: invalid type of variable " +
@@ -387,13 +376,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                                );
         }
         /* Type Check for expr */
-        else if (node.getL() instanceof AOpExpr) {
-
-            AType leftType = (AType) ((AOpExpr) node.getL()).getType();
-            
-            /* Witch expr */
-            
-        }
         else 
             throw new TypeCheckingException("Error: invalid type of variable " +
                                             node.getL().toString() +
@@ -402,8 +384,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         
         
         /* Print type */
-        if (node.getType() != null)
-            System.out.println("Type of "+ node.getOperator().toString() +"expr is " + node.getType().toString());
         
     }
     

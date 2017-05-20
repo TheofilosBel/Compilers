@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 import compiler.node.AExistingArrayDec;
 import compiler.node.AType;
-import compiler.node.AVariable;
 
 public class Variable {
 

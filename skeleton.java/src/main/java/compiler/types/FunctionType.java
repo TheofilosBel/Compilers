@@ -41,14 +41,14 @@ public class FunctionType extends Type {
                     
                     
                     /* Get the PVariable list from the var def */
-                    addAlltoList(((AByValFparDef) fpar_def).getVarList(), (AType) ((AByValFparDef) fpar_def).getType(), false);                    
+                    addAlltoList(((AByValFparDef) fpar_def).getIdList(), (AType) ((AByValFparDef) fpar_def).getType(), false);                    
                 }
                 else if (fpar_def instanceof AByRefFparDef) {
                     
                     System.out.println("By ref");
                     
                     /* Get the PVariable list from the var def */
-                    addAlltoList(((AByRefFparDef) fpar_def).getVarList(), (AType) ((AByRefFparDef) fpar_def).getType(), true);
+                    addAlltoList(((AByRefFparDef) fpar_def).getIdList(), (AType) ((AByRefFparDef) fpar_def).getType(), true);
                 }
 
             } 
@@ -87,13 +87,13 @@ public class FunctionType extends Type {
         }   
     }
 
-    public void addAlltoList(LinkedList<PVariable> list, AType type, Boolean ByRef){
+    public void addAlltoList(LinkedList<TId> list, AType type, Boolean ByRef){
         LinkedList<Variable> temp = new LinkedList<Variable>();
         
         System.out.println("Makeing the table");
         for(int var = 0; var < list.size(); var++) {
-            System.out.println(((AVariable) list.get(var)).getId().toString() + type);
-            temp.add(new Variable(((AVariable) list.get(var)).getId().toString(), type)); 
+            System.out.println(list.get(var).toString() + type);
+            temp.add(new Variable(list.get(var).toString(), type)); 
         }
         
         /* Add the temp list to the correct list */

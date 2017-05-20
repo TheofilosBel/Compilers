@@ -70,7 +70,7 @@ public class Translation extends DepthFirstAdapter{
     @Override
     public void inAVarDef(AVarDef node) {
         indentNprint("type: var_deff");
-        indentNprint("names: " + node.getVarList());
+        indentNprint("names: " + node.getIdList());
         indentNprint("type: " + node.getType());
         System.out.println();
     }
