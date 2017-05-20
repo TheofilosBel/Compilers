@@ -14,6 +14,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     int indentation = 0;
     SymbolTable symbolTable; /* The structure of the symbol table */
 
+    /*
+    The semantic analysis phase starts here
+    We create the symbol table and in its first scope we insert
+    the Grace built in library functions so that they can be
+    called by any function in the program (global scope)
+    */
     public SemanticAnalysis() {
         /* Create a new symbol table */
         System.out.println("Constructing Symbol_table");
@@ -127,7 +133,61 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList.add(new Variable("n", "int"));
         passBy.add("val");
         data = new SymbolTableEntry(new FunctionType(new String("char"), argList, passBy));
-        this.symbolTable.insert("ord", data);
+        this.symbolTable.insert("chr", data);
+        data    = null;
+        argList = null;
+        passBy  = null;
+
+        /* fun strlen (ref s : char[]) : int */
+        argList = new LinkedList<Variable>();
+        passBy  = new LinkedList<String>();
+        /* Add the only argument to the list */
+        argList.add(new Variable("s", "char"));
+        passBy.add("ref");
+        data = new SymbolTableEntry(new FunctionType(new String("int"), argList, passBy));
+        this.symbolTable.insert("strlen", data);
+        data    = null;
+        argList = null;
+        passBy  = null;
+
+        /* fun strcmp (ref s1, s2 : char[]) : int */
+        argList = new LinkedList<Variable>();
+        passBy  = new LinkedList<String>();
+        /* Add the two arguments to the list */
+        argList.add(new Variable("s1", "char"));
+        passBy.add("ref");
+        argList.add(new Variable("s2", "char"));
+        passBy.add("ref");
+        data = new SymbolTableEntry(new FunctionType(new String("int"), argList, passBy));
+        this.symbolTable.insert("strcmp", data);
+        data    = null;
+        argList = null;
+        passBy  = null;
+        
+        /* fun strcpy (ref trg, src : char[]) : nothing */
+        argList = new LinkedList<Variable>();
+        passBy  = new LinkedList<String>();
+        /* Add the two arguments to the list */
+        argList.add(new Variable("trg", "char"));
+        passBy.add("ref");
+        argList.add(new Variable("src", "char"));
+        passBy.add("ref");
+        data = new SymbolTableEntry(new FunctionType(new String("nothing"), argList, passBy));
+        this.symbolTable.insert("strcpy", data);
+        data    = null;
+        argList = null;
+        passBy  = null;
+
+        /* fun strcat (ref trg, src : char[]) : nothing */
+        argList = new LinkedList<Variable>();
+        passBy  = new LinkedList<String>();
+        /* Add the two arguments to the list */
+        argList.add(new Variable("trg", "char"));
+        passBy.add("ref");
+        argList.add(new Variable("src", "char"));
+        passBy.add("ref");
+        data = new SymbolTableEntry(new FunctionType(new String("nothing"), argList, passBy));
+        this.symbolTable.insert("strcat", data);
         data    = null;
         argList = null;
         passBy  = null;
