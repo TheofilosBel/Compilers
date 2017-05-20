@@ -1,29 +1,33 @@
 package compiler.types;
 
+/*
+ * Abstract class for Grace types
+ */
 public abstract class Type {
 
     public Type() {}
-    
+
     @Override
     public abstract String toString();
 
-    public String getTypeName()         { return null;  }
-    
-    public boolean isInt()              { return false; }
-    
-    public boolean isChar()             { return false; }
-    
-    public boolean isArray()            { return false; }
-    
-    public boolean isAddable(Type type) { return false; }
-    
-    public boolean isSubed(Type type)   { return false; }
-    
-    public boolean isDived(Type type)   { return false; }
-    
-    public boolean isModed(Type type)   { return false; }
-    
-    public boolean isMulted(Type type)  { return false; }
-    
-    
+    /* Returns the name of the type */
+    public String getTypeName() {
+        return null;
+    }
+
+    /* Returns true if this is the int type */
+    public boolean isInt() {
+        return false;
+    }
+
+    /* Returns true if this is the char type */
+    public boolean isChar() {
+        return false;
+    }
+
+    /* Returns true if this is the array type */
+    public boolean isArray() {
+        return false;
+    }
+
 }

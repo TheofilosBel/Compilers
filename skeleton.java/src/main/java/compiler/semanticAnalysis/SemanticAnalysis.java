@@ -35,7 +35,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("n", "int"));
+        argList.add(new VariableInfo("n", "int", false));
         passBy.add("val");
         data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
         this.symbolTable.insert("puti", data);
@@ -47,7 +47,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("c", "char"));
+        argList.add(new VariableInfo("c", "char", false));
         passBy.add("val");
         data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
         this.symbolTable.insert("putc", data);
@@ -59,7 +59,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("s", "char"));
+        argList.add(new VariableInfo("s", "char", true));
         passBy.add("ref");
         data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
         this.symbolTable.insert("puts", data);
@@ -91,9 +91,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy = new LinkedList<String>();
         /* Add the two arguments to the list */
-        argList.add(new VariableInfo("n", "int"));
+        argList.add(new VariableInfo("n", "int", false));
         passBy.add("val");
-        argList.add(new VariableInfo("s", "char"));
+        argList.add(new VariableInfo("s", "char", true));
         passBy.add("ref");
         data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
         this.symbolTable.insert("gets", data);
@@ -105,7 +105,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("n", "int"));
+        argList.add(new VariableInfo("n", "int", false));
         passBy.add("val");
         data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
         this.symbolTable.insert("abs", data);
@@ -117,7 +117,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("c", "char"));
+        argList.add(new VariableInfo("c", "char", false));
         passBy.add("val");
         data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
         this.symbolTable.insert("ord", data);
@@ -129,7 +129,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("n", "int"));
+        argList.add(new VariableInfo("n", "int", false));
         passBy.add("val");
         data = new SymbolTableEntry(new FunctionInfo(new String("char"), argList, passBy));
         this.symbolTable.insert("chr", data);
@@ -141,7 +141,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("s", "char"));
+        argList.add(new VariableInfo("s", "char", true));
         passBy.add("ref");
         data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
         this.symbolTable.insert("strlen", data);
@@ -153,9 +153,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the two arguments to the list */
-        argList.add(new VariableInfo("s1", "char"));
+        argList.add(new VariableInfo("s1", "char", true));
         passBy.add("ref");
-        argList.add(new VariableInfo("s2", "char"));
+        argList.add(new VariableInfo("s2", "char", true));
         passBy.add("ref");
         data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
         this.symbolTable.insert("strcmp", data);
@@ -167,9 +167,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the two arguments to the list */
-        argList.add(new VariableInfo("trg", "char"));
+        argList.add(new VariableInfo("trg", "char", true));
         passBy.add("ref");
-        argList.add(new VariableInfo("src", "char"));
+        argList.add(new VariableInfo("src", "char", true));
         passBy.add("ref");
         data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
         this.symbolTable.insert("strcpy", data);
@@ -181,9 +181,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the two arguments to the list */
-        argList.add(new VariableInfo("trg", "char"));
+        argList.add(new VariableInfo("trg", "char", true));
         passBy.add("ref");
-        argList.add(new VariableInfo("src", "char"));
+        argList.add(new VariableInfo("src", "char", true));
         passBy.add("ref");
         data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
         this.symbolTable.insert("strcat", data);
@@ -216,120 +216,111 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     public void inAFuncDec(AFuncDec node) {
         
         /* Create a SymbolTableEntry object to pass to the insert function */
-        SymbolTableEntry data = new SymbolTableEntry(new FuncDecInfo((PDataType) node.getRetType(), node.getFplist(), node.getId().toString()));
+        SymbolTableEntry data = new SymbolTableEntry(new FuncDecInfo((PDataType) node.getRetType(),
+                                node.getFplist(), node.getId().toString()));
         this.symbolTable.insert(node.getId().toString(), data);
 
         addIndentationLevel();
     }
-    
 
     @Override
     public void inAFuncDef(AFuncDef node) {
         /* Check for a function declaration in the same nesting */
         SymbolTableEntry result = this.symbolTable.lookup(node.getId().toString());
+        
         if (result != null) {
-            
-            /* If a function definition or variable with the same name as the function in node found raise exception */
-            if(!(result.getType() instanceof FuncDecInfo)) {
-
-                throw new SemanticAnalysisException("Error: Function with name " + node.getId().toString() + " cat be used, name already in use");
+            /*
+             * If a function definition or variable with the same name
+             * as the function in node was found then raise an exception
+             */
+            if (!(result.getType() instanceof FuncDecInfo)) {
+                throw new SemanticAnalysisException("Error: Function with name " + node.getId().toString() +
+                                                    " can't be used, name already in use");
             }
             else if(((FuncDecInfo) result.getType()).getFuncDefined() == true){
-                /* Or the function declaration was already matched with another function definition */
-                throw new SemanticAnalysisException("Error: Function with name " + node.getId().toString() + " cat be used, name already in use");
+                /* In case the function declaration was already matched with another function definition */
+                throw new SemanticAnalysisException("Error: Function with name " + node.getId().toString() +
+                                                    " can't be used, name already in use");
             }
-            
-            /* Declaration of function found (and not matched), update its flag (matched definition with declaration) */
+
+            /*
+             * A non matched declaration has been found
+             * Update its flag to indicate that it has been matched
+             */
             ((FuncDecInfo) result.getType()).setFuncDefined(true);
-            
 
             /* Check equivalence */
-            
         }
         else if ((this.symbolTable.getIsMainDefined()) == true) {
-            
-            /* In case we have a non matched function definition (except main) add a declaration 
-             * to the scope we are, before making a new scope , so it will be visible
-             * to function calls in this scope. */
-            
-            /* Create a SymbolTableEntry object to pass to the insert function */
+            /*
+             * If we have a non matched function definition (except for main)
+             * add a declaration to the current scope, before making a new scope,
+             * so that it will be visible to function calls in the new scope
+             */
             FuncDecInfo type = new FuncDecInfo((PDataType) node.getRetType(),
-                    node.getFplist(), node.getId().toString());
+                               node.getFplist(), node.getId().toString());
             SymbolTableEntry data = new SymbolTableEntry(type);
             
-            /* Function is already matched because it has only a definition */
+            /* Function is already matched because it only has a definition */
             type.setFuncDefined(true);
-            
+
             this.symbolTable.insert(node.getId().toString(), data);
         }
-        
-        
+
         /* Check if this is the definition of the main function */
         if ((this.symbolTable.getIsMainDefined()) == false) {
-            
             /* The main function should have no arguments and returns nothing */
             if (node.getFplist() instanceof AExistingFparList) {
-                throw new TypeCheckingException("Main should have no parameters");
+                throw new TypeCheckingException("Error: Main should have no parameters");
             }
 
             if (!(((PDataType) node.getRetType()).toString()).equals(new String("nothing "))) {                
-                throw new TypeCheckingException("Main should return nothing");
+                throw new TypeCheckingException("Error: Main should return nothing");
             }
 
-            System.out.println("Main OK");
             this.symbolTable.setIsMainDefined();
         }
-        
 
         /* In every new func_def we create a new scope */
         this.symbolTable.enter();
-        
+
         /* Create a SymbolTableEntry object to pass to the insert function */
         SymbolTableEntry data = new SymbolTableEntry(new FuncDefInfo((PDataType) node.getRetType(),
                                 node.getFplist(), node.getId().toString()));
-        
+
         /* Insert the function definition */
         this.symbolTable.insert(node.getId().toString(), data);
-        
-        
-        /* Insert the function's arguments to the symbol table (fist byRef) */
+
+        /* Insert the function's arguments to the symbol table - First those passed by reference) */
         for (int var = 0;  var < ((FunctionInfo) data.getType()).getArgsByRef().size(); var++) {
-            this.symbolTable.insert(
-                    ((FunctionInfo) data.getType()).getArgsByRef().get(var).getName(),
-                    new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getType()).getArgsByRef().get(var))) 
-                    );
-            
+            this.symbolTable.insert(((FunctionInfo) data.getType()).getArgsByRef().get(var).getName(),
+                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getType()).getArgsByRef().get(var))));
         }
-        
-        /* Insert the function's arguments to the symbol table (now byVal) */
+
+        /* Insert the function's arguments to the symbol table - Now those passed by value) */
         for (int var = 0; var < ((FunctionInfo) data.getType()).getArgsByVal().size(); var++) {
-            this.symbolTable.insert(
-                    ((FunctionInfo) data.getType()).getArgsByVal().get(var).getName(),
-                    new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getType()).getArgsByVal().get(var))) 
-                    );
-            
+            this.symbolTable.insert(((FunctionInfo) data.getType()).getArgsByVal().get(var).getName(),
+                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getType()).getArgsByVal().get(var))));
         }
-        
+
         addIndentationLevel();
     }
 
     public void outAFuncDef(AFuncDef node) {
-        /* When we leave from a function we exit its scope */
+        /* When exiting from a function exit from the current scope too */
         this.symbolTable.exit();
         removeIndentationLevel();
     }
 
     @Override
     public void inAVarDef(AVarDef node) {
-        
         indentNprint("In variable DEfinition");
         
         /* Get the type of the variables in the current definition */
         PType type = (PType) ((AType) node.getType()).clone();
 
-        /* Extract multiple variables from a single definition and save their types */
-        for (int varnum = 0; varnum < node.getIdList().size(); varnum++) { 
-
+        /* Extract every variable from a multi-variable definition and save their types */
+        for (int varnum = 0; varnum < node.getIdList().size(); varnum++) {
             /* Add all the variables in the symbol table */
             VariableInfo v = new VariableInfo(node.getIdList().get(varnum).toString(), (AType) type);
             SymbolTableEntry data = new SymbolTableEntry();
@@ -337,7 +328,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             if (this.symbolTable.insert(node.getIdList().get(varnum).toString(), data) == false){
                 throw new SemanticAnalysisException("Error Conflicting types : name \"" + node.getIdList().get(varnum).toString() + "\" already existis");
             }
-            
+
             /* Print each variable */
             indentNprint("Name :" + v.getName());
             indentNprint("Type :" + v.getType());
@@ -345,52 +336,30 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
     }
 
-    
-    
-    
-    
     @Override
-    public void outAIntExpr(AIntExpr node){
-        
-        
-    }
-    
-    public void outACharExpr(ACharExpr node){
-        
-    }
-    
-    
-    
+    public void outAIntExpr(AIntExpr node) {}
+
+    public void outACharExpr(ACharExpr node) {}
+
     @Override
-    public void outAAddExpr(AAddExpr node){
-        
+    public void outAAddExpr(AAddExpr node) {
         /* Type Check for constants */
         if (node.getL() instanceof AIntExpr) {            
             if (node.getR() instanceof AIntExpr) {
-                
                 /* Set the time of the add expr to int */
                 AType newType = new AType((PDataType) new AIntDataType(new TKwInt()),
                                           (PArrayDec) new ANotExistingArrayDec()     );
             }
             else 
-                throw new TypeCheckingException("Error: invalid type of variable " +
-                                                node.getR().toString() +
-                                                " in "
-                                               );
+                throw new TypeCheckingException("Error: invalid type of variable " + node.getR().toString() + " in ");
         }
         /* Type Check for expr */
-        else 
-            throw new TypeCheckingException("Error: invalid type of variable " +
-                                            node.getL().toString() +
-                                            " in "
-                                           );
-        
-        
+        else
+            throw new TypeCheckingException("Error: invalid type of variable " + node.getL().toString() + " in ");
+
         /* Print type */
-        
     }
-    
-    
+
     @Override
     public void outAAssignStmt(AAssignStmt node){
         /* Type check if we assing something to a var */

@@ -1,6 +1,5 @@
 package compiler.semanticAnalysis;
 
-
 import java.util.LinkedList;
 
 import compiler.node.*;
@@ -9,62 +8,69 @@ import compiler.exceptions.*;
 import compiler.semanticAnalysis.Info;
 
 /*
-This is a class to save the info needed for a function
-*/
+ * Class to save the info needed for every function
+ */
 public class FunctionInfo extends Info {
     
-    private Type                     rettype;
-    private LinkedList<VariableInfo> argsByRef;
-    private LinkedList<VariableInfo> argsByVal;
-    
-    public FunctionInfo(PDataType rettype, PFparList argList, String name) {
-        
-        if (rettype instanceof ANothDataType) {
-            this.rettype   = new BuiltInType("nothing");
+    private Type returnType; /* Return type of the function */
+
+    private LinkedList<VariableInfo> argsByRef; /* List of arguments passed by reference to the function */
+    private LinkedList<VariableInfo> argsByVal; /* List of arguments passed by value to the function */
+
+    /*
+     * Constructs a FunctionInfo object
+     *
+     * @returnType Return type of the function
+     * @argList List of arguments passed to the function
+     * @name Name of the function
+     */
+    public FunctionInfo(PDataType returnType, PFparList argList, String name) {
+        /* Find ans save the return type of the function */
+        if (returnType instanceof ANothDataType) {
+            this.returnType = new BuiltInType("nothing ");
         }
-        else if (rettype instanceof AIntDataType) {
-            this.rettype   = new BuiltInType("int");
+        else if (returnType instanceof AIntDataType) {
+            this.returnType = new BuiltInType("int ");
         }
-        else if (rettype instanceof ACharDataType) {
-            this.rettype   = new BuiltInType("char");
-        } 
-        
-        
+        else if (returnType instanceof ACharDataType) {
+            this.returnType = new BuiltInType("char ");
+        }
+
+        /* Create the empty argument lists */
         this.argsByRef = new LinkedList<VariableInfo>();
         this.argsByVal = new LinkedList<VariableInfo>();
         
-        /* If the func has arguments clone it else make an empty one */
+        /*
+         * Check if there are any arguments passed to the function
+         * and save them in the lists based on their pass method
+         */
         if (argList instanceof AExistingFparList) {
-            
-            /* Get all the definitions and place them in the 2 lists depending on the pass method */
             PFparDef fpar_def = null;
-            for(int def = 0; def < ((AExistingFparList) argList).getArgs().size() ; def++) {
-                
+
+            for(int def = 0; def < ((AExistingFparList) argList).getArgs().size(); def++) {
                 fpar_def = ((AExistingFparList) argList).getArgs().get(def);
+
+                /* Get the pass method of the argument */
                 if (fpar_def instanceof AByValFparDef) {
-                    
                     System.out.println("By val");
-                    
-                    /* In case we have any array_dec by vall we throw exception */
-                    if ( ((AType) ((AByValFparDef) fpar_def).getType()).getArrayDec() instanceof AExistingArrayDec) {
-                        throw new TypeCheckingException("Error: passing by val an array as argument in " + name);
+
+                    /* If an array has been passed by value raise an exception */
+                    if (((AType) ((AByValFparDef) fpar_def).getType()).getArrayDec() instanceof AExistingArrayDec) {
+                        throw new TypeCheckingException("Error: passing array by value as argument in function " + name);
                     }
-                    
-                    
-                    /* Get the PVariable list from the var def */
+
+                    /* Get every variable in the list of a multi-variable definition */
                     addAlltoList(((AByValFparDef) fpar_def).getIdList(), (AType) ((AByValFparDef) fpar_def).getType(), false);                    
                 }
                 else if (fpar_def instanceof AByRefFparDef) {
-                    
                     System.out.println("By ref");
                     
-                    /* Get the PVariable list from the var def */
+                    /* Get every variable in the list of a multi-variable definition */
                     addAlltoList(((AByRefFparDef) fpar_def).getIdList(), (AType) ((AByRefFparDef) fpar_def).getType(), true);
                 }
-
             } 
         }
-        
+
         /* Print the 2 lists */        
         System.out.println("Vars by ref in func");
         for (int vars = 0; vars < argsByRef.size(); vars++) {
@@ -81,49 +87,69 @@ public class FunctionInfo extends Info {
         System.out.println();
     }
 
-    public FunctionInfo(String rettype, LinkedList<VariableInfo> arglist, LinkedList<String> passBy) {
-        this.rettype   = new BuiltInType(rettype);
-        this.argsByRef = new LinkedList<VariableInfo>();
-        this.argsByVal = new LinkedList<VariableInfo>();
+    /*
+     * Constructs a FunctionInfo object
+     * This constructor is used for the grace built in library functions only
+     *
+     * @returnType Return type of the function
+     * @argList List of arguments passed to the function
+     * @passBy List of the pass method of every argument in argList
+     */
+    public FunctionInfo(String returnType, LinkedList<VariableInfo> argList, LinkedList<String> passBy) {
+        this.returnType = new BuiltInType(returnType);
+        this.argsByRef  = new LinkedList<VariableInfo>();
+        this.argsByVal  = new LinkedList<VariableInfo>();
 
         /* Get all the arguments and place them in the two lists depending on the pass method */
-        for (int var = 0; var < arglist.size(); var++) {
+        for (int var = 0; var < argList.size(); var++) {
             if (passBy.get(var) == "val") {
                 System.out.println("In by val");
-                this.argsByVal.add(arglist.get(var));
+                this.argsByVal.add(argList.get(var));
             } else {
-                this.argsByRef.add(arglist.get(var));
+                System.out.println("In by ref");
+                this.argsByRef.add(argList.get(var));
             }
         }   
     }
 
-    public void addAlltoList(LinkedList<TId> list, AType type, Boolean ByRef){
+    /*
+     * Adds every variable passed in the list argument to the right list based on its pass method
+     *
+     * @list List of variables to add to argsByRef or argsByVal
+     * @type Type of the variables - It is the same for every variable since
+     *       they have been extracted from a multi-variable definition
+     * @byRef Boolean that indicates whether the variables were passed by reference or not
+     */
+    public void addAlltoList(LinkedList<TId> list, AType type, Boolean byRef){
         LinkedList<VariableInfo> temp = new LinkedList<VariableInfo>();
         
-        System.out.println("Makeing the table");
-        for(int var = 0; var < list.size(); var++) {
+        /* Create a new VariableInfo object out of every variable in the list */
+        System.out.println("Making the table");
+        for (int var = 0; var < list.size(); var++) {
             System.out.println(list.get(var).toString() + type);
             temp.add(new VariableInfo(list.get(var).toString(), type)); 
         }
         
         /* Add the temp list to the correct list */
-        if (ByRef == true)
+        if (byRef == true)
             this.argsByRef.addAll(temp);
         else
             this.argsByVal.addAll(temp);
     }
     
-    /* Getter Functions */
+    /* Returns a list of the arguments that have been passed by reference */
     public LinkedList<VariableInfo> getArgsByRef() {
         return this.argsByRef;
     }
     
+    /* Returns a list of the arguments that have been passed by value */
     public LinkedList<VariableInfo> getArgsByVal() {
         return this.argsByVal;
     }
-   
+
+    /* Returns the return type of the function */
     public Type getType() {
-        return this.rettype;
+        return this.returnType;
     }
 
 }
