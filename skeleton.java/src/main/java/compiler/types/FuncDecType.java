@@ -1,8 +1,8 @@
-package compiler.semanticAnalysis;
+package compiler.types;
 
 import compiler.node.AType;
 import compiler.node.PFparList;
-import compiler.semanticAnalysis.FunctionType;
+import compiler.types.FunctionType;
 
 public class FuncDecType extends FunctionType {
     

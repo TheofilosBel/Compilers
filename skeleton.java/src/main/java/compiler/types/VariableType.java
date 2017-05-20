@@ -1,6 +1,7 @@
-package compiler.semanticAnalysis;
+package compiler.types;
 
 import compiler.node.*;
+import compiler.semanticAnalysis.Variable;
 
 /*
 This is a class to save the info needed for a variable

@@ -1,4 +1,4 @@
-package compiler.semanticAnalysis;
+package compiler.types;
 
 /*
 This is an abstract class used in the SymbolTableEntry

@@ -1,4 +1,4 @@
-package compiler.semanticAnalysis;
+package compiler.types;
 
 import compiler.node.AType;
 import compiler.node.PFparList;

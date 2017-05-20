@@ -3,8 +3,12 @@ package compiler.semanticAnalysis;
 import compiler.analysis.*;
 import compiler.node.*;
 import compiler.exceptions.*;
-import compiler.semanticAnalysis.Type;
 import compiler.semanticAnalysis.Variable;
+import compiler.types.FuncDecType;
+import compiler.types.FuncDefType;
+import compiler.types.FunctionType;
+import compiler.types.Type;
+import compiler.types.VariableType;
 import compiler.semanticAnalysis.SymbolTableEntry;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -367,7 +371,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void outAOpExpr(AOpExpr node){
         
-        /* Type Check */
+        /* Type Check for constants */
         if (node.getL() instanceof AIntExpr) {            
             if (node.getR() instanceof AIntExpr) {
                 
@@ -381,6 +385,14 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                                 node.getR().toString() +
                                                 " in "
                                                );
+        }
+        /* Type Check for expr */
+        else if (node.getL() instanceof AOpExpr) {
+
+            AType leftType = (AType) ((AOpExpr) node.getL()).getType();
+            
+            /* Witch expr */
+            
         }
         else 
             throw new TypeCheckingException("Error: invalid type of variable " +

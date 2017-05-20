@@ -1,11 +1,11 @@
-package compiler.semanticAnalysis;
+package compiler.types;
 
 import java.util.LinkedList;
 
 import compiler.exceptions.*;
 import compiler.node.*;
-import compiler.semanticAnalysis.Type;
 import compiler.semanticAnalysis.Variable;
+import compiler.types.Type;
 
 /*
 This is a class to save the info needed for a function

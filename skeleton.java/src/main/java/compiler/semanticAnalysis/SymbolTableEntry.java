@@ -1,7 +1,7 @@
 package compiler.semanticAnalysis;
 
 import compiler.node.*;
-import compiler.semanticAnalysis.Type;
+import compiler.types.Type;
 
 public class SymbolTableEntry {
 
