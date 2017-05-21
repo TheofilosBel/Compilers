@@ -1,5 +1,6 @@
 package compiler.semanticAnalysis;
 
+import compiler.node.TId;
 import compiler.node.PDataType;
 import compiler.node.PFparList;
 import compiler.semanticAnalysis.FunctionInfo;
@@ -11,7 +12,7 @@ public class FuncDecInfo extends FunctionInfo {
     
     private boolean funcDefined; /* A flag that indicates if the declaration has been matched with a function definition */
 
-    public FuncDecInfo(PDataType rettype, PFparList argList, String name) {
+    public FuncDecInfo(PDataType rettype, PFparList argList, TId name) {
         super(rettype, argList, name);
         this.funcDefined = false;
     }
