@@ -253,6 +253,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             ((FuncDecInfo) result.getType()).setFuncDefined(true);
 
             /* Check equivalence */
+            
+            
         }
         else if ((this.symbolTable.getIsMainDefined()) == true) {
             /*
@@ -322,6 +324,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Get the type of the variables in the current definition */
         PType type = (PType) ((AType) node.getType()).clone();
 
+        
         /* Extract every variable from a multi-variable definition and save their types */
         for (int varnum = 0; varnum < node.getIdList().size(); varnum++) {
             /* Add all the variables in the symbol table */
@@ -331,12 +334,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             if (this.symbolTable.insert(node.getIdList().get(varnum).toString(), data) == false){
                 throw new SemanticAnalysisException("Error Conflicting types : name \"" + node.getIdList().get(varnum).toString() + "\" already existis");
             }
-
+    
             /* Print each variable */
             indentNprint("Name :" + v.getName());
             indentNprint("Type :" + v.getType());
             indentNprint("Int ?:" + v.getType().isInt());
         }
+        
     }
 
     @Override

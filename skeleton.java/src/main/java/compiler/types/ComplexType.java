@@ -33,6 +33,10 @@ public class ComplexType extends Type {
             this.type = new BuiltInType(builtInTypeName);
         }
     }
+    
+    public Type getType() {
+        return this.type;
+    }
 
     @Override
     public String toString() {
@@ -47,6 +51,26 @@ public class ComplexType extends Type {
     @Override
     public boolean isArray() {
         return true;
+    }
+    
+    @Override
+    public boolean isEquivWith(Type type){
+        
+        /* Check the type names */
+        System.out.println(this.getTypeName() + " " + type.getTypeName());
+        if (this.getTypeName().equals(type.getTypeName())) {
+            
+            /* Recersive call to see the resemblance of the inner types */
+            if (this.getType().isEquivWith(type.getType())){
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        
+        /* Else part */
+        return false; 
     }
 
 }
