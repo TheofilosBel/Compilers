@@ -229,18 +229,18 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void inAFuncDef(AFuncDef node) {
         /* Check for a function declaration in the same nesting */
-        SymbolTableEntry result = this.symbolTable.lookup(node.getId().toString());
+        SymbolTableEntry funcDecInfo = this.symbolTable.lookup(node.getId().toString());
         
-        if (result != null) {
+        if (funcDecInfo != null) {
             /*
              * If a function definition or variable with the same name
              * as the function in node was found then raise an exception
              */
-            if (!(result.getType() instanceof FuncDecInfo)) {
+            if (!(funcDecInfo.getType() instanceof FuncDecInfo)) {
                 throw new SemanticAnalysisException("Error: Function with name " + node.getId().toString() +
                                                     " can't be used, name already in use");
             }
-            else if(((FuncDecInfo) result.getType()).getFuncDefined() == true){
+            else if(((FuncDecInfo) funcDecInfo.getType()).getFuncDefined() == true){
                 /* In case the function declaration was already matched with another function definition */
                 throw new SemanticAnalysisException("Error: Function with name " + node.getId().toString() +
                                                     " can't be used, name already in use");
@@ -250,11 +250,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
              * A non matched declaration has been found
              * Update its flag to indicate that it has been matched
              */
-            ((FuncDecInfo) result.getType()).setFuncDefined(true);
-
-            /* Check equivalence */
-            
-            
+            ((FuncDecInfo) funcDecInfo.getType()).setFuncDefined(true); 
         }
         else if ((this.symbolTable.getIsMainDefined()) == true) {
             /*
@@ -286,12 +282,21 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             this.symbolTable.setIsMainDefined();
         }
 
+        /* Create the info for the function definition*/
+        FuncDefInfo funcDefInfo = new FuncDefInfo((PDataType) node.getRetType(),
+                node.getFplist(), node.getId().toString());
+         
+        /* Check equivalence with the function declaration found and before.
+         * First on arguments passed by reference */
+        if (funcDeclIn)
+        
+        
+        
         /* In every new func_def we create a new scope */
         this.symbolTable.enter();
 
         /* Create a SymbolTableEntry object to pass to the insert function */
-        SymbolTableEntry data = new SymbolTableEntry(new FuncDefInfo((PDataType) node.getRetType(),
-                                node.getFplist(), node.getId().toString()));
+        SymbolTableEntry data = new SymbolTableEntry(funcDefInfo);
 
         /* Insert the function definition */
         this.symbolTable.insert(node.getId().toString(), data);

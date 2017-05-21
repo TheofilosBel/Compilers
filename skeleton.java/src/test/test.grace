@@ -1,6 +1,5 @@
 fun main () : nothing
 
-	var c, d, f : int;
 	var a : char[12][3][4];
 	
 
