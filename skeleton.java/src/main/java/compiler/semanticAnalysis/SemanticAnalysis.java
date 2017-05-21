@@ -213,8 +213,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         System.out.println(msg);
     }
     /*-----------------------*/
-    
-    
+
     @Override
     public void inAFuncDec(AFuncDec node) {
         
@@ -328,6 +327,31 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         removeIndentationLevel();
     }
 
+    @Override
+    public void inAVarDef(AVarDef node) {
+        indentNprint("In variable DEfinition");
+        
+        /* Get the type of the variables in the current definition */
+        PType type = (PType) ((AType) node.getType()).clone();
+
+        /* Extract every variable from a multi-variable definition and save their types */
+        for (int varnum = 0; varnum < node.getIdList().size(); varnum++) {
+            /* Add all the variables in the symbol table */
+            VariableInfo v = new VariableInfo(node.getIdList().get(varnum), (AType) type);
+            SymbolTableEntry data = new SymbolTableEntry(v);
+
+            if (this.symbolTable.insert(node.getIdList().get(varnum).toString(), data) == false){
+                throw new SemanticAnalysisException(v.getName().getLine(), v.getName().getPos(),
+                        "Conflicting types: name \"" + v.getName().getText() + "\" already exists");
+            }
+
+            /* Print each variable */
+            indentNprint("Name :" + v.getName());
+            indentNprint("Type :" + v.getType());
+            indentNprint("Int ?:" + v.getType().isInt());
+        }
+    }
+
     public void outAPosExpr(APosExpr node) {
         Type aExprType = exprTypes.get(node.getExpr());
 
@@ -335,7 +359,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (!(aExprType.isInt())) {
             int line = node.getPlus().getLine();
             int column = node.getPlus().getPos();
-            throw new TypeCheckingException(line, column, ":\npositive sign applied to invalid expression: " + node.getExpr().toString());
+            throw new TypeCheckingException(line, column, ":\npositive sign applied to invalid expression: "
+                                            + node.getExpr().toString());
         }
 
         exprTypes.put(node, BuiltInType.Int);
@@ -348,37 +373,19 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (!(aExprType.isInt())) {
             int line = node.getMinus().getLine();
             int column = node.getMinus().getPos();
-            throw new TypeCheckingException(line, column, ":\nnegative sign applied to invalid expression: " + node.getExpr().toString());
+            throw new TypeCheckingException(line, column, ":\nnegative sign applied to invalid expression: "
+                                            + node.getExpr().toString());
         }
 
         exprTypes.put(node, BuiltInType.Int);
     }
 
-    @Override
-    public void inAVarDef(AVarDef node) {
-        indentNprint("In variable DEfinition");
-        
-        /* Get the type of the variables in the current definition */
-        PType type = (PType) ((AType) node.getType()).clone();
+    public void outAStrLvalue(AStrLvalue node) {
+        LinkedList<Integer> strLength = new LinkedList<Integer>();
+        /* We subtract 3 from the length to account for the "" and the space at the end */
+        strLength.add(node.getStringLiteral().toString().length() - 3);
 
-        
-        /* Extract every variable from a multi-variable definition and save their types */
-        for (int varnum = 0; varnum < node.getIdList().size(); varnum++) {
-            /* Add all the variables in the symbol table */
-            VariableInfo v = new VariableInfo(node.getIdList().get(varnum), (AType) type);
-            SymbolTableEntry data = new SymbolTableEntry(v);
-
-            if (this.symbolTable.insert(node.getIdList().get(varnum).toString(), data) == false){
-                throw new SemanticAnalysisException(v.getName().getLine(), v.getName().getPos(),
-                        "Conflicting types : name \"" + v.getName().getText() + "\" already existis");
-            }
-    
-            /* Print each variable */
-            indentNprint("Name :" + v.getName());
-            indentNprint("Type :" + v.getType());
-            indentNprint("Int ?:" + v.getType().isInt());
-        }
-        
+        exprTypes.put(node, new ComplexType("array", strLength, "char"));
     }
 
     @Override
@@ -404,52 +411,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     }
 
     @Override
-    public void outAAddExpr(AAddExpr node) {
-        /* Type Check for constants */
-        if (node.getL() instanceof AIntExpr) {            
-            if (node.getR() instanceof AIntExpr) {
-                /* Set the time of the add expr to int */
-                AType newType = new AType((PDataType) new AIntDataType(new TKwInt()),
-                                          (PArrayDec) new ANotExistingArrayDec()     );
-            }
-            //else 
-                //throw new TypeCheckingException("Invalid type of variable " + node.getR().toString() + " in ");
-        }
-        /* Type Check for expr */
-        //else
-            //throw new TypeCheckingException("Error: invalid type of variable " + node.getL().toString() + " in ");
-
-        /* Print type */
-    }
+    public void inABlockStmt(ABlockStmt node) {}
 
     @Override
-    public void outAAssignStmt(AAssignStmt node){
-        /* Type check if we assing something to a var */
-        if (node.getLvalue() instanceof AIdLvalue) {
-            AIdLvalue lvalue = (AIdLvalue) node.getLvalue();
-            SymbolTableEntry varInfo = this.symbolTable.lookup(lvalue.getId().toString());
-            
-            /* If it's not declared */
-            if (varInfo == null) {
-                System.out.println("Error Undefined variable : \"" + lvalue.getId() + "\"");
-                System.exit(-1);
-            } 
-            else {
-                
-                /* Type check */
-                Info varType  = varInfo.getInfo();
-                //Type exprType = new Type(node.getExpr()); 
-
-                /* Equivalent check */
-            }
-        }
-
-        System.out.println("Edw mpainw omws");
-    }
-
-    @Override
-    public void inABlockStmt(ABlockStmt node){
-       //System.out.println("Edw omws 8a mpw");        
-    }
+    public void inABlockStmt(ABlockStmt node) {}
 
 }
