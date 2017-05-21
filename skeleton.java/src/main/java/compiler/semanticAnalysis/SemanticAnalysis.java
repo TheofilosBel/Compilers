@@ -282,6 +282,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             }
 
             this.symbolTable.setIsMainDefined();
+
+            /* Create the HashMap for the type checking */
+            exprTypes = new HashMap<>();
         }
 
         /* In every new func_def we create a new scope */
@@ -340,7 +343,23 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     }
 
     @Override
-    public void outAIntExpr(AIntExpr node) {}
+    public void outAIntExpr(AIntExpr node) {
+        String integerString = node.getIntConst().toString();
+
+        /* Convert the string to an integer */
+        try {
+            Integer.parseInt(integerString);
+        }
+        catch (NumberFormatException e) {
+            int line = node.getIntConst().getLine();
+            int column = node.getIntConst().getPos();
+            String error = "Error in line " + line + " column " + column +
+                            ":\ninvalid integer constant " + integerString;
+            throw new TypeCheckingException(error);
+        }
+
+        exprTypes.put(node, BuiltInType.Int);
+    }
 
     public void outACharExpr(ACharExpr node) {}
 

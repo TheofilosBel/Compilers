@@ -8,8 +8,8 @@ import compiler.node.*;
 public class SymbolTableEntry {
 
     /*
-    Keep an Info object that saves the required info about the entry
-    */
+     * Keep an Info object that saves the required info about the entry
+     */
     private Info type;
 
     public SymbolTableEntry() {}
