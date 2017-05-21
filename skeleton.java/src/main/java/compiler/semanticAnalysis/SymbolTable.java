@@ -6,6 +6,10 @@ import compiler.semanticAnalysis.SymbolTableEntry;
 import java.util.Stack;
 import java.util.TreeMap;
 
+/*
+ * This class represents the symbol table
+ * It is implemented as a stack of trees
+ */
 public class SymbolTable {
 
     private Stack<TreeMap<String, SymbolTableEntry>> scope_st; /* We need a stack to keep the scopes */
