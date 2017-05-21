@@ -12,8 +12,8 @@ import compiler.types.*;
  */
 public class VariableInfo extends Info {
 
-    private TId    name; /* Name of the variable */
-    private Type   type; /* Type of the variable */
+    private TId  name; /* Name of the variable */
+    private Type type; /* Type of the variable */
 
     public VariableInfo() {}
     

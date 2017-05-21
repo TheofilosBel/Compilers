@@ -216,7 +216,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void inAFuncDec(AFuncDec node) {
-        
         /* Create a SymbolTableEntry object to pass to the insert function */
         SymbolTableEntry data = new SymbolTableEntry(new FuncDecInfo((PDataType) node.getRetType(),
                                 node.getFplist(), node.getId()));
@@ -321,6 +320,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         addIndentationLevel();
     }
 
+    @Override
     public void outAFuncDef(AFuncDef node) {
         /* When exiting from a function exit from the current scope too */
         this.symbolTable.exit();
@@ -352,6 +352,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
     }
 
+    @Override
     public void outAPosExpr(APosExpr node) {
         Type aExprType = exprTypes.get(node.getExpr());
 
@@ -366,6 +367,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         exprTypes.put(node, BuiltInType.Int);
     }
 
+    @Override
     public void outANegExpr(ANegExpr node) {
         Type aExprType = exprTypes.get(node.getExpr());
 
@@ -378,14 +380,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         exprTypes.put(node, BuiltInType.Int);
-    }
-
-    public void outAStrLvalue(AStrLvalue node) {
-        LinkedList<Integer> strLength = new LinkedList<Integer>();
-        /* We subtract 3 from the length to account for the "" and the space at the end */
-        strLength.add(node.getStringLiteral().toString().length() - 3);
-
-        exprTypes.put(node, new ComplexType("array", strLength, "char"));
     }
 
     @Override
@@ -406,12 +400,33 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         exprTypes.put(node, BuiltInType.Int);
     }
 
+    @Override
     public void outACharExpr(ACharExpr node) {
         exprTypes.put(node, BuiltInType.Char);
     }
 
     @Override
-    public void inABlockStmt(ABlockStmt node) {}
+    public void outAStrLvalue(AStrLvalue node) {
+        LinkedList<Integer> strLength = new LinkedList<Integer>();
+        /* We subtract 3 from the length to account for the "" and the space at the end */
+        strLength.add(node.getStringLiteral().toString().length() - 3);
+
+        exprTypes.put(node, new ComplexType("array", strLength, "char"));
+    }
+
+    @Override
+    public void outAIdLvalue(AIdLvalue node) {
+        SymbolTableEntry anId = this.symbolTable.lookup(node.getId().toString());
+
+        /* If the id was not found in the symbol table throw an exception */
+        if (anId == null) {
+            int line = node.getId().getLine();
+            int column = node.getId().getPos();
+            throw new TypeCheckingException(line, column, ":\nundefined indentifier: " + node.getId().toString());
+        }
+
+        //System.out.println(anId.getInfo().getType().toString());
+    }
 
     @Override
     public void inABlockStmt(ABlockStmt node) {}
