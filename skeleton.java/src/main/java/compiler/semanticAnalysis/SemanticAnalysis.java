@@ -14,14 +14,14 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     int indentation = 0;
     SymbolTable symbolTable; /* The structure of the symbol table */
-    private HashMap<node, Type> exprTypes; /* A structure that map every expression to a type */
+    private HashMap<Node, Type> exprTypes; /* A structure that maps every sablecc generated Node to a type */
 
     /*
-    The semantic analysis phase starts here
-    We create the symbol table and in its first scope we insert
-    the Grace built in library functions so that they can be
-    called by any function in the program (global scope)
-    */
+     * The semantic analysis phase starts here
+     * We create the symbol table and in its first scope we insert
+     * the Grace built in library functions so that they can be
+     * called by any function in the program (global scope)
+     */
     public SemanticAnalysis() {
         /* Create a new symbol table */
         System.out.println("Constructing Symbol_table");
