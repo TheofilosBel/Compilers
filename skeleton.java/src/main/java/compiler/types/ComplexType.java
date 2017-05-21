@@ -57,10 +57,9 @@ public class ComplexType extends Type {
     public boolean isEquivWith(Type type){
         
         /* Check the type names */
-        System.out.println(this.getTypeName() + " " + type.getTypeName());
         if (this.getTypeName().equals(type.getTypeName())) {
             
-            /* Recersive call to see the resemblance of the inner types */
+            /* Recursive call to see the resemblance of the inner types */
             if (this.getType().isEquivWith(type.getType())){
                 return true;
             }

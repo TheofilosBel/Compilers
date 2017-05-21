@@ -127,7 +127,7 @@ public class FunctionInfo extends Info {
         System.out.println("Making the table");
         for (int var = 0; var < list.size(); var++) {
             System.out.println(list.get(var).toString() + type);
-            temp.add(new VariableInfo(list.get(var).toString(), type)); 
+            temp.add(new VariableInfo(list.get(var), type)); 
         }
         
         /* Add the temp list to the correct list */
@@ -136,6 +136,50 @@ public class FunctionInfo extends Info {
         else
             this.argsByVal.addAll(temp);
     }
+    
+    
+    /*
+     * Check if 2 FunctionInfos hold the same information about  
+     * their arguments and their return types. In case of error 
+     * the function throws a runtime exception.
+     */
+    public void isEquivWith(FunctionInfo funcInfo) {
+        /* First Check that the arguments passed by value are equal */
+        if (this.getArgsByVal().size() == funcInfo.getArgsByVal().size() && 
+                                          funcInfo.getArgsByVal().size() > 0) {
+
+            for (int arg = 0; arg < funcInfo.getArgsByVal().size(); arg++) {
+                if (!(funcInfo.getArgsByVal().get(arg).getType().isEquivWith(this.getArgsByVal().get(arg).getType())))
+                    System.out.println("Error vars by val not equal");
+            }
+        }
+        else if (funcInfo.getArgsByVal().size() > 0){
+        
+            System.out.println("Error vars by val num not equal");
+            /* TODO throw exception*/
+        }
+            
+        /* Then Check that the arguments passed by referance are equal */
+        if (this.getArgsByRef().size() == funcInfo.getArgsByRef().size() && 
+                                          funcInfo.getArgsByRef().size() > 0) {
+            
+            for (int arg = 0; arg < funcInfo.getArgsByRef().size(); arg++) {
+                if (!(funcInfo.getArgsByRef().get(arg).getType().isEquivWith(this.getArgsByRef().get(arg).getType())))
+                    System.out.println("Error vars by ref not equal");        
+            }
+        }
+        else if (funcInfo.getArgsByRef().size() > 0){
+            
+            System.out.println("Error vars by ref num not equal");
+            /* TODO throw exception*/
+        }
+        
+        /* Check the return type of each function info */
+        if (!(this.getType().isEquivWith(funcInfo.getType())))
+            /* TODO throw exception */
+            System.out.println("Error ret types not equal");
+    }
+   
     
     /* Returns a list of the arguments that have been passed by reference */
     public LinkedList<VariableInfo> getArgsByRef() {

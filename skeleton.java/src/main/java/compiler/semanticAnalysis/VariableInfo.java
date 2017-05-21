@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import compiler.node.AExistingArrayDec;
 import compiler.node.AType;
+import compiler.node.TId;
 import compiler.types.*;
 
 /*
@@ -11,14 +12,14 @@ import compiler.types.*;
  */
 public class VariableInfo extends Info {
 
-    private String name; /* Name of the variable */
+    private TId    name; /* Name of the variable */
     private Type   type; /* Type of the variable */
 
     public VariableInfo() {}
     
     /* Copy Constructor */
     public VariableInfo(VariableInfo var) {
-        this.name = new String(var.getName());
+        this.name = (TId) var.getName().clone();
     }
 
     /*
@@ -27,8 +28,8 @@ public class VariableInfo extends Info {
      * @name Name of the variable
      * @type Type of the variable
      */
-    public VariableInfo(String name, AType type){
-        this.name = new String(name);
+    public VariableInfo(TId name, AType type){
+        this.name = (TId) name.clone();
         LinkedList<Integer> dimensionsList = new LinkedList<Integer>();
         
         /*
@@ -67,7 +68,7 @@ public class VariableInfo extends Info {
      * @isComplex Indicates whether the variable has a complex type or not
      */
     public VariableInfo(String name, String type, boolean isComplex) {
-        this.name = new String(name);
+        this.name = new TId(name, 0, 0);
 
         /*
          * If the argument has a complex type then it is a one dimensional array
@@ -84,7 +85,7 @@ public class VariableInfo extends Info {
     }
 
     /* Returns the name of the variable */
-    public String getName() {
+    public TId getName() {
         return this.name;
     }
 
