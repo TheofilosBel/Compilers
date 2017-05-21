@@ -10,7 +10,7 @@ public class SymbolTableEntry {
     /*
      * Keep an Info object that saves the required info about the entry
      */
-    private Info type;
+    private Info info;
 
     public SymbolTableEntry() {}
 
@@ -20,12 +20,12 @@ public class SymbolTableEntry {
      * @type Type of the symbol table entry
      */
     public SymbolTableEntry(Info type) {
-        this.type = type;
+        this.info = type;
     }
 
     /* Returns info about the calling object */
-    public Info getType() {
-        return this.type;
+    public Info getInfo() {
+        return this.info;
     }
 
 }

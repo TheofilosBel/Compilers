@@ -236,11 +236,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
              * If a function definition or variable with the same name
              * as the function in node was found then raise an exception
              */
-            if (!(funcDecInfo.getType() instanceof FuncDecInfo)) {
+            if (!(funcDecInfo.getInfo() instanceof FuncDecInfo)) {
                 throw new SemanticAnalysisException("Error: Function with name " + node.getId().toString() +
                                                     " can't be used, name already in use");
             }
-            else if(((FuncDecInfo) funcDecInfo.getType()).getFuncDefined() == true){
+            else if(((FuncDecInfo) funcDecInfo.getInfo()).getFuncDefined() == true){
                 /* In case the function declaration was already matched with another function definition */
                 throw new SemanticAnalysisException("Error: Function with name " + node.getId().toString() +
                                                     " can't be used, name already in use");
@@ -250,7 +250,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
              * A non matched declaration has been found
              * Update its flag to indicate that it has been matched
              */
-            ((FuncDecInfo) funcDecInfo.getType()).setFuncDefined(true); 
+            ((FuncDecInfo) funcDecInfo.getInfo()).setFuncDefined(true); 
         }
         else if ((this.symbolTable.getIsMainDefined()) == true) {
             /*
@@ -291,7 +291,46 @@ public class SemanticAnalysis extends DepthFirstAdapter {
          
         /* Check equivalence with the function declaration found and before.
          * First on arguments passed by reference */
-        if (funcDeclIn)
+        
+            
+            
+        if (funcDecInfo != null) {
+            
+            if (((FunctionInfo) funcDecInfo.getInfo()).getArgsByVal().size() ==
+                                funcDefInfo.getArgsByVal().size() && funcDefInfo.getArgsByVal().size() > 0) {
+                
+                for (int arg = 0; arg < funcDefInfo.getArgsByVal().size(); arg++) {
+                    if (funcDefInfo.getArgsByVal().get(arg).getType().isEquivWith(
+                            ((FunctionInfo) funcDecInfo.getInfo()).getArgsByVal().get(arg).getType())){
+                        
+                    } else
+                        System.out.println("Error vars not equal");
+                    
+                }
+            } else {
+                
+                System.out.println("Error vars num not equal");
+                /* TODO throw exception*/
+            }
+        
+            if (((FunctionInfo) funcDecInfo.getInfo()).getArgsByRef().size() ==
+                    funcDefInfo.getArgsByRef().size() && funcDefInfo.getArgsByRef().size() > 0) {
+                
+                for (int arg = 0; arg < funcDefInfo.getArgsByRef().size(); arg++) {
+                    if (funcDefInfo.getArgsByRef().get(arg).getType().isEquivWith(
+                            ((FunctionInfo) funcDecInfo.getInfo()).getArgsByRef().get(arg).getType())){
+                        
+                    } else
+                        System.out.println("Error vars not equal");
+                    
+                }
+            } else {
+                
+                System.out.println("Error vars num not equal");
+                /* TODO throw exception*/
+            }
+        }
+        
         
         
         
@@ -305,15 +344,15 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         this.symbolTable.insert(node.getId().toString(), data);
 
         /* Insert the function's arguments to the symbol table - First those passed by reference) */
-        for (int var = 0;  var < ((FunctionInfo) data.getType()).getArgsByRef().size(); var++) {
-            this.symbolTable.insert(((FunctionInfo) data.getType()).getArgsByRef().get(var).getName(),
-                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getType()).getArgsByRef().get(var))));
+        for (int var = 0;  var < ((FunctionInfo) data.getInfo()).getArgsByRef().size(); var++) {
+            this.symbolTable.insert(((FunctionInfo) data.getInfo()).getArgsByRef().get(var).getName(),
+                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getInfo()).getArgsByRef().get(var))));
         }
 
         /* Insert the function's arguments to the symbol table - Now those passed by value) */
-        for (int var = 0; var < ((FunctionInfo) data.getType()).getArgsByVal().size(); var++) {
-            this.symbolTable.insert(((FunctionInfo) data.getType()).getArgsByVal().get(var).getName(),
-                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getType()).getArgsByVal().get(var))));
+        for (int var = 0; var < ((FunctionInfo) data.getInfo()).getArgsByVal().size(); var++) {
+            this.symbolTable.insert(((FunctionInfo) data.getInfo()).getArgsByVal().get(var).getName(),
+                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getInfo()).getArgsByVal().get(var))));
         }
 
         addIndentationLevel();
@@ -406,7 +445,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             else {
                 
                 /* Type check */
-                Info varType  = varInfo.getType();
+                Info varType  = varInfo.getInfo();
                 //Type exprType = new Type(node.getExpr()); 
 
                 /* Equivalent check */
