@@ -6,9 +6,9 @@ package compiler.types;
  */
 public class BuiltInType extends Type {
 
-    private final static Type Int      = new BuiltInType("int ");
-    private final static Type Char     = new BuiltInType("char ");
-    private final static Type Nothing  = new BuiltInType("nothing ");
+    public final static Type Int      = new BuiltInType("int ");
+    public final static Type Char     = new BuiltInType("char ");
+    public final static Type Nothing  = new BuiltInType("nothing ");
 
     private final String typeName; /* Name of the type */
 
