@@ -18,6 +18,11 @@ public class BuiltInType extends Type {
     public BuiltInType(String name) {
         this.typeName = name;
     }
+    
+    
+    public Type makeCopy(){
+        return new BuiltInType(this.typeName);
+    }
 
     @Override
     public String toString() {

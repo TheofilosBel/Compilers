@@ -216,7 +216,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void inAFuncDec(AFuncDec node) {
-        
         /* Create a SymbolTableEntry object to pass to the insert function */
         SymbolTableEntry data = new SymbolTableEntry(new FuncDecInfo((PDataType) node.getRetType(),
                                 node.getFplist(), node.getId()));
@@ -316,11 +315,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         for (int var = 0; var < ((FunctionInfo) data.getInfo()).getArgsByVal().size(); var++) {
             this.symbolTable.insert(((FunctionInfo) data.getInfo()).getArgsByVal().get(var).getName().toString(),
                 new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getInfo()).getArgsByVal().get(var))));
+            
         }
 
         addIndentationLevel();
     }
 
+    @Override
     public void outAFuncDef(AFuncDef node) {
         /* When exiting from a function exit from the current scope too */
         this.symbolTable.exit();
@@ -349,9 +350,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             indentNprint("Name :" + v.getName());
             indentNprint("Type :" + v.getType());
             indentNprint("Int ?:" + v.getType().isInt());
+            
         }
     }
 
+    @Override
     public void outAPosExpr(APosExpr node) {
         Type aExprType = exprTypes.get(node.getExpr());
 
@@ -366,6 +369,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         exprTypes.put(node, BuiltInType.Int);
     }
 
+    @Override
     public void outANegExpr(ANegExpr node) {
         Type aExprType = exprTypes.get(node.getExpr());
 
@@ -378,14 +382,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         exprTypes.put(node, BuiltInType.Int);
-    }
-
-    public void outAStrLvalue(AStrLvalue node) {
-        LinkedList<Integer> strLength = new LinkedList<Integer>();
-        /* We subtract 3 from the length to account for the "" and the space at the end */
-        strLength.add(node.getStringLiteral().toString().length() - 3);
-
-        exprTypes.put(node, new ComplexType("array", strLength, "char"));
     }
 
     @Override
@@ -433,9 +429,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 /* For every expression see its its equivalent with every argument */
                 for (int arg = 0; arg < node.getExprList().size(); arg++) {
                     
-                    /* If the expression and the argument are not equal throw exception */
-                    Type funcCallExprType = exprTypes.get(node.getExprList().get(arg));
+                    /* If the expression and the argument are not equal throw exception */                    
                     Type funcDecExprType  = funcDecInfo.getArgsByVal().get(arg).getType(); 
+                    Type funcCallExprType = exprTypes.get(node.getExprList().get(arg));  // No point in checking it should be not null
+                    
+                    
+                    System.out.println("Type exp " + funcCallExprType + "\nType arg " + funcDecExprType);
                     
                     if (! (funcDecExprType.isEquivWith(funcCallExprType))){
                         
@@ -450,13 +449,60 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             }
         }
         else {
-        
             System.out.println("Error vars by val num not equal");
             /* TODO throw exception*/
         }
 
         /* Put the return type to the HashMap */
         exprTypes.put(node, funcDecInfo.getType());
+    }
+
+    public void outAStrLvalue(AStrLvalue node) {
+        LinkedList<Integer> strLength = new LinkedList<Integer>();
+        /* We subtract 3 from the length to account for the "" and the space at the end */
+        strLength.add(node.getStringLiteral().toString().length() - 3);
+
+        exprTypes.put(node, new ComplexType("array", strLength, "char"));
+    }
+
+    @Override
+    public void outAIdLvalue(AIdLvalue node) {
+        SymbolTableEntry anId = this.symbolTable.lookup(node.getId().toString());
+
+        /* If the id was not found in the symbol table throw an exception */
+        if (anId == null) {
+            int line = node.getId().getLine();
+            int column = node.getId().getPos();
+            throw new TypeCheckingException(line, column, ":\nundefined indentifier: " + node.getId().toString());
+        }
+
+        System.out.println(anId.getInfo().getType().toString());
+        
+        /* Put the Id on the hashMap */
+        exprTypes.put(node, anId.getInfo().getType());
+
+    }
+    
+    @Override
+    public void outALvalExpr(ALvalExpr node) {
+        
+        if (node.getLvalue() instanceof AIdLvalue) {
+            AIdLvalue idLval = (AIdLvalue) node.getLvalue();
+            
+            SymbolTableEntry anId = this.symbolTable.lookup(idLval.getId().toString());
+
+            /* If the id was not found in the symbol table throw an exception */
+            if (anId == null) {
+                int line = idLval.getId().getLine();
+                int column = idLval.getId().getPos();
+                throw new TypeCheckingException(line, column, ":\nundefined indentifier: " + idLval.getId().toString());
+            }
+
+            System.out.println(anId.getInfo().getType().toString());
+            
+            /* Put the Id on the hashMap */
+            exprTypes.put(node, anId.getInfo().getType());
+        }
         
     }
 

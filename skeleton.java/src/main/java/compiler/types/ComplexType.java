@@ -32,6 +32,18 @@ public class ComplexType extends Type {
         }
     }
     
+    public ComplexType(String name, Integer size, Type type){
+        this.typeName = name;
+        this.size     = size;
+        this.type     = type.makeCopy();
+    }
+    
+    
+    public Type makeCopy(){
+        return new ComplexType(this.typeName, this.size,  this.getType());
+    }
+
+    
     public Type getType() {
         return this.type;
     }

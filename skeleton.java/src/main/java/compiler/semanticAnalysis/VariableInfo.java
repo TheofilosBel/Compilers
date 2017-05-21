@@ -12,15 +12,17 @@ import compiler.types.*;
  */
 public class VariableInfo extends Info {
 
-    private TId    name; /* Name of the variable */
-    private Type   type; /* Type of the variable */
+    private TId  name; /* Name of the variable */
+    private Type type; /* Type of the variable */
 
     public VariableInfo() {}
     
     /* Copy Constructor */
     public VariableInfo(VariableInfo var) {
         this.name = (TId) var.getName().clone();
+        this.type = var.getType().makeCopy();
     }
+    
 
     /*
      * Construct a variable with the given name and type
