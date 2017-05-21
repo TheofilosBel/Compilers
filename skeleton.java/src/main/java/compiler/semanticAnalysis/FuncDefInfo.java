@@ -1,5 +1,6 @@
 package compiler.semanticAnalysis;
 
+import compiler.node.TId;
 import compiler.node.PDataType;
 import compiler.node.PFparList;
 
@@ -8,7 +9,7 @@ import compiler.node.PFparList;
  */
 public class FuncDefInfo extends FunctionInfo {
 
-    public FuncDefInfo(PDataType rettype, PFparList argList, String name) {
+    public FuncDefInfo(PDataType rettype, PFparList argList, TId name) {
         super(rettype, argList, name);
     }
 

@@ -219,7 +219,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         
         /* Create a SymbolTableEntry object to pass to the insert function */
         SymbolTableEntry data = new SymbolTableEntry(new FuncDecInfo((PDataType) node.getRetType(),
-                                node.getFplist(), node.getId().toString()));
+                                node.getFplist(), node.getId()));
         this.symbolTable.insert(node.getId().toString(), data);
 
         addIndentationLevel();
@@ -228,32 +228,28 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void inAFuncDef(AFuncDef node) {
         /* Check for a function declaration in the same nesting */
-        SymbolTableEntry result = this.symbolTable.lookup(node.getId().toString());
+        SymbolTableEntry funcDec = this.symbolTable.lookup(node.getId().toString());
         
-        if (result != null) {
+        if (funcDec != null) {
             /*
              * If a function definition or variable with the same name
              * as the function in node was found then raise an exception
              */
-            if (!(result.getType() instanceof FuncDecInfo)) {
-                throw new SemanticAnalysisException("Error: Function with name " + node.getId().toString() +
-                                                    " can't be used, name already in use");
+            if (!(funcDec.getInfo() instanceof FuncDecInfo)) {
+                throw new SemanticAnalysisException(node.getId().getLine(), node.getId().getPos(),
+                        "Function with name " + node.getId().toString() + " can't be used, is already in use");
             }
-            else if(((FuncDecInfo) result.getType()).getFuncDefined() == true){
+            else if(((FuncDecInfo) funcDec.getInfo()).getFuncDefined() == true){
                 /* In case the function declaration was already matched with another function definition */
-                throw new SemanticAnalysisException("Error: Function with name " + node.getId().toString() +
-                                                    " can't be used, name already in use");
+                throw new SemanticAnalysisException(node.getId().getLine(), node.getId().getPos(),
+                        "Function with name " + node.getId().toString() + " can't be used, is already defined");
             }
 
             /*
              * A non matched declaration has been found
              * Update its flag to indicate that it has been matched
              */
-            ((FuncDecInfo) result.getType()).setFuncDefined(true);
-
-            /* Check equivalence */
-            
-            
+            ((FuncDecInfo) funcDec.getInfo()).setFuncDefined(true); 
         }
         else if ((this.symbolTable.getIsMainDefined()) == true) {
             /*
@@ -262,7 +258,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
              * so that it will be visible to function calls in the new scope
              */
             FuncDecInfo type = new FuncDecInfo((PDataType) node.getRetType(),
-                               node.getFplist(), node.getId().toString());
+                               node.getFplist(), node.getId());
             SymbolTableEntry data = new SymbolTableEntry(type);
             
             /* Function is already matched because it only has a definition */
@@ -275,11 +271,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if ((this.symbolTable.getIsMainDefined()) == false) {
             /* The main function should have no arguments and returns nothing */
             if (node.getFplist() instanceof AExistingFparList) {
-                throw new TypeCheckingException("Error: Main should have no parameters");
+                throw new TypeCheckingException(0, 0, "Error: Main should have no parameters");
             }
 
             if (!(((PDataType) node.getRetType()).toString()).equals(new String("nothing "))) {                
-                throw new TypeCheckingException("Error: Main should return nothing");
+                throw new TypeCheckingException(0, 0, "Error: Main should return nothing");
             }
 
             this.symbolTable.setIsMainDefined();
@@ -288,26 +284,38 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             exprTypes = new HashMap<>();
         }
 
+        /* Create the info for the function definition*/
+        FunctionInfo funcDefInfo = new FuncDefInfo((PDataType) node.getRetType(),
+                node.getFplist(), node.getId());
+         
+        /* Check equivalence with the function declaration found and before.
+         * First on arguments passed by reference */
+        
+            
+        /* Check if the definition is equivalent with the declaration */
+        if (funcDec != null) {
+            ((FunctionInfo) funcDec.getInfo()).isEquivWith(funcDefInfo);
+        }
+
         /* In every new func_def we create a new scope */
         this.symbolTable.enter();
 
         /* Create a SymbolTableEntry object to pass to the insert function */
-        SymbolTableEntry data = new SymbolTableEntry(new FuncDefInfo((PDataType) node.getRetType(),
-                                node.getFplist(), node.getId().toString()));
+        SymbolTableEntry data = new SymbolTableEntry(funcDefInfo);
 
         /* Insert the function definition */
         this.symbolTable.insert(node.getId().toString(), data);
 
         /* Insert the function's arguments to the symbol table - First those passed by reference) */
-        for (int var = 0;  var < ((FunctionInfo) data.getType()).getArgsByRef().size(); var++) {
-            this.symbolTable.insert(((FunctionInfo) data.getType()).getArgsByRef().get(var).getName(),
-                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getType()).getArgsByRef().get(var))));
+        for (int var = 0;  var < ((FunctionInfo) data.getInfo()).getArgsByRef().size(); var++) {
+            this.symbolTable.insert(((FunctionInfo) data.getInfo()).getArgsByRef().get(var).getName().toString(),
+                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getInfo()).getArgsByRef().get(var))));
         }
 
         /* Insert the function's arguments to the symbol table - Now those passed by value) */
-        for (int var = 0; var < ((FunctionInfo) data.getType()).getArgsByVal().size(); var++) {
-            this.symbolTable.insert(((FunctionInfo) data.getType()).getArgsByVal().get(var).getName(),
-                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getType()).getArgsByVal().get(var))));
+        for (int var = 0; var < ((FunctionInfo) data.getInfo()).getArgsByVal().size(); var++) {
+            this.symbolTable.insert(((FunctionInfo) data.getInfo()).getArgsByVal().get(var).getName().toString(),
+                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getInfo()).getArgsByVal().get(var))));
         }
 
         addIndentationLevel();
@@ -329,13 +337,14 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Extract every variable from a multi-variable definition and save their types */
         for (int varnum = 0; varnum < node.getIdList().size(); varnum++) {
             /* Add all the variables in the symbol table */
-            VariableInfo v = new VariableInfo(node.getIdList().get(varnum).toString(), (AType) type);
-            SymbolTableEntry data = new SymbolTableEntry();
+            VariableInfo v = new VariableInfo(node.getIdList().get(varnum), (AType) type);
+            SymbolTableEntry data = new SymbolTableEntry(v);
 
             if (this.symbolTable.insert(node.getIdList().get(varnum).toString(), data) == false){
-                throw new SemanticAnalysisException("Error Conflicting types : name \"" + node.getIdList().get(varnum).toString() + "\" already existis");
+                throw new SemanticAnalysisException(v.getName().getLine(), v.getName().getPos(),
+                        "Conflicting types: name \"" + v.getName().getText() + "\" already exists");
             }
-    
+
             /* Print each variable */
             indentNprint("Name :" + v.getName());
             indentNprint("Type :" + v.getType());
@@ -350,9 +359,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (!(aExprType.isInt())) {
             int line = node.getPlus().getLine();
             int column = node.getPlus().getPos();
-            String error = "Error in line " + line + " column " + column +
-                            ":\npositive sign applied to invalid expression: " + node.getExpr().toString();
-            throw new TypeCheckingException(error);
+            throw new TypeCheckingException(line, column, ":\npositive sign applied to invalid expression: "
+                                            + node.getExpr().toString());
         }
 
         exprTypes.put(node, BuiltInType.Int);
@@ -365,9 +373,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (!(aExprType.isInt())) {
             int line = node.getMinus().getLine();
             int column = node.getMinus().getPos();
-            String error = "Error in line " + line + " column " + column +
-                            ":\nnegative sign applied to invalid expression: " + node.getExpr().toString();
-            throw new TypeCheckingException(error);
+            throw new TypeCheckingException(line, column, ":\nnegative sign applied to invalid expression: "
+                                            + node.getExpr().toString());
         }
 
         exprTypes.put(node, BuiltInType.Int);
@@ -393,9 +400,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         catch (NumberFormatException e) {
             int line = node.getIntConst().getLine();
             int column = node.getIntConst().getPos();
-            String error = "Error in line " + line + " column " + column +
-                            ":\ninvalid integer constant: " + intStr;
-            throw new TypeCheckingException(error);
+            throw new TypeCheckingException(line, column, ":\ninvalid integer constant: " + intStr);
         }
 
         exprTypes.put(node, BuiltInType.Int);
@@ -404,6 +409,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     public void outACharExpr(ACharExpr node) {
         exprTypes.put(node, BuiltInType.Char);
     }
+
+    @Override
+    public void inABlockStmt(ABlockStmt node) {}
 
     @Override
     public void inABlockStmt(ABlockStmt node) {}
