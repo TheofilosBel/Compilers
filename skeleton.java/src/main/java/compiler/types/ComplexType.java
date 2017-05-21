@@ -6,8 +6,6 @@ import java.util.LinkedList;
  * Class for the Grace complex types
  */
 public class ComplexType extends Type {
-
-    //private final static ComplexType array  = new ComplexType("array", null, );
     
     private final String  typeName; /* Name of the complex type */
     private final Integer size;     /* Size of the current dimension of the complex type */
