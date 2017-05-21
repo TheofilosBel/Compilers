@@ -2,16 +2,19 @@ package compiler.semanticAnalysis;
 
 import compiler.analysis.*;
 import compiler.node.*;
+import compiler.types.*;
 import compiler.exceptions.*;
 import compiler.semanticAnalysis.VariableInfo;
 import compiler.semanticAnalysis.SymbolTableEntry;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.HashMap;
 
 public class SemanticAnalysis extends DepthFirstAdapter {
 
     int indentation = 0;
     SymbolTable symbolTable; /* The structure of the symbol table */
+    private HashMap<node, Type> exprTypes; /* A structure that map every expression to a type */
 
     /*
     The semantic analysis phase starts here
