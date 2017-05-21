@@ -392,24 +392,27 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outAIntExpr(AIntExpr node) {
-        String integerString = node.getIntConst().toString();
+        String intStr = node.getIntConst().toString();
+        intStr = intStr.substring(0, intStr.length()-1); /* Remove the reduntant space created by the parser at the end */
 
         /* Convert the string to an integer */
         try {
-            Integer.parseInt(integerString);
+            Integer.parseInt(intStr);
         }
         catch (NumberFormatException e) {
             int line = node.getIntConst().getLine();
             int column = node.getIntConst().getPos();
             String error = "Error in line " + line + " column " + column +
-                            ":\ninvalid integer constant " + integerString;
+                            ":\ninvalid integer constant " + intStr;
             throw new TypeCheckingException(error);
         }
 
         exprTypes.put(node, BuiltInType.Int);
     }
 
-    public void outACharExpr(ACharExpr node) {}
+    public void outACharExpr(ACharExpr node) {
+        exprTypes.put(node, BuiltInType.Char);
+    }
 
     @Override
     public void outAAddExpr(AAddExpr node) {
