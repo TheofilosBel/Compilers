@@ -454,7 +454,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* Put the return type to the HashMap */
-        exprTypes.put(node, funcDecInfo.getType());
+        exprTypes.put(node.parent(), funcDecInfo.getType());
     }
 
     public void outAStrLvalue(AStrLvalue node) {
@@ -479,33 +479,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         System.out.println(anId.getInfo().getType().toString());
         
         /* Put the Id on the hashMap */
-        exprTypes.put(node, anId.getInfo().getType());
+        exprTypes.put(node.parent(), anId.getInfo().getType());
 
     }
     
-    @Override
-    public void outALvalExpr(ALvalExpr node) {
-        
-        if (node.getLvalue() instanceof AIdLvalue) {
-            AIdLvalue idLval = (AIdLvalue) node.getLvalue();
-            
-            SymbolTableEntry anId = this.symbolTable.lookup(idLval.getId().toString());
-
-            /* If the id was not found in the symbol table throw an exception */
-            if (anId == null) {
-                int line = idLval.getId().getLine();
-                int column = idLval.getId().getPos();
-                throw new TypeCheckingException(line, column, ":\nundefined indentifier: " + idLval.getId().toString());
-            }
-
-            System.out.println(anId.getInfo().getType().toString());
-            
-            /* Put the Id on the hashMap */
-            exprTypes.put(node, anId.getInfo().getType());
-        }
-        
-    }
-
+    
     @Override
     public void inABlockStmt(ABlockStmt node) {}
 
