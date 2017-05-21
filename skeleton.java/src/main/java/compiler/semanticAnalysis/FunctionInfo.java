@@ -185,9 +185,7 @@ public class FunctionInfo extends Info {
                     TId name = funcInfo.getName();
                     VariableInfo defvar   = funcInfo.getArgsByRef().get(arg);
                     VariableInfo declvar  = this.getArgsByRef().get(arg);
-                    
-                    
-                    
+
                     throw new TypeCheckingException(defvar.getName().getLine(), defvar.getName().getPos(),
                             "In function \"" + name.getText() + "\": passing variable: \"" + defvar.getName().getText() + "\" with type " + defvar.getType() +
                             " but declared type is " + declvar.getType());
@@ -195,7 +193,6 @@ public class FunctionInfo extends Info {
             }
         }
         else if (funcInfo.getArgsByRef().size() > 0){
-            
             System.out.println("Error vars by ref num not equal");
             /* TODO throw exception*/
         }

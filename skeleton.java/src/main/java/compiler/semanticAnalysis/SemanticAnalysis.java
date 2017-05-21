@@ -406,12 +406,59 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         exprTypes.put(node, BuiltInType.Int);
     }
 
+    @Override
     public void outACharExpr(ACharExpr node) {
         exprTypes.put(node, BuiltInType.Char);
     }
-
+    
     @Override
-    public void inABlockStmt(ABlockStmt node) {}
+    public void outAFuncCall(AFuncCall node) {
+
+        /* Get the declaration from symbol table */
+        SymbolTableEntry funcDec = this.symbolTable.lookup(node.getId().toString());
+        
+        /* If the function is not declared throw an exception */
+        if (funcDec == null) {
+            throw new SemanticAnalysisException(node.getId().getLine(), node.getId().getPos(),
+                    "Cannot call function \"" + node.getId().getText() + "\". It's not decared");
+        }
+
+        /* Equivalence check with declaration */
+        FuncDecInfo funcDecInfo = (FuncDecInfo) funcDec.getInfo();
+        
+        System.out.println(node.getExprList().size());
+        
+        if ((funcDecInfo.getArgsByRef().size() + funcDecInfo.getArgsByVal().size()) == node.getExprList().size()){
+            if (node.getExprList().size() > 0) {
+                /* For every expression see its its equivalent with every argument */
+                for (int arg = 0; arg < node.getExprList().size(); arg++) {
+                    
+                    /* If the expression and the argument are not equal throw exception */
+                    Type funcCallExprType = exprTypes.get(node.getExprList().get(arg));
+                    Type funcDecExprType  = funcDecInfo.getArgsByVal().get(arg).getType(); 
+                    
+                    if (! (funcDecExprType.isEquivWith(funcCallExprType))){
+                        
+                        TId name  = node.getId();
+                        Node expr = node.getExprList().get(arg);
+                        
+                        throw new TypeCheckingException(name.getLine(), name.getPos(),
+                                "In function \"" + name.getText() + "\": calling with exprassion : \"" + expr.toString() + "\" with type " + funcCallExprType.toString() +
+                                " but declared type is " + funcDecExprType.toString());
+                    }
+                }
+            }
+        }
+        else {
+        
+            System.out.println("Error vars by val num not equal");
+            /* TODO throw exception*/
+        }
+
+        /* Put the return type to the HashMap */
+        exprTypes.put(node, funcDecInfo.getType());
+        
+    }
 
     @Override
     public void inABlockStmt(ABlockStmt node) {}
