@@ -320,7 +320,35 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         removeIndentationLevel();
     }
 
-    public void outAPosExpr(APosExpr node) {}
+    public void outAPosExpr(APosExpr node) {
+        Type aExprType = exprTypes.get(node.getExpr());
+
+        /* A positive sign can be applied to integers only */
+        if (!(aExprType.isInt())) {
+            int line = node.getPlus().getLine();
+            int column = node.getPlus().getPos();
+            String error = "Error in line " + line + " column " + column +
+                            ":\npositive sign applied to invalid expression: " + node.getExpr().toString();
+            throw new TypeCheckingException(error);
+        }
+
+        exprTypes.put(node, BuiltInType.Int);
+    }
+
+    public void outANegExpr(ANegExpr node) {
+        Type aExprType = exprTypes.get(node.getExpr());
+
+        /* A negative sign can be applied to integers only */
+        if (!(aExprType.isInt())) {
+            int line = node.getMinus().getLine();
+            int column = node.getMinus().getPos();
+            String error = "Error in line " + line + " column " + column +
+                            ":\nnegative sign applied to invalid expression: " + node.getExpr().toString();
+            throw new TypeCheckingException(error);
+        }
+
+        exprTypes.put(node, BuiltInType.Int);
+    }
 
     @Override
     public void inAVarDef(AVarDef node) {
@@ -361,7 +389,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             int line = node.getIntConst().getLine();
             int column = node.getIntConst().getPos();
             String error = "Error in line " + line + " column " + column +
-                            ":\ninvalid integer constant " + intStr;
+                            ":\ninvalid integer constant: " + intStr;
             throw new TypeCheckingException(error);
         }
 
