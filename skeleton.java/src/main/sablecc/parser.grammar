@@ -199,19 +199,19 @@ Productions
         {expr} l_value l_bracket expr r_bracket {-> New lvalue.array(l_value.lvalue, expr)};
 
     expr {-> expr} =
-        {add}  expr plus term  {-> New expr.add(expr, term.expr)} |
-        {sub}  expr minus term {-> New expr.sub(expr, term.expr)}  |
+        {add}  expr plus term  {-> New expr.add(expr, plus, term.expr)}  |
+        {sub}  expr minus term {-> New expr.sub(expr, minus, term.expr)} |
         {term} term            {-> term.expr};
 
     term {-> expr} =
-        {mult}     term mult signed_factor   {-> New expr.mult(term.expr, signed_factor.expr)} |
-        {div}      term kw_div signed_factor {-> New expr.div(term.expr, signed_factor.expr)} |
-        {mod}      term kw_mod signed_factor {-> New expr.mod(term.expr, signed_factor.expr)} |
+        {mult}     term mult signed_factor   {-> New expr.mult(term.expr, mult, signed_factor.expr)} |
+        {div}      term kw_div signed_factor {-> New expr.div(term.expr, kw_div, signed_factor.expr)} |
+        {mod}      term kw_mod signed_factor {-> New expr.mod(term.expr, kw_mod, signed_factor.expr)} |
         {s_factor} signed_factor             {-> signed_factor.expr};
 
     signed_factor {-> expr} =
-        {pos}    plus signed_factor  {-> New expr.pos(signed_factor.expr)} |
-        {neg}    minus signed_factor {-> New expr.neg(signed_factor.expr)} |
+        {pos}    plus signed_factor  {-> New expr.pos(plus, signed_factor.expr)} |
+        {neg}    minus signed_factor {-> New expr.neg(minus, signed_factor.expr)} |
         {factor} factor              {-> factor.expr};
 
     factor {-> expr} =
@@ -301,16 +301,16 @@ Abstract Syntax Tree
         {noop}      ;
 
     expr =
-        {add}  [l]:expr [r]:expr |
-        {sub}  [l]:expr [r]:expr |
-        {mult} [l]:expr [r]:expr |
-        {div}  [l]:expr [r]:expr |
-        {mod}  [l]:expr [r]:expr |
-        {pos}  expr              |
-        {neg}  expr              |
-        {int}  int_const         |
-        {char} char_const        |
-        {lval} lvalue            |
+        {add}  [l]:expr plus [r]:expr   |
+        {sub}  [l]:expr minus [r]:expr  |
+        {mult} [l]:expr mult [r]:expr   |
+        {div}  [l]:expr kw_div [r]:expr |
+        {mod}  [l]:expr kw_mod [r]:expr |
+        {pos}  plus expr                |
+        {neg}  minus expr               |
+        {int}  int_const                |
+        {char} char_const               |
+        {lval} lvalue                   |
         {func} func_call;  
                 
     lvalue =

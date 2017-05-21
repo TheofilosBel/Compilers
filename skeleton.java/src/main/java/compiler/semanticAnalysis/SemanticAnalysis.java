@@ -320,6 +320,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         removeIndentationLevel();
     }
 
+    public void outAPosExpr(APosExpr node) {}
+
     @Override
     public void inAVarDef(AVarDef node) {
         indentNprint("In variable DEfinition");
