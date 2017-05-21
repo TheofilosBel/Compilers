@@ -37,5 +37,10 @@ public class BuiltInType extends Type {
     public boolean isChar() {
         return this.getTypeName().equals(Char.getTypeName());
     }
+    
+    @Override
+    public boolean isEquivWith(Type type){
+        return this.isInt() == type.isInt() || this.isChar() == type.isChar();
+    }
 
 }

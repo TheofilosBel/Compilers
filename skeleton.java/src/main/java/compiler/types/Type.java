@@ -29,5 +29,13 @@ public abstract class Type {
     public boolean isArray() {
         return false;
     }
+    
+    public boolean isEquivWith(Type type){
+        return false;
+    }
+    
+    public Type getType() {
+        return null;
+    }
 
 }
