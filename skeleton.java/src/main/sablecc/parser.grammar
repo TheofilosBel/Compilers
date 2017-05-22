@@ -222,15 +222,15 @@ Productions
         {parens} l_par expr r_par {-> expr};
 
     cond {-> cond} =
-        {or} cond kw_or cond1 {-> New cond.or(cond, cond1.cond)} |
+        {or} cond kw_or cond1 {-> New cond.or(cond, kw_or, cond1.cond)} |
         {cond1} cond1         {-> cond1.cond};
 
     cond1 {-> cond} =
-        {and}   cond1 kw_and cond2 {-> New cond.and(cond1.cond, cond2.cond)} |
+        {and}   cond1 kw_and cond2 {-> New cond.and(cond1.cond, kw_and, cond2.cond)} |
         {cond2} cond2              {-> cond2.cond};
 
     cond2 {-> cond} =
-        {not}   kw_not cond3 {-> New cond.not(cond3.cond)} |
+        {not}   kw_not cond3 {-> New cond.not(kw_not, cond3.cond)} |
         {cond3} cond3        {-> cond3.cond};
 
     cond3 {-> cond} =       
