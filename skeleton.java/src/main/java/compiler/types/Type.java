@@ -6,6 +6,8 @@ package compiler.types;
 public abstract class Type {
 
     public Type() {}
+    
+    public abstract Type makeCopy();
 
     @Override
     public abstract String toString();

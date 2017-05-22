@@ -32,6 +32,16 @@ public class ComplexType extends Type {
         }
     }
     
+    public ComplexType(String name, Integer size, Type type){
+        this.typeName = name;
+        this.size     = size;
+        this.type     = type.makeCopy();
+    }
+
+    public Type makeCopy(){
+        return new ComplexType(this.typeName, this.size,  this.getType());
+    }
+
     public Type getType() {
         return this.type;
     }
@@ -52,21 +62,18 @@ public class ComplexType extends Type {
     }
     
     @Override
-    public boolean isEquivWith(Type type){
-        
+    public boolean isEquivWith(Type type) {
         /* Check the type names */
         if (this.getTypeName().equals(type.getTypeName())) {
-            
             /* Recursive call to see the resemblance of the inner types */
-            if (this.getType().isEquivWith(type.getType())){
+            if (this.getType().isEquivWith(type.getType())) {
                 return true;
             }
             else {
                 return false;
             }
         }
-        
-        /* Else part */
+
         return false; 
     }
 

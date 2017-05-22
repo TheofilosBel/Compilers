@@ -20,6 +20,7 @@ public class VariableInfo extends Info {
     /* Copy Constructor */
     public VariableInfo(VariableInfo var) {
         this.name = (TId) var.getName().clone();
+        this.type = var.getType().makeCopy();
     }
 
     /*

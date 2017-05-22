@@ -270,11 +270,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if ((this.symbolTable.getIsMainDefined()) == false) {
             /* The main function should have no arguments and returns nothing */
             if (node.getFplist() instanceof AExistingFparList) {
-                throw new TypeCheckingException(0, 0, "Error: Main should have no parameters");
+                throw new TypeCheckingException(0, 0, "Main function should have no parameters");
             }
 
             if (!(((PDataType) node.getRetType()).toString()).equals(new String("nothing "))) {                
-                throw new TypeCheckingException(0, 0, "Error: Main should return nothing");
+                throw new TypeCheckingException(0, 0, "Main function should return nothing");
             }
 
             this.symbolTable.setIsMainDefined();
@@ -315,6 +315,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         for (int var = 0; var < ((FunctionInfo) data.getInfo()).getArgsByVal().size(); var++) {
             this.symbolTable.insert(((FunctionInfo) data.getInfo()).getArgsByVal().get(var).getName().toString(),
                 new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getInfo()).getArgsByVal().get(var))));
+            
         }
 
         addIndentationLevel();
@@ -349,7 +350,118 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             indentNprint("Name :" + v.getName());
             indentNprint("Type :" + v.getType());
             indentNprint("Int ?:" + v.getType().isInt());
+            
         }
+    }
+
+    public void outAAddExpr(AAddExpr node) {
+        Type leftExprType = exprTypes.get(node.getL());
+        Type rightExprType = exprTypes.get(node.getR());
+
+        /* Addition can be applied to integers only */
+        if (!(leftExprType.isInt())) {
+            int line = node.getPlus().getLine();
+            int column = node.getPlus().getPos();
+            throw new TypeCheckingException(line, column, "Only integers can be added\n" +
+                                            node.getL().toString() + "is not an integer");
+        }
+
+        if (!(rightExprType.isInt())) {
+            int line = node.getPlus().getLine();
+            int column = node.getPlus().getPos();
+            throw new TypeCheckingException(line, column, "Only integers can be added:\n" +
+                                            node.getR().toString() + "is not an integer");
+        }
+
+        exprTypes.put(node, BuiltInType.Int);
+    }
+
+    public void outASubExpr(ASubExpr node) {
+        Type leftExprType = exprTypes.get(node.getL());
+        Type rightExprType = exprTypes.get(node.getR());
+
+        /* Subtraction can be applied to integers only */
+        if (!(leftExprType.isInt())) {
+            int line = node.getMinus().getLine();
+            int column = node.getMinus().getPos();
+            throw new TypeCheckingException(line, column, "Only integers can be subtracted\n" +
+                                            node.getL().toString() + "is not an integer");
+        }
+
+        if (!(rightExprType.isInt())) {
+            int line = node.getMinus().getLine();
+            int column = node.getMinus().getPos();
+            throw new TypeCheckingException(line, column, "Only integers can be subtracted:\n" +
+                                            node.getR().toString() + "is not an integer");
+        }
+
+        exprTypes.put(node, BuiltInType.Int);
+    }
+
+    public void outAMultExpr(AMultExpr node) {
+        Type leftExprType = exprTypes.get(node.getL());
+        Type rightExprType = exprTypes.get(node.getR());
+
+        /* Multiplication can be applied to integers only */
+        if (!(leftExprType.isInt())) {
+            int line = node.getMult().getLine();
+            int column = node.getMult().getPos();
+            throw new TypeCheckingException(line, column, "Only integers can be multiplicated\n" +
+                                            node.getL().toString() + "is not an integer");
+        }
+
+        if (!(rightExprType.isInt())) {
+            int line = node.getMult().getLine();
+            int column = node.getMult().getPos();
+            throw new TypeCheckingException(line, column, "Only integers can be multiplicated:\n" +
+                                            node.getR().toString() + "is not an integer");
+        }
+
+        exprTypes.put(node, BuiltInType.Int);
+    }
+
+    public void outADivExpr(ADivExpr node) {
+        Type leftExprType = exprTypes.get(node.getL());
+        Type rightExprType = exprTypes.get(node.getR());
+
+        /* Division can be applied to integers only */
+        if (!(leftExprType.isInt())) {
+            int line = node.getKwDiv().getLine();
+            int column = node.getKwDiv().getPos();
+            throw new TypeCheckingException(line, column, "Only integers can be divided\n" +
+                                            node.getL().toString() + "is not an integer");
+        }
+
+        if (!(rightExprType.isInt())) {
+            int line = node.getKwDiv().getLine();
+            int column = node.getKwDiv().getPos();
+            throw new TypeCheckingException(line, column, "Only integers can be divided:\n" +
+                                            node.getR().toString() + "is not an integer");
+        }
+
+        exprTypes.put(node, BuiltInType.Int);
+    }
+
+    public void outAModExpr(AModExpr node) {
+        Type leftExprType = exprTypes.get(node.getL());
+        Type rightExprType = exprTypes.get(node.getR());
+
+        /* Modulo can be applied to integers only */
+        if (!(leftExprType.isInt())) {
+            int line = node.getKwMod().getLine();
+            int column = node.getKwMod().getPos();
+            throw new TypeCheckingException(line, column, "Only integers can be modulo-ed\n" +
+                                            node.getL().toString() + "is not an integer");
+        }
+
+        if (!(rightExprType.isInt())) {
+            int line = node.getKwMod().getLine();
+            int column = node.getKwMod().getPos();
+            throw new TypeCheckingException(line, column, "Only integers can be modulo-ed:\n" +
+                                            node.getR().toString() + "is not an integer");
+        }
+
+        exprTypes.put(node, BuiltInType.Int);
     }
 
     @Override
@@ -360,7 +472,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (!(aExprType.isInt())) {
             int line = node.getPlus().getLine();
             int column = node.getPlus().getPos();
-            throw new TypeCheckingException(line, column, ":\npositive sign applied to invalid expression: "
+            throw new TypeCheckingException(line, column, "Positive sign applied to invalid expression: "
                                             + node.getExpr().toString());
         }
 
@@ -375,7 +487,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (!(aExprType.isInt())) {
             int line = node.getMinus().getLine();
             int column = node.getMinus().getPos();
-            throw new TypeCheckingException(line, column, ":\nnegative sign applied to invalid expression: "
+            throw new TypeCheckingException(line, column, "Negative sign applied to invalid expression: "
                                             + node.getExpr().toString());
         }
 
@@ -394,7 +506,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         catch (NumberFormatException e) {
             int line = node.getIntConst().getLine();
             int column = node.getIntConst().getPos();
-            throw new TypeCheckingException(line, column, ":\ninvalid integer constant: " + intStr);
+            throw new TypeCheckingException(line, column, "Invalid integer constant: " + intStr);
         }
 
         exprTypes.put(node, BuiltInType.Int);
@@ -404,14 +516,61 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     public void outACharExpr(ACharExpr node) {
         exprTypes.put(node, BuiltInType.Char);
     }
-
+    
     @Override
+    public void outAFuncCall(AFuncCall node) {
+        /* Get the declaration from the symbol table */
+        SymbolTableEntry funcDec = this.symbolTable.lookup(node.getId().toString());
+        
+        /* If the function is not declared throw an exception */
+        if (funcDec == null) {
+            throw new SemanticAnalysisException(node.getId().getLine(), node.getId().getPos(),
+                    "Calling function \"" + node.getId().getText() + "\": function is not declared or defined");
+        }
+
+        /* Equivalence check with declaration */
+        FuncDecInfo funcDecInfo = (FuncDecInfo) funcDec.getInfo();
+        
+        System.out.println(node.getExprList().size());
+        
+        /* First check for equal number of arguments */
+        if ((funcDecInfo.getArgsByRef().size() + funcDecInfo.getArgsByVal().size()) == node.getExprList().size()) {
+            if (node.getExprList().size() > 0) {
+                /* Check every expression with its equivalent argument */
+                for (int arg = 0; arg < node.getExprList().size(); arg++) {
+                    /* If the expression and the argument are not equal throw exception */                    
+                    Type funcDecExprType  = funcDecInfo.getArgsByVal().get(arg).getType(); 
+                    Type funcCallExprType = exprTypes.get(node.getExprList().get(arg));
+
+                    System.out.println("Type exp " + funcCallExprType + "\nType arg " + funcDecExprType);
+
+                    if (!(funcDecExprType.isEquivWith(funcCallExprType))) {
+                        TId name  = node.getId();
+                        Node expr = node.getExprList().get(arg);
+                        throw new TypeCheckingException(name.getLine(), name.getPos(),
+                                "In function \"" + name.getText() + "\": calling with expression: \"" +
+                                expr.toString() + "\" with type " + funcCallExprType.toString() +
+                                " but declared type is " + funcDecExprType.toString());
+                    }
+                }
+            }
+        }
+        else {
+            TId name  = node.getId();
+            throw new TypeCheckingException(name.getLine(), name.getPos(),
+                "Calling function \"" + name.getText() + "\": wrong number of arguments provided");
+        }
+
+        /* Put the return type to the HashMap */
+        exprTypes.put(node.parent(), funcDecInfo.getType());
+    }
+
     public void outAStrLvalue(AStrLvalue node) {
         LinkedList<Integer> strLength = new LinkedList<Integer>();
         /* We subtract 3 from the length to account for the "" and the space at the end */
         strLength.add(node.getStringLiteral().toString().length() - 3);
 
-        exprTypes.put(node, new ComplexType("array", strLength, "char"));
+        exprTypes.put(node.parent(), new ComplexType("array", strLength, "char"));
     }
 
     @Override
@@ -422,12 +581,16 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (anId == null) {
             int line = node.getId().getLine();
             int column = node.getId().getPos();
-            throw new TypeCheckingException(line, column, ":\nundefined indentifier: " + node.getId().toString());
+            throw new TypeCheckingException(line, column, "Undefined indentifier: " + node.getId().toString());
         }
 
-        System.out.println(anId.getInfo().getType());
+        System.out.println(anId.getInfo().getType().toString());
+        
+        /* Put the Id on the hashMap */
+        exprTypes.put(node.parent(), anId.getInfo().getType());
     }
-
+    
+    
     @Override
     public void inABlockStmt(ABlockStmt node) {}
 
