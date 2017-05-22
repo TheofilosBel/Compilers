@@ -233,7 +233,7 @@ Productions
         {cond2} cond2              {-> cond2.cond};
 
     cond2 {-> cond} =
-        {not}   kw_not cond3 {-> New cond.not(kw_not, cond3.cond)} |
+        {not}   kw_not cond2 {-> New cond.not(kw_not, cond2.cond)} |
         {cond3} cond3        {-> cond3.cond};
 
     cond3 {-> cond} =       
