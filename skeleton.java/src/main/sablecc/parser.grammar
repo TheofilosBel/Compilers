@@ -76,13 +76,16 @@ Tokens
     int_const      = digit+;
     char_const     = ''' c_char? ''';
     string_literal = '"' s_char* '"';
-
+    
     /* Boolean Constants */
     true  = 'TRUE';
     false = 'FALSE';
 
     /* Identifiers */
     id = letter (letter | digit | underscore)*;
+    
+    /* For the IntkeyWort stuff */
+	erroneous_number = (digit)+ letter (letter | digit | underscore)*;
     
 Ignored Tokens
     comment,
