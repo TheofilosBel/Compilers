@@ -31,7 +31,7 @@ Tokens
     
     /* Comments */
     comment = ('$' not_dollar not_eol* eol |
-               '$$' '$'* ((not_dollar+ '$'? not_dollar+) | (not_dollar*))* '$$');
+               '$$' '$'* ((not_dollar+ '$'? not_dollar+ '$'?) | (not_dollar*))* '$$');
     
     l_par     = '(';
     r_par     = ')';
