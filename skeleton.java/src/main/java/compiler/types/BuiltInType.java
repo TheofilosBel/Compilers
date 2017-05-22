@@ -10,7 +10,6 @@ public class BuiltInType extends Type {
     public final static Type Char     = new BuiltInType("char ");
     public final static Type Nothing  = new BuiltInType("nothing ");
     public final static Type Boolean  = new BuiltInType("boolean ");
-    
 
     private final String typeName; /* Name of the type */
 
