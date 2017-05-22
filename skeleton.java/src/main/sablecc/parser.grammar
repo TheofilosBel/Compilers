@@ -318,9 +318,9 @@ Abstract Syntax Tree
         {array} lvalue l_bracket expr;
 
     cond =
-        {or}       [l]:cond [r]:cond        |
-        {and}      [l]:cond [r]:cond        |
-        {not}      cond                     |
+        {or}       [l]:cond kw_or [r]:cond  |
+        {and}      [l]:cond kw_and [r]:cond |
+        {not}      kw_not cond              |
         {expr_cmp} [l]:expr cmp_op [r]:expr |
         {true}     true                     |
         {false}    false;
