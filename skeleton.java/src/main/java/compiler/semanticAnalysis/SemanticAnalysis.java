@@ -723,32 +723,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             int line = node.getKwNot().getLine();
             int column = node.getKwNot().getPos();
             throw new TypeCheckingException(line, column, "Not operator can be applied to boolean expressions only\n" +
-                                            node.getL().toString() + "is not a boolean expression");
+                                            node.getCond().toString() + "is not a boolean expression");
         }
 
         exprTypes.put(node, BuiltInType.Boolean);   
-    }
-
-    @Override
-    public void outAExprCmpCond(AExprCmpCond node) {
-        Type leftExprType = exprTypes.get(node.getL());
-        Type rightExprType = exprTypes.get(node.getR());
-
-        /* A comparison operator can be applied to equivalent types only */
-        if (!(leftExprType.isEquivWith(rightExprType))) {
-            int line = node.getCmpOp().getLine();
-            int column = node.getCmpOp().getPos();
-            throw new TypeCheckingException(line, column, "A comparison operator can be applied to equivalent types only");
-        }
-
-        /* A comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
-            int line = node.getCmpOp().getLine();
-            int column = node.getCmpOp().getPos();
-            throw new TypeCheckingException(line, column, "A comparison operator can be applied to int or char types only");
-        }
-
-        exprTypes.put(node, BuiltInType.Boolean);
     }
     
     @Override

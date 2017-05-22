@@ -236,22 +236,19 @@ Productions
         {not}   kw_not cond2 {-> New cond.not(kw_not, cond2.cond)} |
         {cond3} cond3        {-> cond3.cond};
 
-    cond3 {-> cond} =       
-        {expr_cmp} [left]:expr cmp_op [right]:expr {-> New cond.expr_cmp(left.expr, cmp_op, right.expr)} |
-        {bool}     bool                            {-> bool.cond};
+    cond3 {-> cond} =
+        {eq}   [left]:expr eq [right]:expr   {-> New cond.eq(left.expr, eq, right.expr)}     |
+        {neq}  [left]:expr neq [right]:expr  {-> New cond.neq(left.expr, neq, right.expr)}   |
+        {lt}   [left]:expr lt [right]:expr   {-> New cond.lt(left.expr, lt, right.expr)}     |
+        {gt}   [left]:expr gt [right]:expr   {-> New cond.gt(left.expr, gt, right.expr)}     |
+        {lteq} [left]:expr lteq [right]:expr {-> New cond.lteq(left.expr, lteq, right.expr)} |
+        {gteq} [left]:expr gteq [right]:expr {-> New cond.gteq(left.expr, gteq, right.expr)} |
+        {bool} bool                          {-> bool.cond};
 
     bool {-> cond} =
         {true}     true             {-> New cond.true(true)}   |
         {false}    false            {-> New cond.false(false)} |
         {c_parens} l_par cond r_par {-> cond} ;
-
-    cmp_op {-> cmp_op} =
-        {eq}  eq   {-> New cmp_op.eq(eq)}    |
-        {neq} neq  {-> New cmp_op.neq(neq)}  |
-        {lt}  lt   {-> New cmp_op.lt(lt)}    |
-        {gt}  gt   {-> New cmp_op.gt(gt)}    |
-        {leq} lteq {-> New cmp_op.leq(lteq)} |
-        {geq} gteq {-> New cmp_op.geq(gteq)} ;
 
 Abstract Syntax Tree
 
@@ -321,17 +318,14 @@ Abstract Syntax Tree
         {array} lvalue l_bracket expr;
 
     cond =
-        {or}       [l]:cond kw_or [r]:cond  |
-        {and}      [l]:cond kw_and [r]:cond |
-        {not}      kw_not cond              |
-        {expr_cmp} [l]:expr cmp_op [r]:expr |
-        {true}     true                     |
-        {false}    false;
-
-    cmp_op =
-        {eq}  eq   |
-        {neq} neq  |
-        {lt}  lt   |
-        {gt}  gt   |
-        {geq} gteq |
-        {leq} lteq;
+        {or}    [l]:cond kw_or [r]:cond  |
+        {and}   [l]:cond kw_and [r]:cond |
+        {not}   kw_not cond              |
+        {eq}    [l]:expr eq [r]:expr     |
+        {neq}   [l]:expr neq [r]:expr    |
+        {lt}    [l]:expr lt [r]:expr     |
+        {gt}    [l]:expr gt [r]:expr     |
+        {gteq}  [l]:expr gteq [r]:expr   |
+        {lteq}  [l]:expr lteq [r]:expr   |
+        {true}  true                     |
+        {false} false;
