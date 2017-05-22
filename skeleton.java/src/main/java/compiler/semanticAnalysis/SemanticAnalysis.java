@@ -728,7 +728,137 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
         exprTypes.put(node, BuiltInType.Boolean);   
     }
+
+    @Override
+    public void outAEqCond(AEqCond node) {
+        Type leftExprType = exprTypes.get(node.getL());
+        Type rightExprType = exprTypes.get(node.getR());
+
+        /* An equality comparison operator can be applied to equivalent types only */
+        if (!(leftExprType.isEquivWith(rightExprType))) {
+            int line = node.getEq().getLine();
+            int column = node.getEq().getPos();
+            throw new TypeCheckingException(line, column, "An \"=\" operator can be applied to equivalent types only");
+        }
+
+        /* An equality comparison operator can be applied to int or char only */
+        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+            int line = node.getEq().getLine();
+            int column = node.getEq().getPos();
+            throw new TypeCheckingException(line, column, "An \"=\" operator can be applied to int or char types only");
+        }
+
+        exprTypes.put(node, BuiltInType.Boolean);
+    }
+
+    @Override
+    public void outANeqCond(ANeqCond node) {
+        Type leftExprType = exprTypes.get(node.getL());
+        Type rightExprType = exprTypes.get(node.getR());
+
+        /* A non-equality comparison operator can be applied to equivalent types only */
+        if (!(leftExprType.isEquivWith(rightExprType))) {
+            int line = node.getNeq().getLine();
+            int column = node.getNeq().getPos();
+            throw new TypeCheckingException(line, column, "An \"#\" operator can be applied to equivalent types only");
+        }
+
+        /* A non-equality comparison operator can be applied to int or char only */
+        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+            int line = node.getNeq().getLine();
+            int column = node.getNeq().getPos();
+            throw new TypeCheckingException(line, column, "An \"#\" operator can be applied to int or char types only");
+        }
+
+        exprTypes.put(node, BuiltInType.Boolean);
+    }
+
+    @Override
+    public void outALtCond(ALtCond node) {
+        Type leftExprType = exprTypes.get(node.getL());
+        Type rightExprType = exprTypes.get(node.getR());
+
+        /* A less-than comparison operator can be applied to equivalent types only */
+        if (!(leftExprType.isEquivWith(rightExprType))) {
+            int line = node.getLt().getLine();
+            int column = node.getLt().getPos();
+            throw new TypeCheckingException(line, column, "A \"<\" operator can be applied to equivalent types only");
+        }
+
+        /* A less-than comparison operator can be applied to int or char only */
+        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+            int line = node.getLt().getLine();
+            int column = node.getLt().getPos();
+            throw new TypeCheckingException(line, column, "A \"<\" operator can be applied to int or char types only");
+        }
+
+        exprTypes.put(node, BuiltInType.Boolean);
+    }
     
+    @Override
+    public void outAGtCond(AGtCond node) {
+        Type leftExprType = exprTypes.get(node.getL());
+        Type rightExprType = exprTypes.get(node.getR());
+
+        /* A greater-than comparison operator can be applied to equivalent types only */
+        if (!(leftExprType.isEquivWith(rightExprType))) {
+            int line = node.getGt().getLine();
+            int column = node.getGt().getPos();
+            throw new TypeCheckingException(line, column, "A \">\" operator can be applied to equivalent types only");
+        }
+
+        /* A greater-than comparison operator can be applied to int or char only */
+        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+            int line = node.getGt().getLine();
+            int column = node.getGt().getPos();
+            throw new TypeCheckingException(line, column, "A \">\" operator can be applied to int or char types only");
+        }
+
+        exprTypes.put(node, BuiltInType.Boolean);
+    }
+
+    public void outAGteqCond(AGteqCond node) {
+        Type leftExprType = exprTypes.get(node.getL());
+        Type rightExprType = exprTypes.get(node.getR());
+
+        /* A greater-than-or-equal comparison operator can be applied to equivalent types only */
+        if (!(leftExprType.isEquivWith(rightExprType))) {
+            int line = node.getGteq().getLine();
+            int column = node.getGteq().getPos();
+            throw new TypeCheckingException(line, column, "A \">=\" operator can be applied to equivalent types only");
+        }
+
+        /* A greater than comparison operator can be applied to int or char only */
+        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+            int line = node.getGteq().getLine();
+            int column = node.getGteq().getPos();
+            throw new TypeCheckingException(line, column, "A \">=\" operator can be applied to int or char types only");
+        }
+
+        exprTypes.put(node, BuiltInType.Boolean);
+    }
+
+    public void outALteqCond(ALteqCond node) {
+        Type leftExprType = exprTypes.get(node.getL());
+        Type rightExprType = exprTypes.get(node.getR());
+
+        /* A less-than-or-equal comparison operator can be applied to equivalent types only */
+        if (!(leftExprType.isEquivWith(rightExprType))) {
+            int line = node.getLteq().getLine();
+            int column = node.getLteq().getPos();
+            throw new TypeCheckingException(line, column, "A \"<=\" operator can be applied to equivalent types only");
+        }
+
+        /* A less than comparison operator can be applied to int or char only */
+        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+            int line = node.getLteq().getLine();
+            int column = node.getLteq().getPos();
+            throw new TypeCheckingException(line, column, "A \"<=\" operator can be applied to int or char types only");
+        }
+
+        exprTypes.put(node, BuiltInType.Boolean);
+    }
+
     @Override
     public void outATrueCond(ATrueCond node) {
         exprTypes.put(node, BuiltInType.Boolean);
