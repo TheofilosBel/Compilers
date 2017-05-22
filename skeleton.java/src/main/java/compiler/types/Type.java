@@ -16,6 +16,14 @@ public abstract class Type {
     public String getTypeName() {
         return null;
     }
+    
+    public String getArrayType() {
+        return null;
+    }
+    
+    public int getArrayDims() {
+        return 0;
+    }
 
     /* Returns true if this is the int type */
     public boolean isInt() {

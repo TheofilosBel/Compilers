@@ -196,7 +196,7 @@ Productions
     l_value {-> lvalue} =
         {id}   id                               {-> New lvalue.id(id)}                     |
         {str}  string_literal                   {-> New lvalue.str(string_literal)}        |
-        {expr} l_value l_bracket expr r_bracket {-> New lvalue.array(l_value.lvalue, expr)};
+        {expr} l_value l_bracket expr r_bracket {-> New lvalue.array(l_value.lvalue, l_bracket, expr)};
 
     expr {-> expr} =
         {add}  expr plus term  {-> New expr.add(expr, plus, term.expr)}  |
@@ -315,7 +315,7 @@ Abstract Syntax Tree
     lvalue =
         {str}   string_literal  |
         {id}    id              |
-        {array} lvalue expr;
+        {array} lvalue l_bracket expr;
 
     cond =
         {or}       [l]:cond [r]:cond        |

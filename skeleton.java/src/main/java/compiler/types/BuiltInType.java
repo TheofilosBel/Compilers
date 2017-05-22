@@ -18,8 +18,7 @@ public class BuiltInType extends Type {
     public BuiltInType(String name) {
         this.typeName = name;
     }
-    
-    
+
     public Type makeCopy(){
         return new BuiltInType(this.typeName);
     }
@@ -44,13 +43,12 @@ public class BuiltInType extends Type {
     }
     
     @Override
-    public boolean isEquivWith(Type type){
-        
+    public boolean isEquivWith(Type type) {
         /* Array can't be equal with bultIn type */
         if (type.isArray())
             return false;
         else 
-            return this.isInt() == type.isInt() || this.isChar() == type.isChar();
+            return (this.isInt() == type.isInt() || this.isChar() == type.isChar());
     }
 
 }

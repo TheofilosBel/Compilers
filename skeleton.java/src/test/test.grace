@@ -7,12 +7,11 @@ fun main () : nothing
 	fun pt(b : char) : int;
 
     fun p2 (ref h : int[1]) : int
-        var a : int;
+        var a : int[5][5][5];
+        var b :int;
 
     {
-        h <- a + 3;
-        h <- p3(a);
-		pt(p3(3));
+		b <- b[4]["acd"];
     }
 
 {}
