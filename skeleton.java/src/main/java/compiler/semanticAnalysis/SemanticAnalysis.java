@@ -473,7 +473,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (anId == null) {
             int line = node.getId().getLine();
             int column = node.getId().getPos();
-            throw new TypeCheckingException(line, column, ":\nundefined indentifier: " + node.getId().toString());
+            throw new TypeCheckingException(line, column, "undefined indentifier: " + node.getId().toString());
         }
 
         System.out.println(anId.getInfo().getType().toString());
@@ -483,6 +483,28 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     }
     
+    public void recArrayDimFinder(AArrayLvalue node) {
+        
+        
+        
+        return;
+    }
+    
+    @Override 
+    public void outAArrayLvalue(AArrayLvalue node) {
+        
+        /*If the nested lvalue is strin_literal then throw error */
+        if (node.getLvalue() instanceof AStrLvalue) {
+            AStrLvalue strLval = (AStrLvalue) node.getLvalue();
+            int line = strLval.getStringLiteral().getLine();
+            int column = strLval.getStringLiteral().getPos();
+            throw new TypeCheckingException(line, column, "Invalid action, using string literal \""+ node.toString()+"\" with \'[\' \']\'");
+        }
+        
+        /* Use recursive function to get the array */
+        int 
+        
+    }
     
     @Override
     public void inABlockStmt(ABlockStmt node) {}
