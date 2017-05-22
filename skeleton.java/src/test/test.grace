@@ -10,6 +10,7 @@ fun main () : nothing
         var a : int;
 
     {
+        h <- a + 3;
         h <- p3(a);
 		pt(p3(3));
     }

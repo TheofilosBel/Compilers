@@ -22,7 +22,6 @@ public class VariableInfo extends Info {
         this.name = (TId) var.getName().clone();
         this.type = var.getType().makeCopy();
     }
-    
 
     /*
      * Construct a variable with the given name and type
