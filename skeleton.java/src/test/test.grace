@@ -11,7 +11,7 @@ fun main () : nothing
         var b : int;
 
     {
-        if not not b > 3 then {}
+        if not b > 3 {}
         $b <- b[4]["acd"];
     }
 

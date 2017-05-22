@@ -84,8 +84,8 @@ Tokens
     /* Identifiers */
     id = letter (letter | digit | underscore)*;
     
-    /* For the IntkeyWort stuff */
-	erroneous_number = (digit)+ letter (letter | digit | underscore)*;
+    /* For identifiers starting with digits */
+	erroneous_id = (digit)+ letter (letter | digit | underscore)*;
     
 Ignored Tokens
     comment,
