@@ -658,6 +658,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 throw new TypeCheckingException(line, column, "Invalid action, array with id \""+ arrayName.getText()+"\" was defined with: " +
                                                 arrayType.getArrayDims() + " dimensions but is used with: " + arrayAccessType.getArrayDims());
             }
+            
+            /* Put the AArrayLvalue parent (which is and expr) on the hashMap */
+            exprTypes.put(node.parent(), new BuiltInType(arrayType.getArrayType()));
         }
     }
     
