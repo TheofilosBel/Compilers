@@ -17,10 +17,12 @@ public abstract class Type {
         return null;
     }
     
+    /* Returns the array type : int or char */
     public String getArrayType() {
         return null;
     }
     
+    /* Returns the array dimensions */
     public int getArrayDims() {
         return 0;
     }
@@ -34,12 +36,23 @@ public abstract class Type {
     public boolean isChar() {
         return false;
     }
+    
+    /* Returns true if this is the nothing type */
+    public boolean isNothing() {
+        return false;
+    }
+    
+    /* Returns true if this is the boolean type */
+    public boolean isBoolean() {
+        return false;
+    }
 
     /* Returns true if this is the array type */
     public boolean isArray() {
         return false;
     }
     
+    /* Check if the calling type and the argument type are equivalent */
     public boolean isEquivWith(Type type){
         return false;
     }
@@ -47,5 +60,4 @@ public abstract class Type {
     public Type getType() {
         return null;
     }
-
 }

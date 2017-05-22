@@ -9,6 +9,8 @@ public class BuiltInType extends Type {
     public final static Type Int      = new BuiltInType("int ");
     public final static Type Char     = new BuiltInType("char ");
     public final static Type Nothing  = new BuiltInType("nothing ");
+    public final static Type Boolean  = new BuiltInType("boolean ");
+    
 
     private final String typeName; /* Name of the type */
 
@@ -36,10 +38,20 @@ public class BuiltInType extends Type {
     public boolean isInt() {
         return this.getTypeName().equals(Int.getTypeName());
     }
-
+    
     @Override
     public boolean isChar() {
         return this.getTypeName().equals(Char.getTypeName());
+    }
+    
+    @Override
+    public boolean isNothing() {
+        return this.getTypeName().equals(Nothing.getTypeName());
+    }
+    
+    @Override
+    public boolean isBoolean() {
+        return this.getTypeName().equals(Boolean.getTypeName());
     }
     
     @Override
@@ -48,7 +60,7 @@ public class BuiltInType extends Type {
         if (type.isArray())
             return false;
         else 
-            return (this.isInt() == type.isInt() || this.isChar() == type.isChar());
+            return (this.isInt() == type.isInt() || this.isChar() == type.isChar() ||
+                    this.isBoolean() == type.isBoolean() || this.isNothing() == type.isNothing());
     }
-
 }
