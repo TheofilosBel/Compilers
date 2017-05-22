@@ -425,7 +425,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, ":\nundefined indentifier: " + node.getId().toString());
         }
 
-        //System.out.println(anId.getInfo().getType().toString());
+        System.out.println(anId.getInfo().getType());
     }
 
     @Override
