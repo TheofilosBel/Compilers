@@ -329,7 +329,15 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outAFuncDef(AFuncDef node) {
-        
+        /* Check if the function has been matched to a return statement */
+        /*
+        if (!(node.getInfo().getType().isNothing())) {
+            if (!(((FuncDefInfo) node.getInfo()).getIsMatchedToReturnStmt())) {
+                    throw new SemanticAnalysisException(node.getId().getLine(), node.getId().getPos(),
+                            "Function: \"" + node.getId().getText() + "\" has no return statement");
+            }
+        }
+        */
         /* When exiting from a function exit from the current scope too */
         this.symbolTable.exit();
         
@@ -352,7 +360,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             VariableInfo v = new VariableInfo(node.getIdList().get(varnum), (AType) type);
             SymbolTableEntry data = new SymbolTableEntry(v);
 
-            if (this.symbolTable.insert(node.getIdList().get(varnum).toString(), data) == false){
+            if (this.symbolTable.insert(node.getIdList().get(varnum).toString(), data) == false) {
                 throw new SemanticAnalysisException(v.getName().getLine(), v.getName().getPos(),
                         "Conflicting types: name \"" + v.getName().getText() + "\" already exists");
             }
@@ -363,6 +371,68 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             indentNprint("Int ?:" + v.getType().isInt());
             
         }
+    }
+
+    @Override
+    public void outAIfStmt(AIfStmt node) {
+        Type aCondType = exprTypes.get(node.getCond());
+
+        if (!(aCondType.isBoolean())) {
+            int line = node.getKwIf().getLine();
+            int column = node.getKwIf().getPos();
+            throw new TypeCheckingException(line, column, "If statement condition should have a boolean type\n" +
+                                            node.getCond().toString() + "is not a boolean condition");
+        }
+    }
+
+    @Override
+    public void outAWhileStmt(AWhileStmt node) {
+        Type aCondType = exprTypes.get(node.getCond());
+
+        if (!(aCondType.isBoolean())) {
+            int line = node.getKwWhile().getLine();
+            int column = node.getKwWhile().getPos();
+            throw new TypeCheckingException(line, column, "While statement condition should have a boolean type\n" +
+                                            node.getCond().toString() + "is not a boolean condition");
+        }
+    }
+
+    @Override
+    public void outAAssignStmt(AAssignStmt node) {
+        Type assignLhsType = exprTypes.get(node.getLvalue());
+
+        /* String literals not allowed as lvalues in assignments */
+        if (assignLhsType.isArray() && assignLhsType.isEquivWith(BuiltInType.Char)) {
+            int line = node.getAssign().getLine();
+            int column = node.getAssign().getPos();
+            throw new TypeCheckingException(line, column, "Left hand side of an assignment can not be a string literal");
+        }
+
+        Type assignRhsType = exprTypes.get(node.getExpr());
+
+        if (!(assignLhsType.isEquivWith(assignRhsType))) {
+            int line = node.getAssign().getLine();
+            int column = node.getAssign().getPos();
+            throw new TypeCheckingException(line, column, "Both sides of an assignment should have the same type");
+        }
+    }
+
+    @Override
+    public void outAReturnStmt(AReturnStmt node) {
+        Type aExprType = exprTypes.get(node.getExpr());
+
+        /* Search the function this return statement corresponds to */
+        SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.toString());
+
+        if (!(aExprType.isEquivWith(currentFunctionEntry.getInfo().getType()))) {
+            int line = node.getKwReturn().getLine();
+            int column = node.getKwReturn().getPos();
+            throw new TypeCheckingException(line, column, "Type of returned expression does not match return type of function\n"
+                                            + " Return type is " + currentFunctionEntry.getInfo().getType());
+        }
+
+        /* Function definition matched to a return statement */
+        ((FuncDefInfo) currentFunctionEntry.getInfo()).setIsMatchedToReturnStmt(true);
     }
 
     @Override
