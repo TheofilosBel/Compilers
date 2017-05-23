@@ -329,6 +329,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outAFuncDef(AFuncDef node) {
+        
         /* When exiting from a function exit from the current scope too */
         this.symbolTable.exit();
         
@@ -673,7 +674,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                                 arrayType.getArrayDims() + " dimensions but is used with: " + arrayAccessType.getArrayDims());
             }
 
-            /* Put the AArrayLvalue parent (which is and expr) on the hashMap */
+            /* Put the AArrayLvalue parent (which is and expression) on the hashMap */
             exprTypes.put(node.parent(), new BuiltInType(arrayType.getArrayType()));
         }
     }
