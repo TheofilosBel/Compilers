@@ -16,6 +16,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     SymbolTable symbolTable; /* The structure of the symbol table */
     private HashMap<Node, Type> exprTypes; /* A structure that maps every sablecc generated Node to a type */
     private TId currentFunctionId;
+    private CompilerErrorList errorList;
 
     /*
      * The semantic analysis phase starts here
@@ -27,6 +28,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Create a new symbol table */
         System.out.println("Constructing Symbol_table");
         this.symbolTable = new SymbolTable();
+        this.errorList   = new CompilerErrorList();
         
         /* Add the first scope that will hold the built in library functions */
         this.symbolTable.enter();
@@ -34,7 +36,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         LinkedList<VariableInfo> argList; /* A list containing the arguments to each function */
         LinkedList<String> passBy;    /* A list containing the pass method (by reference / by value) of each argument */
         SymbolTableEntry data;        /* An object that is inserted in the symbol table for each function */
-        currentFunctionId = null;
+        currentFunctionId = null;     /* It holds the id of the current function */
+        exprTypes = new HashMap<>();  /* Create the HashMap for the type checking */
+        
 
         /* fun puti (n : int) : nothing */
         argList = new LinkedList<VariableInfo>();
@@ -197,6 +201,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         passBy  = null;
     }
 
+    public CompilerErrorList getErrors() {
+        return this.errorList;
+    }
+
     /* For debugging reasons */
     private void addIndentationLevel() {
         indentation++;
@@ -218,9 +226,20 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void inAFuncDec(AFuncDec node) {
+        
         /* Create a SymbolTableEntry object to pass to the insert function */
-        SymbolTableEntry data = new SymbolTableEntry(new FuncDecInfo((PDataType) node.getRetType(),
-                                node.getFplist(), node.getId()));
+        FunctionInfo info = null;
+        try {
+            info = new FuncDecInfo((PDataType) node.getRetType(), node.getFplist(), node.getId());
+        }
+        catch (TypeCheckingException e){
+            
+            /* Add error to list an continue */
+            this.errorList.addToList(e.getMessage());
+            throw e;
+        }
+        
+        SymbolTableEntry data = new SymbolTableEntry(info);
         this.symbolTable.insert(node.getId().toString(), data);
 
         addIndentationLevel();
@@ -258,8 +277,18 @@ public class SemanticAnalysis extends DepthFirstAdapter {
              * add a declaration to the current scope, before making a new scope,
              * so that it will be visible to function calls in the new scope
              */
-            FuncDecInfo type = new FuncDecInfo((PDataType) node.getRetType(),
-                               node.getFplist(), node.getId());
+            
+            FuncDecInfo type = null;
+            try {
+                type = new FuncDecInfo((PDataType) node.getRetType(), node.getFplist(), node.getId());
+            } 
+            catch (TypeCheckingException e){
+                
+                /* Add error to list an continue in the ast */
+                this.errorList.addToList(e.getMessage());
+                throw e;
+            }
+                
             SymbolTableEntry data = new SymbolTableEntry(type);
             
             /* Function is already matched because it only has a definition */
@@ -280,22 +309,32 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             }
 
             this.symbolTable.setIsMainDefined();
-
-            /* Create the HashMap for the type checking */
-            exprTypes = new HashMap<>();
         }
 
         /* Create the info for the function definition*/
-        FunctionInfo funcDefInfo = new FuncDefInfo((PDataType) node.getRetType(),
-                node.getFplist(), node.getId());
-         
-        /*
-         * Check equivalence with the function declaration found
-         */
+        FunctionInfo funcDefInfo = null;
+        try {
+            funcDefInfo = new FuncDefInfo((PDataType) node.getRetType(), node.getFplist(), node.getId());
+        }
+        catch (TypeCheckingException e){
             
+            /* Add error to list an continue */
+            this.errorList.addToList(e.getMessage());
+            return;
+        }
+        
         /* Check if the definition is equivalent with the declaration */
         if (funcDec != null) {
-            ((FunctionInfo) funcDec.getInfo()).isEquivWith(funcDefInfo);
+            
+            try {
+                ((FunctionInfo) funcDec.getInfo()).isEquivWith(funcDefInfo);
+            }
+            catch (TypeCheckingException e){
+                
+                /* Add error to list an continue */
+                this.errorList.addToList(e.getMessage());
+                throw e;
+            }
         }
 
         /* In every new func_def we create a new scope */
@@ -335,6 +374,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         
         /* When exiting from a function exit from the current scope too */
         this.symbolTable.exit();
+        
+        
         
         /* We don't need the function's id anymore */
         currentFunctionId = null;
@@ -423,8 +464,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (!(aExprType.isEquivWith(currentFunctionEntry.getInfo().getType()))) {
             int line = node.getKwReturn().getLine();
             int column = node.getKwReturn().getPos();
-            throw new TypeCheckingException(line, column, "Type of returned expression does not match return type of function\n"
-                                            + " Return type is " + currentFunctionEntry.getInfo().getType());
+            throw new TypeCheckingException(line, column, "Type of returned expression does not match return type of function:" + currentFunctionId.getText() + "\n"
+                                            + "Return type is " + currentFunctionEntry.getInfo().getType());
         }
 
         /* Function definition matched to a return statement */

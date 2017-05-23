@@ -11,9 +11,18 @@ public class Compiler {
 
     public static void main(String[] arguments) {
         BufferedReader input = null;
+        FileReader fr = null;
         try {
+            
+            try {
+                fr = new FileReader(arguments[0]);
+            }
+           catch (IOException ioe){
+               System.out.println(ioe.getMessage());
+            }
+            
             /* Open the input test file */
-            input = new BufferedReader(new FileReader(arguments[0]));
+            input = new BufferedReader(fr);
 
             /* Create a Parser instance */
             Parser p = new Parser(new Lexer(new PushbackReader(input, 1024)));
@@ -22,7 +31,11 @@ public class Compiler {
             Start tree = p.parse();
 
             /* Apply the semantic analysis */
-            tree.apply(new SemanticAnalysis());
+            SemanticAnalysis sa = new SemanticAnalysis();
+            tree.apply(sa);
+            
+            System.out.println("Errors : " + sa.getErrors().getErrorList().size());
+            sa.getErrors().printList();
 
         }
         catch (ParserException pa) {

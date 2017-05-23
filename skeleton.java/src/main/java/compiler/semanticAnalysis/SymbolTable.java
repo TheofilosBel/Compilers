@@ -50,7 +50,9 @@ public class SymbolTable {
         boolean found = false;
 
         /* Loop all the stack from the top to the start */
-        for (int scope_n = this.scope_st.size() - 1; scope_n >= 0; scope_n++) {
+        for (int scope_n = this.scope_st.size() - 1; scope_n >= 0; scope_n--) {
+            
+            System.out.println("Scope " + scope_n);
             
             /* Check if the TreeMap contains the key */
             try {

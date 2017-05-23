@@ -174,6 +174,12 @@ public class FunctionInfo extends Info {
             throw new TypeCheckingException(name.getLine(), name.getPos(),
                     "In function \"" + name.getText() + "\":\n" + "Not matching arguments number between function declaration and function definition." );
         }
+        
+        if (! funcInfo.getType().isEquivWith(this.getType())) {
+            TId name = funcInfo.getName();
+            throw new TypeCheckingException(name.getLine(), name.getPos(),
+                    "In function \"" + name.getText() + "\" returned type is declared as " + this.getType() + " but defined as " + funcInfo.getType() );
+        }
            
     }
    
