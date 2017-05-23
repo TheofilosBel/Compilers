@@ -15,6 +15,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     int indentation = 0;
     SymbolTable symbolTable; /* The structure of the symbol table */
     private HashMap<Node, Type> exprTypes; /* A structure that maps every sablecc generated Node to a type */
+    private TId currentFunction;
 
     /*
      * The semantic analysis phase starts here
@@ -33,6 +34,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         LinkedList<VariableInfo> argList; /* A list containing the arguments to each function */
         LinkedList<String> passBy;    /* A list containing the pass method (by reference / by value) of each argument */
         SymbolTableEntry data;        /* An object that is inserted in the symbol table for each function */
+        currentFunction = null;
 
         /* fun puti (n : int) : nothing */
         argList = new LinkedList<VariableInfo>();
@@ -318,6 +320,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getInfo()).getArgsByVal().get(var))));
             
         }
+        
+        /* Initialize current Function so we can use in on the lower levels of the AST */
+        currentFunction = node.getId();
 
         addIndentationLevel();
     }
@@ -326,6 +331,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     public void outAFuncDef(AFuncDef node) {
         /* When exiting from a function exit from the current scope too */
         this.symbolTable.exit();
+        
+        /* We don't need anymore the function id */
+        currentFunction = null;
+        
         removeIndentationLevel();
     }
 
