@@ -29,7 +29,7 @@ public class FunctionInfo extends Info {
         
         this.name = (TId) name.clone();
         
-        /* Find ans save the return type of the function */
+        /* Find and save the return type of the function */
         if (returnType instanceof ANothDataType) {
             this.returnType = new BuiltInType("nothing ");
         }
