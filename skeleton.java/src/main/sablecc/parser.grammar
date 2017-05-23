@@ -151,29 +151,29 @@ Productions
         {unmatched} unmatched {-> unmatched.stmt};
 
     matched {-> stmt} =
-        {if}        matched_if                    {-> matched_if.stmt}                            |
-        {while}     matched_while                 {-> matched_while.stmt}                         |
-        {noop}      semicolon                     {-> New stmt.noop()}                            |
-        {assign}    l_value assign expr semicolon {-> New stmt.assign(l_value.lvalue, expr.expr)} |
-        {block}     block                         {-> block.stmt}                                 |
-        {func_call} func_call semicolon           {-> New stmt.func_call(func_call)}              |
-        {return}    kw_return expr? semicolon     {-> New stmt.return(expr)};
+        {if}        matched_if                    {-> matched_if.stmt}                                    |
+        {while}     matched_while                 {-> matched_while.stmt}                                 |
+        {noop}      semicolon                     {-> New stmt.noop()}                                    |
+        {assign}    l_value assign expr semicolon {-> New stmt.assign(l_value.lvalue, assign, expr.expr)} |
+        {block}     block                         {-> block.stmt}                                         |
+        {func_call} func_call semicolon           {-> New stmt.func_call(func_call)}                      |
+        {return}    kw_return expr? semicolon     {-> New stmt.return(kw_return, expr)};
 
     unmatched {-> stmt} =
         {if}    unmatched_if    {-> unmatched_if.stmt}   |
         {while} unmatched_while {-> unmatched_while.stmt};
 
     matched_if {-> stmt} = kw_if cond kw_then [then]:matched kw_else [else]:matched
-                                 {-> New stmt.if(cond.cond, then.stmt, else.stmt)};
+                                 {-> New stmt.if(kw_if, cond.cond, then.stmt, else.stmt)};
 
     unmatched_if {-> stmt} =
-        {no_else}   kw_if cond kw_then stmt {-> New stmt.if(cond.cond, stmt.stmt, Null)} |
+        {no_else}   kw_if cond kw_then stmt {-> New stmt.if(kw_if, cond.cond, stmt.stmt, Null)} |
         {with_else} kw_if cond kw_then matched kw_else unmatched
-                    {-> New stmt.if(cond.cond, matched.stmt, unmatched.stmt)};
+                    {-> New stmt.if(kw_if, cond.cond, matched.stmt, unmatched.stmt)};
 
-    matched_while {-> stmt} = kw_while cond kw_do matched {-> New stmt.while(cond.cond, matched.stmt)};
+    matched_while {-> stmt} = kw_while cond kw_do matched {-> New stmt.while(kw_while, cond.cond, matched.stmt)};
 
-    unmatched_while {-> stmt} = kw_while cond kw_do unmatched {-> New stmt.while(cond.cond, unmatched.stmt)};
+    unmatched_while {-> stmt} = kw_while cond kw_do unmatched {-> New stmt.while(kw_while, cond.cond, unmatched.stmt)};
 
     block {-> stmt} = l_brace block_stmt_list r_brace {-> New stmt.block([block_stmt_list.stmt])};
 
@@ -291,12 +291,12 @@ Abstract Syntax Tree
         {noth} kw_nothing ;
 
     stmt =
-        {if}        cond [then]:stmt [else]:stmt? |
-        {while}     cond [body]:stmt              |
-        {assign}    lvalue expr                   |
-        {block}     [body]:stmt*                  |
-        {func_call} func_call                     |
-        {return}    expr?                         |
+        {if}        kw_if cond [then]:stmt [else]:stmt? |
+        {while}     kw_while cond [body]:stmt           |
+        {assign}    lvalue assign expr                  |
+        {block}     [body]:stmt*                        |
+        {func_call} func_call                           |
+        {return}    kw_return expr?                     |
         {noop}      ;
 
     expr =

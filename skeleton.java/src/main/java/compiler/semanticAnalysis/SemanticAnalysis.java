@@ -287,9 +287,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         FunctionInfo funcDefInfo = new FuncDefInfo((PDataType) node.getRetType(),
                 node.getFplist(), node.getId());
          
-        /* Check equivalence with the function declaration found and before.
-         * First on arguments passed by reference */
-        
+        /*
+         * Check equivalence with the function declaration found and before
+         * First on arguments passed by reference
+         */
             
         /* Check if the definition is equivalent with the declaration */
         if (funcDec != null) {
