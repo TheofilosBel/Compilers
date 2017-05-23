@@ -34,10 +34,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         this.symbolTable.enter();
         
         LinkedList<VariableInfo> argList; /* A list containing the arguments to each function */
-        LinkedList<String> passBy;    /* A list containing the pass method (by reference / by value) of each argument */
-        SymbolTableEntry data;        /* An object that is inserted in the symbol table for each function */
-        currentFunctionId = null;     /* It holds the id of the current function */
-        exprTypes = new HashMap<>();  /* Create the HashMap for the type checking */
+        LinkedList<String> passBy;        /* A list containing the pass method (by reference / by value) of each argument */
+        SymbolTableEntry data;            /* An object that is inserted in the symbol table for each function */
+        currentFunctionId = null;         /* It holds the id of the current function */
+        exprTypes = new HashMap<>();      /* Create the HashMap for the type checking */
         
 
         /* fun puti (n : int) : nothing */
@@ -884,7 +884,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* An equality comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+        if (!leftExprType.isInt() && !leftExprType.isChar()) {
             int line = node.getEq().getLine();
             int column = node.getEq().getPos();
             throw new TypeCheckingException(line, column, "An \"=\" operator can be applied to int or char types only");
@@ -906,7 +906,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* A non-equality comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+        if (!leftExprType.isInt() && !leftExprType.isChar()) {
             int line = node.getNeq().getLine();
             int column = node.getNeq().getPos();
             throw new TypeCheckingException(line, column, "An \"#\" operator can be applied to int or char types only");
@@ -928,7 +928,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* A less-than comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+        if (!leftExprType.isInt() && !leftExprType.isChar()) {
             int line = node.getLt().getLine();
             int column = node.getLt().getPos();
             throw new TypeCheckingException(line, column, "A \"<\" operator can be applied to int or char types only");
@@ -941,7 +941,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     public void outAGtCond(AGtCond node) {
         Type leftExprType = exprTypes.get(node.getL());
         Type rightExprType = exprTypes.get(node.getR());
-
+        
         /* A greater-than comparison operator can be applied to equivalent types only */
         if (!(leftExprType.isEquivWith(rightExprType))) {
             int line = node.getGt().getLine();
@@ -950,7 +950,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* A greater-than comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+        if (!leftExprType.isInt() && !leftExprType.isChar()) {
             int line = node.getGt().getLine();
             int column = node.getGt().getPos();
             throw new TypeCheckingException(line, column, "A \">\" operator can be applied to int or char types only");
@@ -971,7 +971,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* A greater than comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+        if (!leftExprType.isInt() && !leftExprType.isChar()) {
             int line = node.getGteq().getLine();
             int column = node.getGteq().getPos();
             throw new TypeCheckingException(line, column, "A \">=\" operator can be applied to int or char types only");
@@ -992,7 +992,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* A less than comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+        if (!leftExprType.isInt() && !leftExprType.isChar()) {
             int line = node.getLteq().getLine();
             int column = node.getLteq().getPos();
             throw new TypeCheckingException(line, column, "A \"<=\" operator can be applied to int or char types only");

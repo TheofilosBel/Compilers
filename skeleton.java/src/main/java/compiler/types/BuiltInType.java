@@ -55,7 +55,7 @@ public class BuiltInType extends Type {
     
     @Override
     public boolean isEquivWith(Type type) {
-        
+
         /* Array can't be equal with bultIn type */
         if (type.isArray())
             return false;
