@@ -137,6 +137,9 @@ public class FunctionInfo extends Info {
      */
     public void isEquivWith(FunctionInfo funcInfo) {
         
+        
+        System.out.print("skata");
+        
         /* Check that the arguments */
         if (this.getArguments().size() == funcInfo.getArguments().size() && funcInfo.getArguments().size() > 0) {
 
@@ -146,8 +149,7 @@ public class FunctionInfo extends Info {
                 TId name = funcInfo.getName();
                 VariableInfo defvar   = funcInfo.getArguments().get(arg);
                 VariableInfo declvar  = this.getArguments().get(arg);
-                
-                
+                 
                 /* If the args are not equivalent throw exception */
                 if (! funcInfo.getArguments().get(arg).getType().isEquivWith(this.getArguments().get(arg).getType())){
                     
@@ -170,7 +172,7 @@ public class FunctionInfo extends Info {
             /* In case of miss matching arguments size */
             TId name = funcInfo.getName();
             throw new TypeCheckingException(name.getLine(), name.getPos(),
-                    "Not matching by value arguments number between function declaration and function definition of function \"" + name.getText() + "\"");
+                    "In function \"" + name.getText() + "\":\n" + "Not matching arguments number between function declaration and function definition." );
         }
            
     }

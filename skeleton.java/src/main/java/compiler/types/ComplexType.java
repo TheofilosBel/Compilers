@@ -58,18 +58,16 @@ public class ComplexType extends Type {
     
     @Override
     public int getArrayDims() {
-        
-        /* If our Type is Complex call ourselves */
+        /* If our Type is Complex call recursively */
         if (this.getType() instanceof ComplexType) 
             return this.getType().getArrayDims() + 1;
         else 
             return 1;  /* because we can't add the first dim return 1 here */
     }
-    
+
     @Override
     public String getArrayType() {
-        
-        /* If our Type is Complex call ourselves */
+        /* If our Type is Complex call recursively */
         if (this.getType() instanceof ComplexType) 
             return this.getType().getArrayType();
         else 
@@ -80,7 +78,7 @@ public class ComplexType extends Type {
     public boolean isArray() {
         return true;
     }
-    
+
     @Override
     public boolean isEquivWith(Type type) {
         /* Check the type names */

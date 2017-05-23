@@ -9,6 +9,10 @@ import compiler.node.PFparList;
  */
 public class FuncDefInfo extends FunctionInfo {
     
+    /*
+     * Indicates whether a function definition has been matched to a return statement
+     * The function should have a return type that is not equal to 'nothing'
+     */
     public boolean isMatchedToReturnStmt;
 
     public FuncDefInfo(PDataType rettype, PFparList argList, TId name) {
@@ -16,8 +20,13 @@ public class FuncDefInfo extends FunctionInfo {
         isMatchedToReturnStmt = false;
     }
     
+    /* Update the value of isMatchedToReturnStmt */
     public void setIsMatchedToReturnStmt(boolean bool) {
         isMatchedToReturnStmt = bool;
     }
 
+    /* Return the value of isMatchedToReturnStmt */
+    public boolean getIsMatchedToReturnStmt() {
+        return isMatchedToReturnStmt;
+    }
 }

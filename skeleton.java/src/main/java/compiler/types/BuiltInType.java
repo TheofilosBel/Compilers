@@ -55,11 +55,20 @@ public class BuiltInType extends Type {
     
     @Override
     public boolean isEquivWith(Type type) {
+        
         /* Array can't be equal with bultIn type */
         if (type.isArray())
             return false;
-        else 
-            return (this.isInt() == type.isInt() || this.isChar() == type.isChar() ||
-                    this.isBoolean() == type.isBoolean() || this.isNothing() == type.isNothing());
+        
+        if (this.isInt() == type.isInt() && this.isInt())
+            return true;
+        else if (this.isChar() == type.isChar() && this.isChar())
+            return true;
+        else if (this.isBoolean() == type.isBoolean() && this.isBoolean())
+            return true;
+        else if (this.isNothing() == type.isNothing() && this.isNothing())
+            return true;
+        
+        return false;
     }
 }
