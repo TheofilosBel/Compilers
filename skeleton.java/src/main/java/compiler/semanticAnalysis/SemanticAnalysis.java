@@ -307,17 +307,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Insert the function definition */
         this.symbolTable.insert(node.getId().toString(), data);
 
-        /* Insert the function's arguments to the symbol table - First those passed by reference) */
-        for (int var = 0;  var < ((FunctionInfo) data.getInfo()).getArgsByRef().size(); var++) {
-            this.symbolTable.insert(((FunctionInfo) data.getInfo()).getArgsByRef().get(var).getName().toString(),
-                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getInfo()).getArgsByRef().get(var))));
-        }
-
-        /* Insert the function's arguments to the symbol table - Now those passed by value) */
-        for (int var = 0; var < ((FunctionInfo) data.getInfo()).getArgsByVal().size(); var++) {
-            this.symbolTable.insert(((FunctionInfo) data.getInfo()).getArgsByVal().get(var).getName().toString(),
-                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getInfo()).getArgsByVal().get(var))));
-            
+        /* Insert the function's arguments to the symbol table */
+        for (int var = 0;  var < ((FunctionInfo) data.getInfo()).getArguments().size(); var++) {
+            this.symbolTable.insert(((FunctionInfo) data.getInfo()).getArguments().get(var).getName().toString(),
+                new SymbolTableEntry(new VariableInfo(((FunctionInfo) data.getInfo()).getArguments().get(var))));
         }
         
         /* Initialize current Function so we can use in on the lower levels of the AST */
@@ -549,28 +542,27 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         System.out.println(node.getExprList().size());
         
         /* First check for equal number of arguments */
-        if ((funcDecInfo.getArgsByRef().size() + funcDecInfo.getArgsByVal().size()) == node.getExprList().size()) {
-            if (node.getExprList().size() > 0) {
-                /* Check every expression with its equivalent argument */
-                for (int arg = 0; arg < node.getExprList().size(); arg++) {
-                    /* If the expression and the argument are not equal throw exception */                    
-                    Type funcDecExprType  = funcDecInfo.getArgsByVal().get(arg).getType(); 
-                    Type funcCallExprType = exprTypes.get(node.getExprList().get(arg));
+        Type funcDecExprType  = null;
+        Type funcCallExprType = null;
+        if (funcDecInfo.getArguments().size() == node.getExprList().size() && node.getExprList().size() > 0) {
+                
+            /* Check every expression with its equivalent argument */
+            for (int arg = 0; arg < node.getExprList().size(); arg++) {
+                
+                /* Get the functions declaration argument's type - Function call expretion's type */
+                funcDecExprType = funcDec.getInfo().getType();
+                funcCallExprType = exprTypes.get(node.getExprList().get(arg));
 
-                    System.out.println("Type exp " + funcCallExprType + "\nType arg " + funcDecExprType);
-
-                    if (!(funcDecExprType.isEquivWith(funcCallExprType))) {
-                        TId name  = node.getId();
-                        Node expr = node.getExprList().get(arg);
-                        throw new TypeCheckingException(name.getLine(), name.getPos(),
-                                "In function \"" + name.getText() + "\": calling with expression: \"" +
-                                expr.toString() + "\" with type " + funcCallExprType.toString() +
-                                " but declared type is " + funcDecExprType.toString());
-                    }
+                if (! funcDecExprType.isEquivWith(funcCallExprType)) {
+                    TId name  = node.getId();
+                    Node expr = node.getExprList().get(arg);
+                    throw new TypeCheckingException(name.getLine(), name.getPos(),
+                            "In function \"" + name.getText() + "\": calling with expression: \"" +
+                            expr.toString() + "\" with type incompatible type" + funcCallExprType.toString());
                 }
             }
         }
-        else {
+        else if (funcDecInfo.getArguments().size() != node.getExprList().size()){
             TId name  = node.getId();
             throw new TypeCheckingException(name.getLine(), name.getPos(),
                 "Calling function \"" + name.getText() + "\": wrong number of arguments provided");

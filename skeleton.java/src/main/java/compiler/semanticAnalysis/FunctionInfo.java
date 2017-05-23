@@ -15,8 +15,8 @@ public class FunctionInfo extends Info {
     private TId  name;
     private Type returnType; /* Return type of the function */
 
-    private LinkedList<VariableInfo> argsByRef; /* List of arguments passed by reference to the function */
-    private LinkedList<VariableInfo> argsByVal; /* List of arguments passed by value to the function */
+    private LinkedList<VariableInfo> arguments; /* List of arguments passed to the function*/
+    private LinkedList<String> passedBy;        /* List of Strings that show the way the arguments where passed by */
 
     /*
      * Constructs a FunctionInfo object
@@ -41,8 +41,8 @@ public class FunctionInfo extends Info {
         }
 
         /* Create the empty argument lists */
-        this.argsByRef = new LinkedList<VariableInfo>();
-        this.argsByVal = new LinkedList<VariableInfo>();
+        this.arguments = new LinkedList<VariableInfo>();
+        this.passedBy  = new LinkedList<String>();
         
         /*
          * Check if there are any arguments passed to the function
@@ -56,7 +56,6 @@ public class FunctionInfo extends Info {
 
                 /* Get the pass method of the argument */
                 if (fpar_def instanceof AByValFparDef) {
-                    System.out.println("By val");
 
                     /* If an array has been passed by value raise an exception */
                     if (((AType) ((AByValFparDef) fpar_def).getType()).getArrayDec() instanceof AExistingArrayDec) {
@@ -68,8 +67,6 @@ public class FunctionInfo extends Info {
                     addAlltoList(((AByValFparDef) fpar_def).getIdList(), (AType) ((AByValFparDef) fpar_def).getType(), false);                    
                 }
                 else if (fpar_def instanceof AByRefFparDef) {
-                    System.out.println("By ref");
-                    
                     /* Get every variable in the list of a multi-variable definition */
                     addAlltoList(((AByRefFparDef) fpar_def).getIdList(), (AType) ((AByRefFparDef) fpar_def).getType(), true);
                 }
@@ -77,16 +74,12 @@ public class FunctionInfo extends Info {
         }
 
         /* Print the 2 lists */        
-        System.out.println("Vars by ref in func");
-        for (int vars = 0; vars < argsByRef.size(); vars++) {
-            System.out.println("-->Name " + argsByRef.get(vars).getName());
-            System.out.println("   Type " + argsByRef.get(vars).getType());
-        }
-
-        System.out.println("Vars by val in func");
-        for (int vars = 0; vars < argsByVal.size(); vars++) {
-            System.out.println("-->Name " + argsByVal.get(vars).getName());
-            System.out.println("   Type " + argsByVal.get(vars).getType());
+        System.out.println("Arguments list in Function Info ");
+        for (int vars = 0; vars < this.arguments.size(); vars++) {
+            System.out.println("-->Name "   + this.arguments.get(vars).getName());
+            System.out.println("   Type "   + this.arguments.get(vars).getType());
+            System.out.println("   PassBy " + this.passedBy.get(vars));
+            
         }
 
         System.out.println();
@@ -102,19 +95,12 @@ public class FunctionInfo extends Info {
      */
     public FunctionInfo(String returnType, LinkedList<VariableInfo> argList, LinkedList<String> passBy) {
         this.returnType = new BuiltInType(returnType);
-        this.argsByRef  = new LinkedList<VariableInfo>();
-        this.argsByVal  = new LinkedList<VariableInfo>();
+        this.arguments  = new LinkedList<VariableInfo>();
+        this.passedBy   = new LinkedList<String>();
 
-        /* Get all the arguments and place them in the two lists depending on the pass method */
-        for (int var = 0; var < argList.size(); var++) {
-            if (passBy.get(var) == "val") {
-                System.out.println("In by val");
-                this.argsByVal.add(argList.get(var));
-            } else {
-                System.out.println("In by ref");
-                this.argsByRef.add(argList.get(var));
-            }
-        }   
+        /* Get all the arguments and their passBy method */
+        this.arguments.addAll(argList);
+        this.passedBy.addAll(passBy);
     }
 
     /*
@@ -126,20 +112,21 @@ public class FunctionInfo extends Info {
      * @byRef Boolean that indicates whether the variables were passed by reference or not
      */
     public void addAlltoList(LinkedList<TId> list, AType type, Boolean byRef){
-        LinkedList<VariableInfo> temp = new LinkedList<VariableInfo>();
         
         /* Create a new VariableInfo object out of every variable in the list */
         System.out.println("Making the table");
         for (int var = 0; var < list.size(); var++) {
             System.out.println(list.get(var).toString() + type);
-            temp.add(new VariableInfo(list.get(var), type)); 
+            
+            /* Add the arguments */
+            this.arguments.add(new VariableInfo(list.get(var), type));
+            
+            /* Add the pass by method */
+            if (byRef == true)            
+                this.passedBy.add("ref");
+            else
+                this.passedBy.add("val");
         }
-        
-        /* Add the temp list to the correct list */
-        if (byRef == true)
-            this.argsByRef.addAll(temp);
-        else
-            this.argsByVal.addAll(temp);
     }
     
     
@@ -150,68 +137,53 @@ public class FunctionInfo extends Info {
      */
     public void isEquivWith(FunctionInfo funcInfo) {
         
-        /* First Check that the arguments passed by value are equal */
-        if (this.getArgsByVal().size() == funcInfo.getArgsByVal().size() && 
-                                          funcInfo.getArgsByVal().size() > 0) {
+        /* Check that the arguments */
+        if (this.getArguments().size() == funcInfo.getArguments().size() && funcInfo.getArguments().size() > 0) {
 
-            for (int arg = 0; arg < funcInfo.getArgsByVal().size(); arg++) {
+            for (int arg = 0; arg < funcInfo.getArguments().size(); arg++) {
                 
-                /* If the args are not equal throw exception */
-                if (!(funcInfo.getArgsByVal().get(arg).getType().isEquivWith(this.getArgsByVal().get(arg).getType()))){
-                    
-                    TId name = funcInfo.getName();
-                    VariableInfo defvar   = funcInfo.getArgsByVal().get(arg);
-                    VariableInfo declvar  = this.getArgsByVal().get(arg);
+                /* Get the info */
+                TId name = funcInfo.getName();
+                VariableInfo defvar   = funcInfo.getArguments().get(arg);
+                VariableInfo declvar  = this.getArguments().get(arg);
+                
+                
+                /* If the args are not equivalent throw exception */
+                if (! funcInfo.getArguments().get(arg).getType().isEquivWith(this.getArguments().get(arg).getType())){
                     
                     throw new TypeCheckingException(defvar.getName().getLine(), defvar.getName().getPos(),
                             "In function \"" + name.getText() + "\": passing variable: \"" + defvar.getName().getText() + "\" with type " + defvar.getType().toString() +
                             " but declared type is " + declvar.getType().toString());
                 }
-            }
-        }
-        else if (funcInfo.getArgsByVal().size() > 0){
-        
-            System.out.println("Error vars by val num not equal");
-            /* TODO throw exception*/
-        }
-            
-        /* Then Check that the arguments passed by reference are equal */
-        if (this.getArgsByRef().size() == funcInfo.getArgsByRef().size() && 
-                                          funcInfo.getArgsByRef().size() > 0) {
-            
-            for (int arg = 0; arg < funcInfo.getArgsByRef().size(); arg++) {
-                if (!(funcInfo.getArgsByRef().get(arg).getType().isEquivWith(this.getArgsByRef().get(arg).getType()))){
-                    
-                    TId name = funcInfo.getName();
-                    VariableInfo defvar   = funcInfo.getArgsByRef().get(arg);
-                    VariableInfo declvar  = this.getArgsByRef().get(arg);
+                
+                /* If the pass by methods are not the same throw exception */
+                if (! funcInfo.getPassByMethods().get(arg).equals(this.getPassByMethods().get(arg))){
 
                     throw new TypeCheckingException(defvar.getName().getLine(), defvar.getName().getPos(),
-                            "In function \"" + name.getText() + "\": passing variable: \"" + defvar.getName().getText() + "\" with type " + defvar.getType() +
-                            " but declared type is " + declvar.getType());
+                            "In function \"" + name.getText() + "\": passing variable: \"" + defvar.getName().getText() + "\" by " + funcInfo.getPassByMethods().get(arg) +
+                            " but in declaration it is passed by " +  this.getPassByMethods().get(arg));
                 }
             }
         }
-        else if (funcInfo.getArgsByRef().size() > 0){
-            System.out.println("Error vars by ref num not equal");
-            /* TODO throw exception*/
+        else if (this.getArguments().size() != funcInfo.getArguments().size()){
+            
+            /* In case of miss matching arguments size */
+            TId name = funcInfo.getName();
+            throw new TypeCheckingException(name.getLine(), name.getPos(),
+                    "Not matching by value arguments number between function declaration and function definition of function \"" + name.getText() + "\"");
         }
-        
-        /* Check the return type of each function info */
-        if (!(this.getType().isEquivWith(funcInfo.getType())))
-            /* TODO throw exception */
-            System.out.println("Error ret types not equal");
+           
     }
    
     
     /* Returns a list of the arguments that have been passed by reference */
-    public LinkedList<VariableInfo> getArgsByRef() {
-        return this.argsByRef;
+    public LinkedList<VariableInfo> getArguments() {
+        return this.arguments;
     }
     
     /* Returns a list of the arguments that have been passed by value */
-    public LinkedList<VariableInfo> getArgsByVal() {
-        return this.argsByVal;
+    public LinkedList<String> getPassByMethods() {
+        return this.passedBy;
     }
 
     /* Returns the return type of the function */
