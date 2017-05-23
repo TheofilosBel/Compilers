@@ -46,9 +46,19 @@ public class ComplexType extends Type {
         return this.type;
     }
 
+    /*
+     * Return a string for printng an array type
+     */
+    
     @Override
     public String toString() {
-        return this.getTypeName() + " " + type.toString();
+        
+        String str = new String();
+        str = this.getArrayType();
+        for (int i=0; i < this.getArrayDims(); i++)
+            str += "[]"; 
+        
+        return str;
     }
 
     @Override
