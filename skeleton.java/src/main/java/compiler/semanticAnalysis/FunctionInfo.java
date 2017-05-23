@@ -192,7 +192,7 @@ public class FunctionInfo extends Info {
                 }
             }
         }
-        else if (funcInfo.getArgsByRef().size() > 0){
+        else if (funcInfo.getArgsByRef().size() > 0) {
             System.out.println("Error vars by ref num not equal");
             /* TODO throw exception*/
         }

@@ -15,7 +15,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     int indentation = 0;
     SymbolTable symbolTable; /* The structure of the symbol table */
     private HashMap<Node, Type> exprTypes; /* A structure that maps every sablecc generated Node to a type */
-    private TId currentFunction;
+    private TId currentFunctionId;
 
     /*
      * The semantic analysis phase starts here
@@ -34,7 +34,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         LinkedList<VariableInfo> argList; /* A list containing the arguments to each function */
         LinkedList<String> passBy;    /* A list containing the pass method (by reference / by value) of each argument */
         SymbolTableEntry data;        /* An object that is inserted in the symbol table for each function */
-        currentFunction = null;
+        currentFunctionId = null;
 
         /* fun puti (n : int) : nothing */
         argList = new LinkedList<VariableInfo>();
@@ -322,7 +322,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
         
         /* Initialize current Function so we can use in on the lower levels of the AST */
-        currentFunction = node.getId();
+        currentFunctionId = node.getId();
 
         addIndentationLevel();
     }
@@ -332,8 +332,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* When exiting from a function exit from the current scope too */
         this.symbolTable.exit();
         
-        /* We don't need anymore the function id */
-        currentFunction = null;
+        /* We don't need the function id anymore */
+        currentFunctionId = null;
         
         removeIndentationLevel();
     }
@@ -607,7 +607,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     }
     
     public TId recArrayIdFinder(AArrayLvalue node, LinkedList<Integer> dimList) {
-        
         /* Add the size to the linked List and call again */
         dimList.add(0);
 
@@ -615,13 +614,14 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (node.getLvalue() instanceof AIdLvalue) {
             return ((AIdLvalue) node.getLvalue()).getId();
         }
-        
-        /* else if (node.getLvalue() instanceof AArrayLvalue) 
+
+        /*
+         * Else if (node.getLvalue() instanceof AArrayLvalue) 
          * There is no case for a AStrLvalue because an exception would already be thrown 
          */
         return recArrayIdFinder((AArrayLvalue) node.getLvalue(), dimList); 
     }
-    
+
     @Override 
     public void outAArrayLvalue(AArrayLvalue node) {
         /* If the nested lvalue is strin_literal then throw error */
