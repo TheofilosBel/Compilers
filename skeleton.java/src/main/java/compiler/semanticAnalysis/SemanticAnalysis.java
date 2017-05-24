@@ -9,13 +9,14 @@ import compiler.semanticAnalysis.SymbolTableEntry;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.HashMap;
+import java.util.Stack;
 
 public class SemanticAnalysis extends DepthFirstAdapter {
 
     int indentation = 0;
     SymbolTable symbolTable; /* The structure of the symbol table */
     private HashMap<Node, Type> exprTypes; /* A structure that maps every sablecc generated Node to a type */
-    private TId currentFunctionId;
+    private Stack<TId> currentFunctionId;
     private CompilerErrorList errorList;
 
     /*
@@ -33,11 +34,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Add the first scope that will hold the built in library functions */
         this.symbolTable.enter();
         
-        LinkedList<VariableInfo> argList; /* A list containing the arguments to each function */
-        LinkedList<String> passBy;    /* A list containing the pass method (by reference / by value) of each argument */
-        SymbolTableEntry data;        /* An object that is inserted in the symbol table for each function */
-        currentFunctionId = null;     /* It holds the id of the current function */
-        exprTypes = new HashMap<>();  /* Create the HashMap for the type checking */
+        LinkedList<VariableInfo> argList;     /* A list containing the arguments to each function */
+        LinkedList<String> passBy;            /* A list containing the pass method (by reference / by value) of each argument */
+        SymbolTableEntry data;                /* An object that is inserted in the symbol table for each function */
+        currentFunctionId = new Stack<TId>(); /* It holds the id of the current function */
+        exprTypes = new HashMap<>();          /* Create the HashMap for the type checking */
         
 
         /* fun puti (n : int) : nothing */
@@ -210,10 +211,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         indentation++;
     }
 
-    private void removeIndentationLevel() {
-        indentation--;
-    }
-
     private void printIndentation() {
         System.out.print(String.join("", Collections.nCopies(indentation, "   ")));
     }
@@ -344,7 +341,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         SymbolTableEntry data = new SymbolTableEntry(funcDefInfo);
 
         /* Insert the function definition */
-        System.out.println("REturned " + this.symbolTable.insert(node.getId().toString(), data));
+       this.symbolTable.insert(node.getId().toString(), data);
 
         /* Insert the function's arguments to the symbol table */
         for (int var = 0;  var < ((FunctionInfo) data.getInfo()).getArguments().size(); var++) {
@@ -353,9 +350,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
         
         /* Initialize current Function so we can use in on the lower levels of the AST */
-        currentFunctionId = node.getId();
-
-        addIndentationLevel();
+        currentFunctionId.push(node.getId());
     }
 
     @Override
@@ -374,16 +369,17 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         
         /* When exiting from a function exit from the current scope too */
         this.symbolTable.exit();
-        
-        
-        
+
         /* We don't need the function's id anymore */
-        currentFunctionId = null;
+        currentFunctionId.pop();
     }
 
     @Override
     public void inAVarDef(AVarDef node) {
-        indentNprint("In variable DEfinition");
+        
+        /* Get the current FunctionInfo  */
+        SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString());
+        FuncDefInfo currentFuncDef = (FuncDefInfo) currentFunctionEntry.getInfo();
         
         /* Get the type of the variables in the current definition */
         PType type = (PType) ((AType) node.getType()).clone();
@@ -398,13 +394,19 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 throw new SemanticAnalysisException(v.getName().getLine(), v.getName().getPos(),
                         "Conflicting types: name \"" + v.getName().getText() + "\" already exists");
             }
+            
+            /* Add the variable on the function's definition List that holds local variable */
+            currentFuncDef.addLocalVariable(v);
 
             /* Print each variable */
             indentNprint("Name :" + v.getName());
             indentNprint("Type :" + v.getType());
-            indentNprint("Int ?:" + v.getType().isInt());
-            
+            indentNprint("Int ?:" + v.getType().isInt());            
         }
+        
+        
+        for (int a = 0 ; a < currentFuncDef.getLocalVariables().size(); a++) 
+            System.out.println("Lists :" + currentFuncDef.getLocalVariables().get(a).getName());
     }
 
     @Override
@@ -434,8 +436,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void outAAssignStmt(AAssignStmt node) {
         Type assignLhsType = exprTypes.get(node.getLvalue());
-        
-        System.out.println("The resarch showed " + assignLhsType);
 
         /* String literals not allowed as lvalues in assignments */
         if (assignLhsType.isArray() && assignLhsType.isEquivWith(BuiltInType.Char)) {
@@ -445,7 +445,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         Type assignRhsType = exprTypes.get(node.getExpr());
-        System.out.println("The resarch showed " + assignRhsType);
 
         if (!(assignLhsType.isEquivWith(assignRhsType))) {
             int line = node.getAssign().getLine();
@@ -459,15 +458,15 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Type aExprType = exprTypes.get(node.getExpr());
 
         /* Search the function this return statement corresponds to */
-        SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.toString());
-
+        SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString());
+        
         if (!(aExprType.isEquivWith(currentFunctionEntry.getInfo().getType()))) {
             int line = node.getKwReturn().getLine();
             int column = node.getKwReturn().getPos();
-            throw new TypeCheckingException(line, column, "Type of returned expression does not match return type of function:" + currentFunctionId.getText() + "\n"
+            throw new TypeCheckingException(line, column, "Type of returned expression does not match return type of function:" + currentFunctionId.peek().getText() + "\n"
                                             + "Return type is " + currentFunctionEntry.getInfo().getType());
         }
-
+        
         /* Function definition matched to a return statement */
         ((FuncDefInfo) currentFunctionEntry.getInfo()).setIsMatchedToReturnStmt(true);
     }
@@ -668,20 +667,20 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* Equivalence check with declaration */
-        FuncDecInfo funcDecInfo = (FuncDecInfo) funcDec.getInfo();
+        FunctionInfo funcInfo = (FunctionInfo) funcDec.getInfo();
         
         System.out.println(node.getExprList().size());
         
         /* First check for equal number of arguments */
         Type funcDecExprType  = null;
         Type funcCallExprType = null;
-        if (funcDecInfo.getArguments().size() == node.getExprList().size() && node.getExprList().size() > 0) {
+        if (funcInfo.getArguments().size() == node.getExprList().size() && node.getExprList().size() > 0) {
                 
             /* Check every expression with its equivalent argument */
             for (int arg = 0; arg < node.getExprList().size(); arg++) {
                 
                 /* Get the functions declaration argument's type - Function call expretion's type */
-                funcDecExprType = funcDec.getInfo().getType();
+                funcDecExprType = ((FunctionInfo) funcDec.getInfo()).getArguments().get(arg).getType();
                 funcCallExprType = exprTypes.get(node.getExprList().get(arg));
 
                 if (! funcDecExprType.isEquivWith(funcCallExprType)) {
@@ -689,18 +688,19 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                     Node expr = node.getExprList().get(arg);
                     throw new TypeCheckingException(name.getLine(), name.getPos(),
                             "In function \"" + name.getText() + "\": calling with expression: \"" +
-                            expr.toString() + "\" with type incompatible type" + funcCallExprType.toString());
+                            expr.toString() + "\" with type incompatible type " + funcCallExprType.toString() + 
+                            "\nwhen declaration type  is " + funcDecExprType.toString());
                 }
             }
         }
-        else if (funcDecInfo.getArguments().size() != node.getExprList().size()){
+        else if (funcInfo.getArguments().size() != node.getExprList().size()){
             TId name  = node.getId();
             throw new TypeCheckingException(name.getLine(), name.getPos(),
                 "Calling function \"" + name.getText() + "\": wrong number of arguments provided");
         }
 
         /* Put the return type to the HashMap */
-        exprTypes.put(node.parent(), funcDecInfo.getType());
+        exprTypes.put(node.parent(), funcInfo.getType());
     }
     
     
@@ -884,7 +884,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* An equality comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+        if (!leftExprType.isInt() && !leftExprType.isChar()) {
             int line = node.getEq().getLine();
             int column = node.getEq().getPos();
             throw new TypeCheckingException(line, column, "An \"=\" operator can be applied to int or char types only");
@@ -906,7 +906,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* A non-equality comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+        if (!leftExprType.isInt() && !leftExprType.isChar()) {
             int line = node.getNeq().getLine();
             int column = node.getNeq().getPos();
             throw new TypeCheckingException(line, column, "An \"#\" operator can be applied to int or char types only");
@@ -928,7 +928,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* A less-than comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+        if (!leftExprType.isInt() && !leftExprType.isChar()) {
             int line = node.getLt().getLine();
             int column = node.getLt().getPos();
             throw new TypeCheckingException(line, column, "A \"<\" operator can be applied to int or char types only");
@@ -941,7 +941,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     public void outAGtCond(AGtCond node) {
         Type leftExprType = exprTypes.get(node.getL());
         Type rightExprType = exprTypes.get(node.getR());
-
+        
         /* A greater-than comparison operator can be applied to equivalent types only */
         if (!(leftExprType.isEquivWith(rightExprType))) {
             int line = node.getGt().getLine();
@@ -950,7 +950,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* A greater-than comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+        if (!leftExprType.isInt() && !leftExprType.isChar()) {
             int line = node.getGt().getLine();
             int column = node.getGt().getPos();
             throw new TypeCheckingException(line, column, "A \">\" operator can be applied to int or char types only");
@@ -971,7 +971,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* A greater than comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+        if (!leftExprType.isInt() && !leftExprType.isChar()) {
             int line = node.getGteq().getLine();
             int column = node.getGteq().getPos();
             throw new TypeCheckingException(line, column, "A \">=\" operator can be applied to int or char types only");
@@ -992,7 +992,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* A less than comparison operator can be applied to int or char only */
-        if (!(leftExprType.isInt()) || !(leftExprType.isChar())) {
+        if (!leftExprType.isInt() && !leftExprType.isChar()) {
             int line = node.getLteq().getLine();
             int column = node.getLteq().getPos();
             throw new TypeCheckingException(line, column, "A \"<=\" operator can be applied to int or char types only");

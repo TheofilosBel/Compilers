@@ -133,8 +133,8 @@ Productions
         {single} id {-> [id]};
 
     fpar_type {-> type}=
-        {fpar_type} data_type empty_array_declarator? array_declarator {-> New type(data_type.data_type, array_declarator.array_dec)};
-
+        {fpar_type}  data_type array_declarator {-> New type(data_type.data_type, array_declarator.array_dec)};
+        
     type {-> type} =
         {type} data_type array_declarator {-> New type(data_type.data_type, array_declarator.array_dec)};
 
@@ -186,15 +186,14 @@ Productions
     expr_list_tail {-> expr} = comma expr {-> expr};
 
     array_declarator {-> array_dec} =
-        {array_decl} l_bracket int_const r_bracket array_declarator_tail*
-                     {-> New array_dec.existing([int_const, array_declarator_tail.int_const])} |
+        {array_decl}  l_bracket int_const r_bracket array_declarator_tail* {-> New array_dec.existing([int_const, array_declarator_tail.int_const])} |
+        {fempty_decl} l_bracket r_bracket array_declarator_tail+ {-> New array_dec.first_empty([array_declarator_tail.int_const])}                   |
+        {empty_dec}   l_bracket r_bracket                        {-> New array_dec.empty()}                                                          |
         {no_array_decl} {-> New array_dec.not_existing()};
 
-    array_declarator_tail {->int_const} =
+    array_declarator_tail {-> int_const} =
         {multiple} l_bracket int_const r_bracket {-> int_const};
 
-    empty_array_declarator =
-        {empty_array_decl} l_bracket r_bracket;
 
     l_value {-> lvalue} =
         {id}   id                               {-> New lvalue.id(id)}                     |
@@ -282,7 +281,9 @@ Abstract Syntax Tree
     type = data_type array_dec;
 
     array_dec =
-        {existing} int_const* |
+        {existing}    int_const* |
+        {first_empty} int_const* |
+        {empty}                  |
         {not_existing} ;
 
     data_type =
