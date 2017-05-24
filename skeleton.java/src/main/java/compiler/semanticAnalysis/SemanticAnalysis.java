@@ -680,7 +680,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             for (int arg = 0; arg < node.getExprList().size(); arg++) {
                 
                 /* Get the functions declaration argument's type - Function call expretion's type */
-                funcDecExprType = funcDec.getInfo().getType();
+                funcDecExprType = ((FunctionInfo) funcDec.getInfo()).getArguments().get(arg).getType();
                 funcCallExprType = exprTypes.get(node.getExprList().get(arg));
 
                 if (! funcDecExprType.isEquivWith(funcCallExprType)) {
@@ -688,7 +688,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                     Node expr = node.getExprList().get(arg);
                     throw new TypeCheckingException(name.getLine(), name.getPos(),
                             "In function \"" + name.getText() + "\": calling with expression: \"" +
-                            expr.toString() + "\" with type incompatible type " + funcCallExprType.toString());
+                            expr.toString() + "\" with type incompatible type " + funcCallExprType.toString() + 
+                            "\nwhen declaration type  is " + funcDecExprType.toString());
                 }
             }
         }
