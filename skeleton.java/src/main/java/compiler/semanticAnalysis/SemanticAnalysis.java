@@ -45,10 +45,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("n", "int", false));
+        argList.add(new VariableInfo("n", "int ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
-        this.symbolTable.insert("puti", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        this.symbolTable.insert("puti ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -57,10 +57,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("c", "char", false));
+        argList.add(new VariableInfo("c", "char ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
-        this.symbolTable.insert("putc", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        this.symbolTable.insert("putc ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -69,10 +69,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("s", "char", true));
+        argList.add(new VariableInfo("s", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
-        this.symbolTable.insert("puts", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        this.symbolTable.insert("puts ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -81,8 +81,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* No arguments to be added to the list */
-        data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
-        this.symbolTable.insert("geti", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        this.symbolTable.insert("geti ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -91,8 +91,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* No arguments to be added to the list */
-        data = new SymbolTableEntry(new FunctionInfo(new String("char"), argList, passBy));
-        this.symbolTable.insert("getc", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("char "), argList, passBy));
+        this.symbolTable.insert("getc ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -101,12 +101,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy = new LinkedList<String>();
         /* Add the two arguments to the list */
-        argList.add(new VariableInfo("n", "int", false));
+        argList.add(new VariableInfo("n", "int ", false));
         passBy.add("val");
-        argList.add(new VariableInfo("s", "char", true));
+        argList.add(new VariableInfo("s", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
-        this.symbolTable.insert("gets", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        this.symbolTable.insert("gets ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -115,10 +115,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("n", "int", false));
+        argList.add(new VariableInfo("n", "int ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
-        this.symbolTable.insert("abs", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        this.symbolTable.insert("abs ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -127,10 +127,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("c", "char", false));
+        argList.add(new VariableInfo("c", "char ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
-        this.symbolTable.insert("ord", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        this.symbolTable.insert("ord ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -139,10 +139,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("n", "int", false));
+        argList.add(new VariableInfo("n", "int ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("char"), argList, passBy));
-        this.symbolTable.insert("chr", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("char "), argList, passBy));
+        this.symbolTable.insert("chr ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -151,10 +151,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("s", "char", true));
+        argList.add(new VariableInfo("s", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
-        this.symbolTable.insert("strlen", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        this.symbolTable.insert("strlen ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -163,12 +163,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the two arguments to the list */
-        argList.add(new VariableInfo("s1", "char", true));
+        argList.add(new VariableInfo("s1", "char ", true));
         passBy.add("ref");
-        argList.add(new VariableInfo("s2", "char", true));
+        argList.add(new VariableInfo("s2", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
-        this.symbolTable.insert("strcmp", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        this.symbolTable.insert("strcmp ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -177,12 +177,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the two arguments to the list */
-        argList.add(new VariableInfo("trg", "char", true));
+        argList.add(new VariableInfo("trg", "char ", true));
         passBy.add("ref");
-        argList.add(new VariableInfo("src", "char", true));
+        argList.add(new VariableInfo("src", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
-        this.symbolTable.insert("strcpy", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        this.symbolTable.insert("strcpy ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -191,12 +191,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the two arguments to the list */
-        argList.add(new VariableInfo("trg", "char", true));
+        argList.add(new VariableInfo("trg", "char ", true));
         passBy.add("ref");
-        argList.add(new VariableInfo("src", "char", true));
+        argList.add(new VariableInfo("src", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
-        this.symbolTable.insert("strcat", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        this.symbolTable.insert("strcat ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -713,7 +713,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* We subtract 3 from the length to account for the "" and the space at the end */
         strLength.add(node.getStringLiteral().toString().length() - 3);
 
-        exprTypes.put(node, new ComplexType("array", strLength, "char"));
+        exprTypes.put(node, new ComplexType("array", strLength, "char "));
     }
 
     @Override
