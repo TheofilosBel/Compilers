@@ -18,5 +18,4 @@ public class IntermediateCode {
         tempCount++;
         return str;
     }
-
 }
