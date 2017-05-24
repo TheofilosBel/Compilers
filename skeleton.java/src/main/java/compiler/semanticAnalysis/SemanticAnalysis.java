@@ -620,7 +620,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             + node.getExpr().toString());
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Int, "-" + exprTypes.get(node.getExpr()).getPlace()));
+        exprTypes.put(node, new Attributes(BuiltInType.Int);
     }
 
     @Override
