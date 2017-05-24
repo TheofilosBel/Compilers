@@ -38,9 +38,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         LinkedList<VariableInfo> argList;     /* A list containing the arguments to each function */
         LinkedList<String> passBy;            /* A list containing the pass method (by reference / by value) of each argument */
         SymbolTableEntry data;                /* An object that is inserted in the symbol table for each function */
-        currentFunctionId = new Stack<TId>(); /* It holds the id of the current function */
-        exprTypes = new HashMap<Node, Attributes>();          /* Create the HashMap for the type checking */
-        
+
+        currentFunctionId = new Stack<TId>();        /* Stack to save the id of the current function */
+        exprTypes = new HashMap<Node, Attributes>(); /* Create the HashMap for the type checking */
 
         /* fun puti (n : int) : nothing */
         argList = new LinkedList<VariableInfo>();
@@ -377,11 +377,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void inAVarDef(AVarDef node) {
-        
-        /* Get the current FunctionInfo  */
+        /* Get the current FunctionInfo */
         SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString());
         FuncDefInfo currentFuncDef = (FuncDefInfo) currentFunctionEntry.getInfo();
-        
+
         /* Get the type of the variables in the current definition */
         PType type = (PType) ((AType) node.getType()).clone();
 
@@ -395,8 +394,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 throw new SemanticAnalysisException(v.getName().getLine(), v.getName().getPos(),
                         "Conflicting types: name \"" + v.getName().getText() + "\" already exists");
             }
-            
-            /* Add the variable on the function's definition List that holds local variable */
+
+            /* Add the variable to the function's definition list that holds local variables */
             currentFuncDef.addLocalVariable(v);
 
             /* Print each variable */
@@ -404,8 +403,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             indentNprint("Type :" + v.getType());
             indentNprint("Int ?:" + v.getType().isInt());            
         }
-        
-        
+
         for (int a = 0 ; a < currentFuncDef.getLocalVariables().size(); a++) 
             System.out.println("Lists :" + currentFuncDef.getLocalVariables().get(a).getName());
     }
@@ -471,11 +469,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Function definition matched to a return statement */
         ((FuncDefInfo) currentFunctionEntry.getInfo()).setIsMatchedToReturnStmt(true);
     }
-    
-    /*-------------------------------------------------------------------------------------------------------------------*/
 
-    /*----------------------------------------------- Expr Productions ---------------------------------------------------*/
-    
     @Override
     public void outAAddExpr(AAddExpr node) {
         Type leftExprType = exprTypes.get(node.getL()).getType();
@@ -497,16 +491,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         exprTypes.put(node, new Attributes(BuiltInType.Int));
-        
-        
+
         /* Intermediate Code */
         String temp = IntermediateCode.newTemp(BuiltInType.Int);
         String op1  = exprTypes.get(node.getL()).getPlace();
         String op2  = exprTypes.get(node.getR()).getPlace();
-        
-        
-        Quads quad  = new Quads("+", op1, op2, temp);
 
+        Quads quad  = new Quads("+", op1, op2, temp);
     }
 
     @Override
@@ -653,24 +644,20 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     public void outACharExpr(ACharExpr node) {
         exprTypes.put(node, new Attributes(BuiltInType.Char));
     }
-    
-    
+
     @Override
     public void outALvalExpr(ALvalExpr node) {
-        
-        /*Get the type of your child (Lvalue) an make it a node on hashMap */
-        Type type  = exprTypes.get(node.getLvalue()).getType();
-        if ( type != null) 
+        Type type = exprTypes.get(node.getLvalue()).getType();
+        if (type != null) {
             exprTypes.put(node, new Attributes(type));
-        
+        }
     }
-    /*-----------------------------------------------------------------------------------------------------------*/
-    
+
     @Override
     public void outAFuncCall(AFuncCall node) {
         /* Get the declaration from the symbol table */
         SymbolTableEntry funcDec = this.symbolTable.lookup(node.getId().toString());
-        
+
         /* If the function is not declared throw an exception */
         if (funcDec == null) {
             throw new SemanticAnalysisException(node.getId().getLine(), node.getId().getPos(),
@@ -679,22 +666,20 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
         /* Equivalence check with declaration */
         FunctionInfo funcInfo = (FunctionInfo) funcDec.getInfo();
-        
+
         System.out.println(node.getExprList().size());
-        
+
         /* First check for equal number of arguments */
         Type funcDecExprType  = null;
         Type funcCallExprType = null;
         if (funcInfo.getArguments().size() == node.getExprList().size() && node.getExprList().size() > 0) {
-                
             /* Check every expression with its equivalent argument */
             for (int arg = 0; arg < node.getExprList().size(); arg++) {
-                
-                /* Get the functions declaration argument's type - Function call expretion's type */
+                /* Get the function declaration's arguments type and function call's expressions' type */
                 funcDecExprType = ((FunctionInfo) funcDec.getInfo()).getArguments().get(arg).getType();
                 funcCallExprType = exprTypes.get(node.getExprList().get(arg)).getType();
 
-                if (! funcDecExprType.isEquivWith(funcCallExprType)) {
+                if (!funcDecExprType.isEquivWith(funcCallExprType)) {
                     TId name  = node.getId();
                     Node expr = node.getExprList().get(arg);
                     throw new TypeCheckingException(name.getLine(), name.getPos(),
@@ -713,10 +698,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Put the return type to the HashMap */
         exprTypes.put(node.parent(), new Attributes(funcInfo.getType()));
     }
-    
-    
-    
-    /*-------------------------------------- Lvalue Productions -----------------------------------------------------------*/
 
     @Override
     public void outAStrLvalue(AStrLvalue node) {
@@ -815,11 +796,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             exprTypes.put(node, new Attributes(new BuiltInType(arrayType.getArrayType())));
         }
     }
-    
-    /*----------------------------------------------------------------------------------------------------------------------------*/
-    
-    
-    /*---------------------------------------- Cond Productions -----------------------------------------------------------*/
 
     @Override
     public void outAOrCond(AOrCond node) {
