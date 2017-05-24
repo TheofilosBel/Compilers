@@ -4,6 +4,7 @@ import compiler.analysis.*;
 import compiler.node.*;
 import compiler.types.*;
 import compiler.exceptions.*;
+import compiler.intermediateCode.*;
 import compiler.semanticAnalysis.VariableInfo;
 import compiler.semanticAnalysis.SymbolTableEntry;
 import java.util.Collections;
@@ -15,7 +16,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     int indentation = 0;
     SymbolTable symbolTable; /* The structure of the symbol table */
-    private HashMap<Node, Type> exprTypes; /* A structure that maps every sablecc generated Node to a type */
+    private HashMap<Node, Attributes> exprTypes; /* A structure that maps every sablecc generated Node to a type */
     private Stack<TId> currentFunctionId;
     private CompilerErrorList errorList;
 
@@ -38,17 +39,17 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         LinkedList<String> passBy;            /* A list containing the pass method (by reference / by value) of each argument */
         SymbolTableEntry data;                /* An object that is inserted in the symbol table for each function */
         currentFunctionId = new Stack<TId>(); /* It holds the id of the current function */
-        exprTypes = new HashMap<>();          /* Create the HashMap for the type checking */
+        exprTypes = new HashMap<Node, Attributes>();          /* Create the HashMap for the type checking */
         
 
         /* fun puti (n : int) : nothing */
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("n", "int", false));
+        argList.add(new VariableInfo("n", "int ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
-        this.symbolTable.insert("puti", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        this.symbolTable.insert("puti ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -57,10 +58,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("c", "char", false));
+        argList.add(new VariableInfo("c", "char ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
-        this.symbolTable.insert("putc", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        this.symbolTable.insert("putc ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -69,10 +70,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("s", "char", true));
+        argList.add(new VariableInfo("s", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
-        this.symbolTable.insert("puts", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        this.symbolTable.insert("puts ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -81,8 +82,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* No arguments to be added to the list */
-        data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
-        this.symbolTable.insert("geti", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        this.symbolTable.insert("geti ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -91,8 +92,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* No arguments to be added to the list */
-        data = new SymbolTableEntry(new FunctionInfo(new String("char"), argList, passBy));
-        this.symbolTable.insert("getc", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("char "), argList, passBy));
+        this.symbolTable.insert("getc ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -101,12 +102,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy = new LinkedList<String>();
         /* Add the two arguments to the list */
-        argList.add(new VariableInfo("n", "int", false));
+        argList.add(new VariableInfo("n", "int ", false));
         passBy.add("val");
-        argList.add(new VariableInfo("s", "char", true));
+        argList.add(new VariableInfo("s", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
-        this.symbolTable.insert("gets", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        this.symbolTable.insert("gets ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -115,10 +116,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("n", "int", false));
+        argList.add(new VariableInfo("n", "int ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
-        this.symbolTable.insert("abs", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        this.symbolTable.insert("abs ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -127,10 +128,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("c", "char", false));
+        argList.add(new VariableInfo("c", "char ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
-        this.symbolTable.insert("ord", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        this.symbolTable.insert("ord ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -139,10 +140,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("n", "int", false));
+        argList.add(new VariableInfo("n", "int ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("char"), argList, passBy));
-        this.symbolTable.insert("chr", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("char "), argList, passBy));
+        this.symbolTable.insert("chr ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -151,10 +152,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the only argument to the list */
-        argList.add(new VariableInfo("s", "char", true));
+        argList.add(new VariableInfo("s", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
-        this.symbolTable.insert("strlen", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        this.symbolTable.insert("strlen ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -163,12 +164,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the two arguments to the list */
-        argList.add(new VariableInfo("s1", "char", true));
+        argList.add(new VariableInfo("s1", "char ", true));
         passBy.add("ref");
-        argList.add(new VariableInfo("s2", "char", true));
+        argList.add(new VariableInfo("s2", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("int"), argList, passBy));
-        this.symbolTable.insert("strcmp", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        this.symbolTable.insert("strcmp ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -177,12 +178,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the two arguments to the list */
-        argList.add(new VariableInfo("trg", "char", true));
+        argList.add(new VariableInfo("trg", "char ", true));
         passBy.add("ref");
-        argList.add(new VariableInfo("src", "char", true));
+        argList.add(new VariableInfo("src", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
-        this.symbolTable.insert("strcpy", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        this.symbolTable.insert("strcpy ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -191,12 +192,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* Add the two arguments to the list */
-        argList.add(new VariableInfo("trg", "char", true));
+        argList.add(new VariableInfo("trg", "char ", true));
         passBy.add("ref");
-        argList.add(new VariableInfo("src", "char", true));
+        argList.add(new VariableInfo("src", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing"), argList, passBy));
-        this.symbolTable.insert("strcat", data);
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        this.symbolTable.insert("strcat ", data);
         data    = null;
         argList = null;
         passBy  = null;
@@ -411,7 +412,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outAIfStmt(AIfStmt node) {
-        Type aCondType = exprTypes.get(node.getCond());
+        Type aCondType = exprTypes.get(node.getCond()).getType();
 
         if (!(aCondType.isBoolean())) {
             int line = node.getKwIf().getLine();
@@ -423,7 +424,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outAWhileStmt(AWhileStmt node) {
-        Type aCondType = exprTypes.get(node.getCond());
+        Type aCondType = exprTypes.get(node.getCond()).getType();
 
         if (!(aCondType.isBoolean())) {
             int line = node.getKwWhile().getLine();
@@ -435,7 +436,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outAAssignStmt(AAssignStmt node) {
-        Type assignLhsType = exprTypes.get(node.getLvalue());
+        Type assignLhsType = exprTypes.get(node.getLvalue()).getType();
 
         /* String literals not allowed as lvalues in assignments */
         if (assignLhsType.isArray() && assignLhsType.isEquivWith(BuiltInType.Char)) {
@@ -444,7 +445,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "Left hand side of an assignment can not be a string literal");
         }
 
-        Type assignRhsType = exprTypes.get(node.getExpr());
+        Type assignRhsType = exprTypes.get(node.getExpr()).getType();
 
         if (!(assignLhsType.isEquivWith(assignRhsType))) {
             int line = node.getAssign().getLine();
@@ -455,7 +456,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outAReturnStmt(AReturnStmt node) {
-        Type aExprType = exprTypes.get(node.getExpr());
+        Type aExprType = exprTypes.get(node.getExpr()).getType();
 
         /* Search the function this return statement corresponds to */
         SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString());
@@ -477,8 +478,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     
     @Override
     public void outAAddExpr(AAddExpr node) {
-        Type leftExprType = exprTypes.get(node.getL());
-        Type rightExprType = exprTypes.get(node.getR());
+        Type leftExprType = exprTypes.get(node.getL()).getType();
+        Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* Addition can be applied to integers only */
         if (!(leftExprType.isInt())) {
@@ -495,13 +496,23 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getR().toString() + "is not an integer");
         }
 
-        exprTypes.put(node, BuiltInType.Int);
+        exprTypes.put(node, new Attributes(BuiltInType.Int));
+        
+        
+        /* Intermediate Code */
+        String temp = IntermediateCode.newTemp(BuiltInType.Int);
+        String op1  = exprTypes.get(node.getL()).getPlace();
+        String op2  = exprTypes.get(node.getR()).getPlace();
+        
+        
+        Quads quad  = new Quads("+", op1, op2, temp);
+
     }
 
     @Override
     public void outASubExpr(ASubExpr node) {
-        Type leftExprType = exprTypes.get(node.getL());
-        Type rightExprType = exprTypes.get(node.getR());
+        Type leftExprType = exprTypes.get(node.getL()).getType();
+        Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* Subtraction can be applied to integers only */
         if (!(leftExprType.isInt())) {
@@ -518,13 +529,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getR().toString() + "is not an integer");
         }
 
-        exprTypes.put(node, BuiltInType.Int);
+        exprTypes.put(node, new Attributes(BuiltInType.Int));
     }
 
     @Override
     public void outAMultExpr(AMultExpr node) {
-        Type leftExprType = exprTypes.get(node.getL());
-        Type rightExprType = exprTypes.get(node.getR());
+        Type leftExprType = exprTypes.get(node.getL()).getType();
+        Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* Multiplication can be applied to integers only */
         if (!(leftExprType.isInt())) {
@@ -541,13 +552,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getR().toString() + "is not an integer");
         }
 
-        exprTypes.put(node, BuiltInType.Int);
+        exprTypes.put(node, new Attributes(BuiltInType.Int));
     }
 
     @Override
     public void outADivExpr(ADivExpr node) {
-        Type leftExprType = exprTypes.get(node.getL());
-        Type rightExprType = exprTypes.get(node.getR());
+        Type leftExprType = exprTypes.get(node.getL()).getType();
+        Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* Division can be applied to integers only */
         if (!(leftExprType.isInt())) {
@@ -564,13 +575,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getR().toString() + "is not an integer");
         }
 
-        exprTypes.put(node, BuiltInType.Int);
+        exprTypes.put(node, new Attributes(BuiltInType.Int));
     }
 
     @Override
     public void outAModExpr(AModExpr node) {
-        Type leftExprType = exprTypes.get(node.getL());
-        Type rightExprType = exprTypes.get(node.getR());
+        Type leftExprType = exprTypes.get(node.getL()).getType();
+        Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* Modulo can be applied to integers only */
         if (!(leftExprType.isInt())) {
@@ -587,12 +598,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getR().toString() + "is not an integer");
         }
 
-        exprTypes.put(node, BuiltInType.Int);
+        exprTypes.put(node, new Attributes(BuiltInType.Int));
     }
 
     @Override
     public void outAPosExpr(APosExpr node) {
-        Type aExprType = exprTypes.get(node.getExpr());
+        Type aExprType = exprTypes.get(node.getExpr()).getType();
 
         /* A positive sign can be applied to integers only */
         if (!(aExprType.isInt())) {
@@ -602,12 +613,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             + node.getExpr().toString());
         }
 
-        exprTypes.put(node, BuiltInType.Int);
+        exprTypes.put(node, new Attributes(BuiltInType.Int));
     }
 
     @Override
     public void outANegExpr(ANegExpr node) {
-        Type aExprType = exprTypes.get(node.getExpr());
+        Type aExprType = exprTypes.get(node.getExpr()).getType();
 
         /* A negative sign can be applied to integers only */
         if (!(aExprType.isInt())) {
@@ -617,7 +628,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             + node.getExpr().toString());
         }
 
-        exprTypes.put(node, BuiltInType.Int);
+        exprTypes.put(node, new Attributes(BuiltInType.Int));
     }
 
     @Override
@@ -635,12 +646,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "Invalid integer constant: " + intStr);
         }
 
-        exprTypes.put(node, BuiltInType.Int);
+        exprTypes.put(node, new Attributes(BuiltInType.Int, node.getIntConst().getText()));
     }
 
     @Override
     public void outACharExpr(ACharExpr node) {
-        exprTypes.put(node, BuiltInType.Char);
+        exprTypes.put(node, new Attributes(BuiltInType.Char));
     }
     
     
@@ -648,9 +659,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     public void outALvalExpr(ALvalExpr node) {
         
         /*Get the type of your child (Lvalue) an make it a node on hashMap */
-        Type type  = exprTypes.get(node.getLvalue());
+        Type type  = exprTypes.get(node.getLvalue()).getType();
         if ( type != null) 
-            exprTypes.put(node, type);
+            exprTypes.put(node, new Attributes(type));
         
     }
     /*-----------------------------------------------------------------------------------------------------------*/
@@ -681,7 +692,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 
                 /* Get the functions declaration argument's type - Function call expretion's type */
                 funcDecExprType = ((FunctionInfo) funcDec.getInfo()).getArguments().get(arg).getType();
-                funcCallExprType = exprTypes.get(node.getExprList().get(arg));
+                funcCallExprType = exprTypes.get(node.getExprList().get(arg)).getType();
 
                 if (! funcDecExprType.isEquivWith(funcCallExprType)) {
                     TId name  = node.getId();
@@ -700,7 +711,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* Put the return type to the HashMap */
-        exprTypes.put(node.parent(), funcInfo.getType());
+        exprTypes.put(node.parent(), new Attributes(funcInfo.getType()));
     }
     
     
@@ -713,7 +724,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* We subtract 3 from the length to account for the "" and the space at the end */
         strLength.add(node.getStringLiteral().toString().length() - 3);
 
-        exprTypes.put(node, new ComplexType("array", strLength, "char"));
+        exprTypes.put(node, new Attributes(new ComplexType("array", strLength, "char ")));
     }
 
     @Override
@@ -730,7 +741,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         System.out.println(anId.getInfo().getType().toString());
         
         /* Put the Id on the hashMap */
-        exprTypes.put(node, anId.getInfo().getType());
+        exprTypes.put(node, new Attributes(anId.getInfo().getType()));
     }
     
     public TId recArrayIdFinder(AArrayLvalue node, LinkedList<Integer> dimList) {
@@ -760,7 +771,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* If the expression is non int then throw an error */
-        Type aExprType = exprTypes.get(node.getExpr());
+        Type aExprType = exprTypes.get(node.getExpr()).getType();
         if (! aExprType.isInt()){
             int line = node.getLBracket().getLine();
             int column = node.getLBracket().getPos() + 1;  /* The error occurs after the [ token but we use it to help us get column */
@@ -801,7 +812,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             }
 
             /* Put the AArrayLvalue parent (which is and expression) on the hashMap */
-            exprTypes.put(node, new BuiltInType(arrayType.getArrayType()));
+            exprTypes.put(node, new Attributes(new BuiltInType(arrayType.getArrayType())));
         }
     }
     
@@ -812,8 +823,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outAOrCond(AOrCond node) {
-        Type leftCondType = exprTypes.get(node.getL());
-        Type rightCondType = exprTypes.get(node.getR());
+        Type leftCondType = exprTypes.get(node.getL()).getType();
+        Type rightCondType = exprTypes.get(node.getR()).getType();
 
         /* Or operator can be applied to booleans only */
         if (!(leftCondType.isBoolean())) {
@@ -830,13 +841,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getL().toString() + "is not a boolean expression");
         }
 
-        exprTypes.put(node, BuiltInType.Boolean);
+        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
     }
 
     @Override
     public void outAAndCond(AAndCond node) {
-        Type leftCondType = exprTypes.get(node.getL());
-        Type rightCondType = exprTypes.get(node.getR());
+        Type leftCondType = exprTypes.get(node.getL()).getType();
+        Type rightCondType = exprTypes.get(node.getR()).getType();
 
         /* And operator can be applied to booleans only */
         if (!(leftCondType.isBoolean())) {
@@ -853,12 +864,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getL().toString() + "is not a boolean expression");
         }
 
-        exprTypes.put(node, BuiltInType.Boolean);
+        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
     }
 
     @Override
     public void outANotCond(ANotCond node) {
-        Type aCondType = exprTypes.get(node.getCond());
+        Type aCondType = exprTypes.get(node.getCond()).getType();
 
         /* And operator can be applied to booleans only */
         if (!(aCondType.isBoolean())) {
@@ -868,13 +879,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getCond().toString() + "is not a boolean expression");
         }
 
-        exprTypes.put(node, BuiltInType.Boolean);   
+        exprTypes.put(node, new Attributes(BuiltInType.Boolean));   
     }
 
     @Override
     public void outAEqCond(AEqCond node) {
-        Type leftExprType = exprTypes.get(node.getL());
-        Type rightExprType = exprTypes.get(node.getR());
+        Type leftExprType = exprTypes.get(node.getL()).getType();
+        Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* An equality comparison operator can be applied to equivalent types only */
         if (!(leftExprType.isEquivWith(rightExprType))) {
@@ -890,13 +901,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "An \"=\" operator can be applied to int or char types only");
         }
 
-        exprTypes.put(node, BuiltInType.Boolean);
+        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
     }
 
     @Override
     public void outANeqCond(ANeqCond node) {
-        Type leftExprType = exprTypes.get(node.getL());
-        Type rightExprType = exprTypes.get(node.getR());
+        Type leftExprType = exprTypes.get(node.getL()).getType();
+        Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* A non-equality comparison operator can be applied to equivalent types only */
         if (!(leftExprType.isEquivWith(rightExprType))) {
@@ -912,13 +923,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "An \"#\" operator can be applied to int or char types only");
         }
 
-        exprTypes.put(node, BuiltInType.Boolean);
+        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
     }
 
     @Override
     public void outALtCond(ALtCond node) {
-        Type leftExprType = exprTypes.get(node.getL());
-        Type rightExprType = exprTypes.get(node.getR());
+        Type leftExprType = exprTypes.get(node.getL()).getType();
+        Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* A less-than comparison operator can be applied to equivalent types only */
         if (!(leftExprType.isEquivWith(rightExprType))) {
@@ -934,13 +945,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "A \"<\" operator can be applied to int or char types only");
         }
 
-        exprTypes.put(node, BuiltInType.Boolean);
+        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
     }
     
     @Override
     public void outAGtCond(AGtCond node) {
-        Type leftExprType = exprTypes.get(node.getL());
-        Type rightExprType = exprTypes.get(node.getR());
+        Type leftExprType = exprTypes.get(node.getL()).getType();
+        Type rightExprType = exprTypes.get(node.getR()).getType();
         
         /* A greater-than comparison operator can be applied to equivalent types only */
         if (!(leftExprType.isEquivWith(rightExprType))) {
@@ -956,12 +967,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "A \">\" operator can be applied to int or char types only");
         }
 
-        exprTypes.put(node, BuiltInType.Boolean);
+        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
     }
 
     public void outAGteqCond(AGteqCond node) {
-        Type leftExprType = exprTypes.get(node.getL());
-        Type rightExprType = exprTypes.get(node.getR());
+        Type leftExprType = exprTypes.get(node.getL()).getType();
+        Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* A greater-than-or-equal comparison operator can be applied to equivalent types only */
         if (!(leftExprType.isEquivWith(rightExprType))) {
@@ -977,12 +988,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "A \">=\" operator can be applied to int or char types only");
         }
 
-        exprTypes.put(node, BuiltInType.Boolean);
+        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
     }
 
     public void outALteqCond(ALteqCond node) {
-        Type leftExprType = exprTypes.get(node.getL());
-        Type rightExprType = exprTypes.get(node.getR());
+        Type leftExprType = exprTypes.get(node.getL()).getType();
+        Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* A less-than-or-equal comparison operator can be applied to equivalent types only */
         if (!(leftExprType.isEquivWith(rightExprType))) {
@@ -998,16 +1009,16 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "A \"<=\" operator can be applied to int or char types only");
         }
 
-        exprTypes.put(node, BuiltInType.Boolean);
+        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
     }
 
     @Override
     public void outATrueCond(ATrueCond node) {
-        exprTypes.put(node, BuiltInType.Boolean);
+        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
     }
 
     @Override
     public void inAFalseCond(AFalseCond node) {
-        exprTypes.put(node, BuiltInType.Boolean);        
+        exprTypes.put(node, new Attributes(BuiltInType.Boolean));        
     }
 }
