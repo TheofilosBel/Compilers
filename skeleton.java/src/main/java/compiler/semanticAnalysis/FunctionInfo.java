@@ -136,15 +136,9 @@ public class FunctionInfo extends Info {
      * the function throws a runtime exception.
      */
     public void isEquivWith(FunctionInfo funcInfo) {
-        
-        
-        System.out.print("skata");
-        
         /* Check that the arguments */
         if (this.getArguments().size() == funcInfo.getArguments().size() && funcInfo.getArguments().size() > 0) {
-
             for (int arg = 0; arg < funcInfo.getArguments().size(); arg++) {
-                
                 /* Get the info */
                 TId name = funcInfo.getName();
                 VariableInfo defvar   = funcInfo.getArguments().get(arg);
