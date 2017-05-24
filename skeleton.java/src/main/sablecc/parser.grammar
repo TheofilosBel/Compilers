@@ -132,14 +132,14 @@ Productions
         {multi} id comma id_list {-> [id, id_list.id]} |
         {single} id {-> [id]};
 
-    fpar_type {-> type}=
-        {fpar_type}  data_type array_declarator {-> New type(data_type.data_type, array_declarator.array_dec)};
+    fpar_type {-> type} =
+        {fpar_type} data_type array_declarator {-> New type(data_type.data_type, array_declarator.array_dec)};
         
     type {-> type} =
         {type} data_type array_declarator {-> New type(data_type.data_type, array_declarator.array_dec)};
 
     ret_type {-> data_type} =
-        {ret_data} data_type  {-> data_type}            |
+        {ret_data} data_type  {-> data_type}                     |
         {ret_noth} kw_nothing {-> New data_type.noth(kw_nothing)};
 
     data_type {-> data_type} =
@@ -186,18 +186,21 @@ Productions
     expr_list_tail {-> expr} = comma expr {-> expr};
 
     array_declarator {-> array_dec} =
-        {array_decl}  l_bracket int_const r_bracket array_declarator_tail* {-> New array_dec.existing([int_const, array_declarator_tail.int_const])} |
-        {fempty_decl} l_bracket r_bracket array_declarator_tail+ {-> New array_dec.first_empty([array_declarator_tail.int_const])}                   |
-        {empty_dec}   l_bracket r_bracket                        {-> New array_dec.empty()}                                                          |
-        {no_array_decl} {-> New array_dec.not_existing()};
+        {array_decl}  l_bracket int_const r_bracket array_declarator_tail*
+            {-> New array_dec.existing([int_const, array_declarator_tail.int_const])} |
+        {fempty_decl} l_bracket r_bracket array_declarator_tail+
+            {-> New array_dec.first_empty([array_declarator_tail.int_const])}         |
+        {empty_dec}   l_bracket r_bracket
+            {-> New array_dec.empty()}                                                |
+        {no_array_decl}
+            {-> New array_dec.not_existing()};
 
     array_declarator_tail {-> int_const} =
         {multiple} l_bracket int_const r_bracket {-> int_const};
 
-
     l_value {-> lvalue} =
-        {id}   id                               {-> New lvalue.id(id)}                     |
-        {str}  string_literal                   {-> New lvalue.str(string_literal)}        |
+        {id}   id                               {-> New lvalue.id(id)}                                |
+        {str}  string_literal                   {-> New lvalue.str(string_literal)}                   |
         {expr} l_value l_bracket expr r_bracket {-> New lvalue.array(l_value.lvalue, l_bracket, expr)};
 
     expr {-> expr} =
@@ -206,13 +209,13 @@ Productions
         {term} term            {-> term.expr};
 
     term {-> expr} =
-        {mult}     term mult signed_factor   {-> New expr.mult(term.expr, mult, signed_factor.expr)} |
+        {mult}     term mult signed_factor   {-> New expr.mult(term.expr, mult, signed_factor.expr)}  |
         {div}      term kw_div signed_factor {-> New expr.div(term.expr, kw_div, signed_factor.expr)} |
         {mod}      term kw_mod signed_factor {-> New expr.mod(term.expr, kw_mod, signed_factor.expr)} |
         {s_factor} signed_factor             {-> signed_factor.expr};
 
     signed_factor {-> expr} =
-        {pos}    plus signed_factor  {-> New expr.pos(plus, signed_factor.expr)} |
+        {pos}    plus signed_factor  {-> New expr.pos(plus, signed_factor.expr)}  |
         {neg}    minus signed_factor {-> New expr.neg(minus, signed_factor.expr)} |
         {factor} factor              {-> factor.expr};
 
