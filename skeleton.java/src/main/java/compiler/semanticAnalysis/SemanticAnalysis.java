@@ -499,7 +499,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Quads quad  = new Quads("+", op1, op2, temp);
 
         System.out.println("Quad : ");
-        
+
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
     }
 
@@ -531,8 +531,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Quads quad  = new Quads("-", op1, op2, temp);
 
         System.out.println("Quad : "+ quad);
-        
-        
+
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
 
     }
@@ -565,8 +564,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Quads quad  = new Quads("*", op1, op2, temp);
 
         System.out.println("Quad : "+ quad);
-        
-        
+
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
     }
 
@@ -598,8 +596,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Quads quad  = new Quads("/", op1, op2, temp);
 
         System.out.println("Quad : "+ quad);
-        
-        
+
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
     }
 
@@ -631,8 +628,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Quads quad  = new Quads("%", op1, op2, temp);
 
         System.out.println("Quad : "+ quad);
-        
-        
+
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
 
     }
@@ -664,7 +660,16 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             + node.getExpr().toString());
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Int);
+        /* Intermediate Code */
+        String temp = intermediateCode.newTemp(BuiltInType.Int);
+        String op1  = "-1";
+        String op2  = exprTypes.get(node.getExpr()).getPlace();
+        
+        Quads quad  = new Quads("*", op1, op2, temp);
+
+        System.out.println("Quad : "+ quad);
+
+        exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
     }
 
     @Override
