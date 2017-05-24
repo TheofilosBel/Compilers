@@ -694,7 +694,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     public void outALvalExpr(ALvalExpr node) {
         Type type = exprTypes.get(node.getLvalue()).getType();
         if (type != null) {
-            exprTypes.put(node, new Attributes(type, exprTypes.get(node.getLvalue()).getPlace()));
+            exprTypes.put(node, new Attributes(type, exprTypes.get(node.    ()).getPlace()));
         }
     }
 
@@ -750,7 +750,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* We subtract 3 from the length to account for the "" and the space at the end */
         strLength.add(node.getStringLiteral().toString().length() - 3);
 
-        exprTypes.put(node, new Attributes(new ComplexType("array", strLength, "char ")));
+        exprTypes.put(node, new Attributes(new ComplexType("array", strLength, "char "), ));
     }
 
     @Override
