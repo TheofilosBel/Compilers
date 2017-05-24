@@ -19,6 +19,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     private HashMap<Node, Attributes> exprTypes; /* A structure that maps every sablecc generated Node to a type */
     private Stack<TId> currentFunctionId;
     private CompilerErrorList errorList;
+    private IntermediateCode intermediateCode;
 
     /*
      * The semantic analysis phase starts here
@@ -27,17 +28,17 @@ public class SemanticAnalysis extends DepthFirstAdapter {
      * called by any function in the program (global scope)
      */
     public SemanticAnalysis() {
-        /* Create a new symbol table */
-        System.out.println("Constructing Symbol_table");
+        /* Create instances of the member classes */
         this.symbolTable = new SymbolTable();
-        this.errorList   = new CompilerErrorList();
+        this.errorList = new CompilerErrorList();
+        this.intermediateCode = new IntermediateCode();
         
         /* Add the first scope that will hold the built in library functions */
         this.symbolTable.enter();
         
-        LinkedList<VariableInfo> argList;     /* A list containing the arguments to each function */
-        LinkedList<String> passBy;            /* A list containing the pass method (by reference / by value) of each argument */
-        SymbolTableEntry data;                /* An object that is inserted in the symbol table for each function */
+        LinkedList<VariableInfo> argList; /* A list containing the arguments to each function */
+        LinkedList<String> passBy;        /* A list containing the pass method (by reference / by value) of each argument */
+        SymbolTableEntry data;            /* An object that is inserted in the symbol table for each function */
 
         currentFunctionId = new Stack<TId>();        /* Stack to save the id of the current function */
         exprTypes = new HashMap<Node, Attributes>(); /* Create the HashMap for the type checking */
@@ -493,7 +494,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         exprTypes.put(node, new Attributes(BuiltInType.Int));
 
         /* Intermediate Code */
-        String temp = IntermediateCode.newTemp(BuiltInType.Int);
+        String temp = intermediateCode.newTemp(BuiltInType.Int);
         String op1  = exprTypes.get(node.getL()).getPlace();
         String op2  = exprTypes.get(node.getR()).getPlace();
 
