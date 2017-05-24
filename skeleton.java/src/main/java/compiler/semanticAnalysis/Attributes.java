@@ -26,12 +26,12 @@ public class Attributes {
     }
 
     /* Returns the attribute place */
-    public String getPlace(){
+    public String getPlace() {
         return this.place;
     }
 
     /* Set the attribute place */
-    public void setPlace(String place){
+    public void setPlace(String place) {
         this.place = place;
     }
 
