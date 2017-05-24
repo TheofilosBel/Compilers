@@ -2,7 +2,9 @@ package compiler.semanticAnalysis;
 
 import java.util.LinkedList;
 
+import compiler.node.AFirstEmptyArrayDec;
 import compiler.node.AExistingArrayDec;
+import compiler.node.AEmptyArrayDec;
 import compiler.node.AType;
 import compiler.node.TId;
 import compiler.types.*;
@@ -44,6 +46,39 @@ public class VariableInfo extends Info {
                 e = e.substring(0, e.length()-1); /* Remove the reduntant space created by the parser at the end */
                 dimensionsList.add(Integer.parseInt(e));
             }
+            
+            /* Pass the list to create the complex (array) type */
+            this.type = new ComplexType("array", dimensionsList, type.getDataType().toString());
+
+            /* Print the list */
+            for (int dim = 0; dim < dimensionsList.size(); dim++){
+                System.out.println(dimensionsList.get(dim));
+            }
+        }
+        else if (type.getArrayDec() instanceof AFirstEmptyArrayDec) {
+            
+            /* Add the first dimension with 0 */
+            dimensionsList.add(0);
+            
+            /* Add the rest dims */
+            for (int dim = 0; dim < ((AFirstEmptyArrayDec) type.getArrayDec()).getIntConst().size(); dim++){
+                String e = new String(((AFirstEmptyArrayDec) type.getArrayDec()).getIntConst().get(dim).toString());
+                e = e.substring(0, e.length()-1); /* Remove the reduntant space created by the parser at the end */
+                dimensionsList.add(Integer.parseInt(e));
+            }
+            
+            /* Pass the list to create the complex (array) type */
+            this.type = new ComplexType("array", dimensionsList, type.getDataType().toString());
+
+            /* Print the list */
+            for (int dim = 0; dim < dimensionsList.size(); dim++){
+                System.out.println(dimensionsList.get(dim));
+            }
+        }
+        else if (type.getArrayDec() instanceof AEmptyArrayDec) {
+            
+            /* Add the first dimension with 0 , which is the only one*/
+            dimensionsList.add(0);
             
             /* Pass the list to create the complex (array) type */
             this.type = new ComplexType("array", dimensionsList, type.getDataType().toString());

@@ -114,7 +114,7 @@ public class FunctionInfo extends Info {
     public void addAlltoList(LinkedList<TId> list, AType type, Boolean byRef){
         
         /* Create a new VariableInfo object out of every variable in the list */
-        System.out.println("Making the table");
+        System.out.println("Making the Argument list with types " + type.toString());
         for (int var = 0; var < list.size(); var++) {
             System.out.println(list.get(var).toString() + type);
             

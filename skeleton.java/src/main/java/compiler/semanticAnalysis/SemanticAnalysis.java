@@ -211,10 +211,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         indentation++;
     }
 
-    private void removeIndentationLevel() {
-        indentation--;
-    }
-
     private void printIndentation() {
         System.out.print(String.join("", Collections.nCopies(indentation, "   ")));
     }
@@ -345,7 +341,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         SymbolTableEntry data = new SymbolTableEntry(funcDefInfo);
 
         /* Insert the function definition */
-        System.out.println("REturned " + this.symbolTable.insert(node.getId().toString(), data));
+       this.symbolTable.insert(node.getId().toString(), data);
 
         /* Insert the function's arguments to the symbol table */
         for (int var = 0;  var < ((FunctionInfo) data.getInfo()).getArguments().size(); var++) {
@@ -440,8 +436,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void outAAssignStmt(AAssignStmt node) {
         Type assignLhsType = exprTypes.get(node.getLvalue());
-        
-        System.out.println("The resarch showed " + assignLhsType);
 
         /* String literals not allowed as lvalues in assignments */
         if (assignLhsType.isArray() && assignLhsType.isEquivWith(BuiltInType.Char)) {
@@ -451,7 +445,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         Type assignRhsType = exprTypes.get(node.getExpr());
-        System.out.println("The resarch showed " + assignRhsType);
 
         if (!(assignLhsType.isEquivWith(assignRhsType))) {
             int line = node.getAssign().getLine();
