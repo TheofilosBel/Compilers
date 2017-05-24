@@ -11,7 +11,9 @@ public class IntermediateCode {
     private Integer tempCount = 0;      /* Counter of temporary registers we need */
     private LinkedList<Type> tempTypes; /* Type of each temporary register */
 
-    public IntermediateCode() {}
+    public IntermediateCode() {
+        tempTypes = new LinkedList<Type>();
+    }
 
     /* Returns the current tempCount and increases the counter */
     public String newTemp(Type type) {
