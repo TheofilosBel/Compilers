@@ -491,14 +491,16 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getR().toString() + "is not an integer");
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Int));
-
         /* Intermediate Code */
         String temp = intermediateCode.newTemp(BuiltInType.Int);
         String op1  = exprTypes.get(node.getL()).getPlace();
         String op2  = exprTypes.get(node.getR()).getPlace();
 
         Quads quad  = new Quads("+", op1, op2, temp);
+
+        System.out.println("Quad : ");
+        
+        exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
     }
 
     @Override
@@ -520,8 +522,19 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "Only integers can be subtracted:\n" +
                                             node.getR().toString() + "is not an integer");
         }
+        
+        /* Intermediate Code */
+        String temp = intermediateCode.newTemp(BuiltInType.Int);
+        String op1  = exprTypes.get(node.getL()).getPlace();
+        String op2  = exprTypes.get(node.getR()).getPlace();
 
-        exprTypes.put(node, new Attributes(BuiltInType.Int));
+        Quads quad  = new Quads("-", op1, op2, temp);
+
+        System.out.println("Quad : "+ quad);
+        
+        
+        exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
+
     }
 
     @Override
@@ -544,7 +557,17 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getR().toString() + "is not an integer");
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Int));
+        /* Intermediate Code */
+        String temp = intermediateCode.newTemp(BuiltInType.Int);
+        String op1  = exprTypes.get(node.getL()).getPlace();
+        String op2  = exprTypes.get(node.getR()).getPlace();
+
+        Quads quad  = new Quads("*", op1, op2, temp);
+
+        System.out.println("Quad : "+ quad);
+        
+        
+        exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
     }
 
     @Override
@@ -567,7 +590,17 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getR().toString() + "is not an integer");
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Int));
+        /* Intermediate Code */
+        String temp = intermediateCode.newTemp(BuiltInType.Int);
+        String op1  = exprTypes.get(node.getL()).getPlace();
+        String op2  = exprTypes.get(node.getR()).getPlace();
+
+        Quads quad  = new Quads("/", op1, op2, temp);
+
+        System.out.println("Quad : "+ quad);
+        
+        
+        exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
     }
 
     @Override
@@ -590,7 +623,18 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getR().toString() + "is not an integer");
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Int));
+        /* Intermediate Code */
+        String temp = intermediateCode.newTemp(BuiltInType.Int);
+        String op1  = exprTypes.get(node.getL()).getPlace();
+        String op2  = exprTypes.get(node.getR()).getPlace();
+
+        Quads quad  = new Quads("%", op1, op2, temp);
+
+        System.out.println("Quad : "+ quad);
+        
+        
+        exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
+
     }
 
     @Override
@@ -643,14 +687,14 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outACharExpr(ACharExpr node) {
-        exprTypes.put(node, new Attributes(BuiltInType.Char));
+        exprTypes.put(node, new Attributes(BuiltInType.Char, node.getCharConst().getText()));
     }
 
     @Override
     public void outALvalExpr(ALvalExpr node) {
         Type type = exprTypes.get(node.getLvalue()).getType();
         if (type != null) {
-            exprTypes.put(node, new Attributes(type));
+            exprTypes.put(node, new Attributes(type, exprTypes.get(node.getLvalue()).getPlace()));
         }
     }
 

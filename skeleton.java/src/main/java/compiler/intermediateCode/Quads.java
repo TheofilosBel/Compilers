@@ -20,6 +20,13 @@ public class Quads {
         this.x      = x;
         this.y      = y;
         this.z      = z;
+        this.labelCount++;
     }
 
+    @Override
+    public String toString() {
+        return this.labelCount + ": " + this.opName + ", " + this.x + ", " +
+                this.y + ", " + this.z;
+    }
+    
 }
