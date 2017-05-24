@@ -8,7 +8,7 @@ import java.util.LinkedList;
  */
 public class IntermediateCode {
 
-    private Integer tempCount = 0;      /* Counter of temporary registers we need */
+    private Integer tempCount = 1;      /* Counter of temporary registers we need */
     private LinkedList<Type> tempTypes; /* Type of each temporary register */
 
     public IntermediateCode() {
@@ -23,4 +23,11 @@ public class IntermediateCode {
         this.tempCount++;
         return str;
     }
+    
+    /* Get the tempCount */
+    public Integer getTempCount() {
+        return this.tempCount;
+    }
+    
+    
 }
