@@ -642,7 +642,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             int line = node.getPlus().getLine();
             int column = node.getPlus().getPos();
             throw new TypeCheckingException(line, column, "Positive sign applied to invalid expression: "
-                                            + node.getExpr().toString());
+                                            + node.getExpr().toString() + "\nExpression should be integer");
         }
 
         exprTypes.put(node, new Attributes(BuiltInType.Int, exprTypes.get(node.getExpr()).getPlace()));
@@ -657,7 +657,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             int line = node.getMinus().getLine();
             int column = node.getMinus().getPos();
             throw new TypeCheckingException(line, column, "Negative sign applied to invalid expression: "
-                                            + node.getExpr().toString());
+                                            + node.getExpr().toString() + "\nExpression should be integer");
         }
 
         /* Intermediate Code */
@@ -770,63 +770,58 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         System.out.println(anId.getInfo().getType().toString());
-        
-        /* Put the Id on the hashMap */
-        exprTypes.put(node, new Attributes(anId.getInfo().getType()));
+
+        exprTypes.put(node, new Attributes(anId.getInfo().getType(), node.getId().toString()));
     }
     
     public TId recArrayIdFinder(AArrayLvalue node, LinkedList<Integer> dimList, LinkedList<String> dimPlaces) {
-        
         if (exprTypes.get(node.getExpr()) == null) {
             System.out.println("Error");
-        } 
+        }
         String dimPlace = exprTypes.get(node.getExpr()).getPlace();
-        
-        /* Keep the place of each expr */
+
+        /* Keep the place of each expression */
         dimPlaces.add(dimPlace);
-        
-        /* Add the size to the linked List and call again */
+
+        /* Add the size to the linked list and call again */
         dimList.add(0);
 
-        /* Recursion */
+        /* There is no case for a AStrLvalue because an exception would have already been thrown */
         if (node.getLvalue() instanceof AIdLvalue) {
             return ((AIdLvalue) node.getLvalue()).getId();
         }
 
-        /*
-         * Else if (node.getLvalue() instanceof AArrayLvalue) 
-         * There is no case for a AStrLvalue because an exception would already be thrown 
-         */
         return recArrayIdFinder((AArrayLvalue) node.getLvalue(), dimList, dimPlaces); 
     }
 
     @Override 
     public void outAArrayLvalue(AArrayLvalue node) {
-        /* If the nested lvalue is strin_literal then throw error */
+        /* If the nested lvalue is string_literal then throw error */
         if (node.getLvalue() instanceof AStrLvalue) {
             AStrLvalue strLval = (AStrLvalue) node.getLvalue();
             int line = strLval.getStringLiteral().getLine();
             int column = strLval.getStringLiteral().getPos();
-            throw new TypeCheckingException(line, column, "Invalid action, using string literal "+ strLval.toString()+" as array type");
+            throw new TypeCheckingException(line, column, "Invalid action: using string literal \""
+                                            + strLval.toString() + "\" as array type");
         }
 
         /* If the expression is non int then throw an error */
         Type aExprType = exprTypes.get(node.getExpr()).getType();
-        if (! aExprType.isInt()){
+        if (!aExprType.isInt()) {
             int line = node.getLBracket().getLine();
-            int column = node.getLBracket().getPos() + 1;  /* The error occurs after the [ token but we use it to help us get column */
-            throw new TypeCheckingException(line, column, "Invalid action, using string literal \"" + node.getExpr().toString() + "\" with \'[\' \']\'");
+            int column = node.getLBracket().getPos() + 1; /* The error occurs after the [ token but we use it to help us get column */
+            throw new TypeCheckingException(line, column, "Invalid action: using string literal \""
+                                            + node.getExpr().toString() + "\" to dereference array. Expression should be integer");
         }
 
         /* Use recursive function to get the idName (at the highest lvalueArray node on the AST) */
-        if (! (node.parent() instanceof AArrayLvalue)){
+        if (!(node.parent() instanceof AArrayLvalue)) {
             TId arrayName = null;
             LinkedList<Integer> list = new LinkedList<Integer>();
             LinkedList<String> placesList = new LinkedList<String>();
             arrayName = recArrayIdFinder(node, list, placesList);
 
-            /* Lookup in the symbol table for the array , we are sure that it exist , 
-             * because it it wasn't defined an exception would be thrown in outAIdLvalue */
+            /* Lookup in the symbol table for the array */
             SymbolTableEntry array = this.symbolTable.lookup(arrayName.toString());  
 
             /* Get the Type */
@@ -836,71 +831,67 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             if (! arrayType.isArray()) {
                 int line = arrayName.getLine();
                 int column = arrayName.getPos();
-                throw new SemanticAnalysisException(line, column, "Invalid action, identifier \""+ arrayName.getText()+"\" not defined as an array but as " + 
-                                                    arrayType.getTypeName());
+                throw new SemanticAnalysisException(line, column, "Invalid action: identifier \""
+                                + arrayName.getText()+ "\" not defined as an array but as " + arrayType.getTypeName());
             }
 
-            /* Make a new type representing the array access (we need this to check the dim number) */
+            /* Make a new type representing the array access (we need this to check the dimension number) */
             Type arrayAccessType = new ComplexType("array", list, arrayType.getArrayType()); 
 
-            /* If the types are not the same (blame the dimensions)*/
-            if (! arrayType.isEquivWith(arrayAccessType)) {
+            if (!arrayType.isEquivWith(arrayAccessType)) {
                 int line = arrayName.getLine();
                 int column = arrayName.getPos();
-                throw new TypeCheckingException(line, column, "Invalid action, array with id \""+ arrayName.getText()+"\" was defined with: " +
-                                                arrayType.getArrayDims() + " dimensions but is used with: " + arrayAccessType.getArrayDims());
+                throw new TypeCheckingException(line, column, "Invalid action: array with id \""
+                                    + arrayName.getText()+"\" was defined with " + arrayType.getArrayDims() +
+                                    " dimension(s) but is used with " + arrayAccessType.getArrayDims() + " dimension(s)");
             }
-            
-            
+
             /* Intermediate code */
-            
-            /* Making the type (i1 *n2 + i2)*n3 +i3) ... *w  */
             LinkedList<Integer> dimList = new LinkedList<Integer>();
             String temp1 = null, temp2 = null;
             Quads quad = null;
             arrayType.getDimentions(dimList);
             
-            /* Make code for arrays with 1 dim */
+            /* Code for arrays with 1 dimension */
             if (dimList.size() == 1) {
-                
-                /* Make the quad for * */
+                /* Create the quad for '*' */
                 temp2 = intermediateCode.newTemp(BuiltInType.Int);
-                quad = new Quads("*", placesList.get(0), "4", temp2);  // An int is 4 bytes 
-                System.out.println("Quad :" + quad);
-            } else {
-            
-                for (int dim = 0; dim < dimList.size() - 1; dim++) {
-                    
-                    /*Make the quad for * */
+                quad = new Quads("*", placesList.get(0), "4", temp2); /* Size of a 32-bit integer is 4 bytes */
+                System.out.println("Quad : " + quad);
+            }
+            else {
+                for (int dim = 0; dim < dimList.size() - 1; dim++) {    
+                    /* Create the quad for '*' */
                     if (dim == 0) {
-                        
-                        /* Only the first time we need a new temp */
+                        /* Only for the first time we need a new temp */
                         temp1 = intermediateCode.newTemp(BuiltInType.Int);
-                        quad = new Quads("*", placesList.get(placesList.size() - dim - 1), dimList.get(dim+1).toString(), temp1);  // placesList in reversed
-                    } else 
-                        quad = new Quads("*", temp2, dimList.get(dim+1).toString(), temp1);  // placesList in reversed
-                    
-                    System.out.println("Quad :" + quad);
-                    
-                    /* Make the quad for + */
+                        quad = new Quads("*", placesList.get(placesList.size() - dim - 1), dimList.get(dim+1).toString(), temp1);
+                    }
+                    else {
+                        quad = new Quads("*", temp2, dimList.get(dim+1).toString(), temp1);
+                    }
+
+                    System.out.println("Quad : " + quad);
+
+                    /* Make the quad for '+' */
                     temp2 = intermediateCode.newTemp(BuiltInType.Int);
                     quad = new Quads("+", temp1, placesList.get(placesList.size() - (dim+1) -1), temp2);
-                    System.out.println("Quad :" + quad);
-                    
+                    System.out.println("Quad : " + quad);                    
                 }
-               
+
                 temp1 = temp2;
                 temp2 = intermediateCode.newTemp(BuiltInType.Int);
                 quad = new Quads("*", temp1, "4", temp2);  // An int is 4 bytes
-                System.out.println("Quad :" + quad);
+                System.out.println("Quad : " + quad);
             }
+
             /* Make the array quad */
-            temp1 = intermediateCode.newTemp(BuiltInType.Int);
+            temp1 = intermediateCode.newTemp(BuiltInType.Address);
+            temp1 = "[" + temp1 + "]";
             quad = new Quads("array", arrayName.toString(), temp2 , temp1);
-            System.out.println("Quad :" + quad);
+            System.out.println("Quad : " + quad);
 
-
-            /* Put the AArrayLvalue parent (which is and expression) on the hashMap */
+            /* Put the AArrayLvalue parent (which is an expression) in the hashMap */
             exprTypes.put(node, new Attributes(new BuiltInType(arrayType.getArrayType()), temp1));
         }
     }
