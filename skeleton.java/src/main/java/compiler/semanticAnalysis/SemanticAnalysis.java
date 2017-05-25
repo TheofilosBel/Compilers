@@ -498,7 +498,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
         Quads quad  = new Quads("+", op1, op2, temp);
 
-        System.out.println("Quad : ");
+        System.out.println("Quad : " + quad);
 
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
     }
@@ -699,7 +699,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     public void outALvalExpr(ALvalExpr node) {
         Type type = exprTypes.get(node.getLvalue()).getType();
         if (type != null) {
-            exprTypes.put(node, new Attributes(type, exprTypes.get(node.    ()).getPlace()));
+            exprTypes.put(node, new Attributes(type, exprTypes.get(node.getLvalue()).getPlace()));
         }
     }
 
@@ -755,7 +755,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* We subtract 3 from the length to account for the "" and the space at the end */
         strLength.add(node.getStringLiteral().toString().length() - 3);
 
-        exprTypes.put(node, new Attributes(new ComplexType("array", strLength, "char "), ));
+        exprTypes.put(node, new Attributes(new ComplexType("array", strLength, "char ")));
     }
 
     @Override
@@ -775,7 +775,16 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         exprTypes.put(node, new Attributes(anId.getInfo().getType()));
     }
     
-    public TId recArrayIdFinder(AArrayLvalue node, LinkedList<Integer> dimList) {
+    public TId recArrayIdFinder(AArrayLvalue node, LinkedList<Integer> dimList, LinkedList<String> dimPlaces) {
+        
+        if (exprTypes.get(node.getExpr()) == null) {
+            System.out.println("Error");
+        } 
+        String dimPlace = exprTypes.get(node.getExpr()).getPlace();
+        
+        /* Keep the place of each expr */
+        dimPlaces.add(dimPlace);
+        
         /* Add the size to the linked List and call again */
         dimList.add(0);
 
@@ -788,7 +797,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
          * Else if (node.getLvalue() instanceof AArrayLvalue) 
          * There is no case for a AStrLvalue because an exception would already be thrown 
          */
-        return recArrayIdFinder((AArrayLvalue) node.getLvalue(), dimList); 
+        return recArrayIdFinder((AArrayLvalue) node.getLvalue(), dimList, dimPlaces); 
     }
 
     @Override 
@@ -813,8 +822,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (! (node.parent() instanceof AArrayLvalue)){
             TId arrayName = null;
             LinkedList<Integer> list = new LinkedList<Integer>();
-            arrayName = recArrayIdFinder(node, list);
-            System.out.println(list);
+            LinkedList<String> placesList = new LinkedList<String>();
+            arrayName = recArrayIdFinder(node, list, placesList);
 
             /* Lookup in the symbol table for the array , we are sure that it exist , 
              * because it it wasn't defined an exception would be thrown in outAIdLvalue */
@@ -841,9 +850,58 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 throw new TypeCheckingException(line, column, "Invalid action, array with id \""+ arrayName.getText()+"\" was defined with: " +
                                                 arrayType.getArrayDims() + " dimensions but is used with: " + arrayAccessType.getArrayDims());
             }
+            
+            
+            /* Intermediate code */
+            
+            /* Making the type (i1 *n2 + i2)*n3 +i3) ... *w  */
+            LinkedList<Integer> dimList = new LinkedList<Integer>();
+            String temp1 = null, temp2 = null;
+            Quads quad = null;
+            arrayType.getDimentions(dimList);
+            
+            /* Make code for arrays with 1 dim */
+            if (dimList.size() == 1) {
+                
+                /* Make the quad for * */
+                temp2 = intermediateCode.newTemp(BuiltInType.Int);
+                quad = new Quads("*", placesList.get(0), "4", temp2);  // An int is 4 bytes 
+                System.out.println("Quad :" + quad);
+            } else {
+            
+                for (int dim = 0; dim < dimList.size() - 1; dim++) {
+                    
+                    /*Make the quad for * */
+                    if (dim == 0) {
+                        
+                        /* Only the first time we need a new temp */
+                        temp1 = intermediateCode.newTemp(BuiltInType.Int);
+                        quad = new Quads("*", placesList.get(placesList.size() - dim - 1), dimList.get(dim+1).toString(), temp1);  // placesList in reversed
+                    } else 
+                        quad = new Quads("*", temp2, dimList.get(dim+1).toString(), temp1);  // placesList in reversed
+                    
+                    System.out.println("Quad :" + quad);
+                    
+                    /* Make the quad for + */
+                    temp2 = intermediateCode.newTemp(BuiltInType.Int);
+                    quad = new Quads("+", temp1, placesList.get(placesList.size() - (dim+1) -1), temp2);
+                    System.out.println("Quad :" + quad);
+                    
+                }
+               
+                temp1 = temp2;
+                temp2 = intermediateCode.newTemp(BuiltInType.Int);
+                quad = new Quads("*", temp1, "4", temp2);  // An int is 4 bytes
+                System.out.println("Quad :" + quad);
+            }
+            /* Make the array quad */
+            temp1 = intermediateCode.newTemp(BuiltInType.Int);
+            quad = new Quads("array", arrayName.toString(), temp2 , temp1);
+            System.out.println("Quad :" + quad);
+
 
             /* Put the AArrayLvalue parent (which is and expression) on the hashMap */
-            exprTypes.put(node, new Attributes(new BuiltInType(arrayType.getArrayType())));
+            exprTypes.put(node, new Attributes(new BuiltInType(arrayType.getArrayType()), temp1));
         }
     }
 

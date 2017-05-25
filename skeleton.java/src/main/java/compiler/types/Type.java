@@ -1,5 +1,7 @@
 package compiler.types;
 
+
+import java.util.LinkedList;
 /*
  * Abstract class for Grace types
  */
@@ -59,5 +61,12 @@ public abstract class Type {
     
     public Type getType() {
         return null;
+    }
+
+    public Integer getSize() {
+        return 0;
+    }
+
+    public void getDimentions(LinkedList<Integer> list) {
     }
 }
