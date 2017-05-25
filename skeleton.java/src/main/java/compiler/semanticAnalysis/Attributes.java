@@ -1,6 +1,7 @@
 package compiler.semanticAnalysis;
 
 import compiler.types.*;
+import java.util.LinkedList;
 
 /*
  * Attributs of every node added to the exprTypes
@@ -8,8 +9,12 @@ import compiler.types.*;
  */
 public class Attributes {
 
-    private Type   type;
-    private String place;
+    private Type   type;                   /* Type of the node */
+    private String place;                  /* Place of the node (IntConst or TempValriable or id) */
+    private LinkedList<Integer> Next;      /* A lists that holds the quad labels for backpatching the next quads */
+    private LinkedList<Integer> True;      /* A lists that holds the quad labels for backpatching the True quads */
+    private LinkedList<Integer> False;     /* A lists that holds the quad labels for backpatching the False quads */
+    
 
     public Attributes(Type newType) {
         this.type = newType;
@@ -29,7 +34,71 @@ public class Attributes {
     public String getPlace() {
         return this.place;
     }
-
+    
+    /* Returns Next list */
+    public LinkedList<Integer> getNext(){
+        return this.Next;
+    }
+    
+    /* Returns Next True */
+    public LinkedList<Integer> getTrue(){
+        return this.True;
+    }
+    
+    /* Returns Next False */
+    public LinkedList<Integer> getFalse(){
+        return this.False;
+    }
+    
+    /* Set Next list */
+    public void setNext(LinkedList<Integer> newList){
+        this.Next = newList;
+    }
+    
+    /* Set True list */
+    public void setTrue(LinkedList<Integer> newList){
+        this.True = newList;
+    }
+    
+    /* Set Next False */
+    public void setFalse(LinkedList<Integer> newList){
+        this.False = newList;
+    }
+    
+    
+    /* Makes a new List */
+    public void makeList(String list, Integer quadLabel) {
+        
+        /* Initialize list - Add integer */
+        if (list.equals("Next")){
+            this.Next = new LinkedList<Integer>();
+            this.Next.add(quadLabel);
+        }
+        else if (list.equals("True")){
+            this.True = new LinkedList<Integer>();
+            this.True.add(quadLabel);
+        }
+        else if (list.equals("False")){
+            this.False = new LinkedList<Integer>();
+            this.False.add(quadLabel);
+        }
+        
+    }
+    
+    /* Makes a new empty List */
+    public void makeEmptyList(String list) {
+        
+        /* Initialize list - Add integer */
+        if (list.equals("Next"))
+            this.Next = new LinkedList<Integer>();
+        else if (list.equals("True"))
+            this.True = new LinkedList<Integer>();
+        else if (list.equals("False"))
+            this.False = new LinkedList<Integer>();       
+        
+    }
+    
+    
     /* Set the attribute place */
     public void setPlace(String place) {
         this.place = place;

@@ -11,6 +11,7 @@ public class BuiltInType extends Type {
     public final static Type Nothing  = new BuiltInType("nothing ");
     public final static Type Boolean  = new BuiltInType("boolean ");
     public final static Type Address  = new BuiltInType("address ");
+    public final static Type Void     = new BuiltInType("void ");
 
     private final String typeName; /* Name of the type */
 
@@ -52,6 +53,11 @@ public class BuiltInType extends Type {
     @Override
     public boolean isBoolean() {
         return this.getTypeName().equals(Boolean.getTypeName());
+    }
+    
+    @Override
+    public boolean isVoid() {
+        return this.getTypeName().equals(Void.getTypeName());
     }
     
     @Override

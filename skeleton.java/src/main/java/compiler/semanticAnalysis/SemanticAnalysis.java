@@ -7,8 +7,11 @@ import compiler.exceptions.*;
 import compiler.intermediateCode.*;
 import compiler.semanticAnalysis.VariableInfo;
 import compiler.semanticAnalysis.SymbolTableEntry;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -408,7 +411,112 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         for (int a = 0 ; a < currentFuncDef.getLocalVariables().size(); a++) 
             System.out.println("Lists :" + currentFuncDef.getLocalVariables().get(a).getName());
     }
+    
+    
+    @Override
+    public void outABlockStmt(ABlockStmt node)
+    {
+        defaultOut(node);
+    }
 
+    @Override
+    public void caseABlockStmt(ABlockStmt node)
+    {
+        /* For intermediate code */
+        LinkedList<Integer> nextList = null;
+        int loopTimes = 0;
+        
+        inABlockStmt(node);
+        {
+            List<PStmt> copy = new ArrayList<PStmt>(node.getBody());
+            for(PStmt e : copy)
+            {
+                /* BackPatch */
+                if (loopTimes != 0)  // Don't backpatch in the first loop, there is no first stmt code 
+                    this.intermediateCode.backPatch(nextList, Quads.nextQuad());
+                
+                e.apply(this);
+                
+                /* Get e's next list to back patch it */
+                nextList = exprTypes.get(e).getNext();
+                
+                loopTimes++;
+            }
+        }
+        outABlockStmt(node);
+        
+        Attributes nodeAttributes = new Attributes(BuiltInType.Void);
+        
+        /* Make the blocks next */
+        nodeAttributes.setNext(nextList);
+        
+        /* put the node to the hash Map */
+        exprTypes.put(node, nodeAttributes);
+    }
+
+    @Override
+    public void caseAIfStmt(AIfStmt node)
+    {
+        inAIfStmt(node);
+        if(node.getKwIf() != null)
+        {
+            node.getKwIf().apply(this);
+        }
+        if(node.getCond() != null)
+        {
+            node.getCond().apply(this);
+        }
+        
+        Attributes condAttributes = exprTypes.get(node.getCond());
+        
+        /* Back patch cond's true with next quad */
+        this.intermediateCode.backPatch(condAttributes.getTrue(), Quads.nextQuad());
+        
+        LinkedList<Integer> l1 = condAttributes.getFalse();  // If there is no else cond.FALSE must point to ifstmt.NEXT
+        LinkedList<Integer> l2 = new LinkedList<Integer>();
+        
+        
+        if(node.getThen() != null)
+        {
+            node.getThen().apply(this);
+        }
+        
+        Attributes thenStmtAttributes = exprTypes.get(node.getThen());
+        
+        if(node.getElse() != null)
+        {
+            
+            /* Generate intermediate code before the code of stmtElse */
+            l1 = new LinkedList<Integer>();
+            l1.add(Quads.nextQuad());
+            this.intermediateCode.genQuad("jump", "-", "-", "*");  // make the jump for the thenStmt.Next to pass the elseStmt 
+            
+            /* In case there is an else, cond.FALSE must point to the elseStmt */
+            this.intermediateCode.backPatch(condAttributes.getFalse(), Quads.nextQuad());
+
+            /* Generate code for stmtElse */
+            node.getElse().apply(this);
+            
+            /* The next of elseStmt should point to the next of thenStmt and jump */
+            l2 = exprTypes.get(node.getElse()).getNext();
+        }
+        
+        outAIfStmt(node);
+        
+        Attributes nodeAttributes = new Attributes(BuiltInType.Void);
+
+        /* ifStmt NEXT will be a merged list of thenStmt.NEXT l1 and l2 */
+        nodeAttributes.setNext(this.intermediateCode.mergeLists(
+                                            this.intermediateCode.mergeLists(l1, l2), 
+                                            thenStmtAttributes.getNext()
+                                            )
+                              );
+        
+        /* put node to hash Map */
+        exprTypes.put(node, nodeAttributes);
+    }
+    
+    
     @Override
     public void outAIfStmt(AIfStmt node) {
         Type aCondType = exprTypes.get(node.getCond()).getType();
@@ -419,6 +527,51 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "If statement condition should have a boolean type\n" +
                                             node.getCond().toString() + "is not a boolean condition");
         }
+    }
+    
+    @Override
+    public void caseAWhileStmt(AWhileStmt node)
+    {
+        inAWhileStmt(node);
+        if(node.getKwWhile() != null)
+        {
+            node.getKwWhile().apply(this);
+        }
+        
+        /* Get the cond quad number */
+        Integer condQuad = Quads.nextQuad();
+        
+        if(node.getCond() != null)
+        {
+            node.getCond().apply(this);
+        }
+        
+        Attributes condAttributes = exprTypes.get(node.getCond());
+        
+        /* Back patch cond's true with next quad */
+        this.intermediateCode.backPatch(condAttributes.getTrue(), Quads.nextQuad());
+        
+        if(node.getBody() != null)
+        {
+            node.getBody().apply(this);
+        }
+        outAWhileStmt(node);
+        
+        /* Get the body's stmt attributes */
+        Attributes childStmtAttributes = exprTypes.get(node.getBody());
+        
+        /* Make the node's Attributes */
+        Attributes stmtAttributes = new Attributes(BuiltInType.Void);
+        
+        /* Back patch cond's true with next quad */
+        this.intermediateCode.backPatch(childStmtAttributes.getNext(), condQuad);
+        this.intermediateCode.genQuad("jump", "-", "-", condQuad.toString());
+        
+        /* Set the next of this stmt to be the cond false */
+        stmtAttributes.setNext(condAttributes.getFalse());
+
+        /* put to hash Map */
+        exprTypes.put(node, stmtAttributes);
     }
 
     @Override
@@ -435,7 +588,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outAAssignStmt(AAssignStmt node) {
-        Type assignLhsType = exprTypes.get(node.getLvalue()).getType();
+        Attributes assignLhsLval = exprTypes.get(node.getLvalue()); 
+        Type assignLhsType = assignLhsLval.getType();
 
         /* String literals not allowed as lvalues in assignments */
         if (assignLhsType.isArray() && assignLhsType.isEquivWith(BuiltInType.Char)) {
@@ -444,13 +598,22 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "Left hand side of an assignment can not be a string literal");
         }
 
-        Type assignRhsType = exprTypes.get(node.getExpr()).getType();
+        Attributes assignRhsExpr = exprTypes.get(node.getExpr());
+        Type assignRhsType = assignRhsExpr.getType();
 
         if (!(assignLhsType.isEquivWith(assignRhsType))) {
             int line = node.getAssign().getLine();
             int column = node.getAssign().getPos();
             throw new TypeCheckingException(line, column, "Both sides of an assignment should have the same type");
         }
+        
+        /* Intermediate Code */
+        Attributes nodeAttributes = new Attributes(BuiltInType.Void);
+        
+        this.intermediateCode.genQuad(":=", assignRhsExpr.getPlace(), "-", assignLhsLval.getPlace());
+        nodeAttributes.makeEmptyList("Next");
+        
+        exprTypes.put(node, nodeAttributes);
     }
 
     @Override
@@ -492,13 +655,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* Intermediate Code */
-        String temp = intermediateCode.newTemp(BuiltInType.Int);
+        String temp = this.intermediateCode.newTemp(BuiltInType.Int);
         String op1  = exprTypes.get(node.getL()).getPlace();
         String op2  = exprTypes.get(node.getR()).getPlace();
 
-        Quads quad  = new Quads("+", op1, op2, temp);
-
-        System.out.println("Quad : " + quad);
+        this.intermediateCode.genQuad("+", op1, op2, temp);
 
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
     }
@@ -524,13 +685,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
         
         /* Intermediate Code */
-        String temp = intermediateCode.newTemp(BuiltInType.Int);
+        String temp = this.intermediateCode.newTemp(BuiltInType.Int);
         String op1  = exprTypes.get(node.getL()).getPlace();
         String op2  = exprTypes.get(node.getR()).getPlace();
 
-        Quads quad  = new Quads("-", op1, op2, temp);
-
-        System.out.println("Quad : "+ quad);
+        this.intermediateCode.genQuad("-", op1, op2, temp);
 
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
 
@@ -557,13 +716,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* Intermediate Code */
-        String temp = intermediateCode.newTemp(BuiltInType.Int);
+        String temp = this.intermediateCode.newTemp(BuiltInType.Int);
         String op1  = exprTypes.get(node.getL()).getPlace();
         String op2  = exprTypes.get(node.getR()).getPlace();
 
-        Quads quad  = new Quads("*", op1, op2, temp);
-
-        System.out.println("Quad : "+ quad);
+        this.intermediateCode.genQuad("*", op1, op2, temp);
 
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
     }
@@ -589,13 +746,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* Intermediate Code */
-        String temp = intermediateCode.newTemp(BuiltInType.Int);
+        String temp = this.intermediateCode.newTemp(BuiltInType.Int);
         String op1  = exprTypes.get(node.getL()).getPlace();
         String op2  = exprTypes.get(node.getR()).getPlace();
 
-        Quads quad  = new Quads("/", op1, op2, temp);
-
-        System.out.println("Quad : "+ quad);
+        this.intermediateCode.genQuad("/", op1, op2, temp);
 
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
     }
@@ -621,13 +776,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* Intermediate Code */
-        String temp = intermediateCode.newTemp(BuiltInType.Int);
+        String temp = this.intermediateCode.newTemp(BuiltInType.Int);
         String op1  = exprTypes.get(node.getL()).getPlace();
         String op2  = exprTypes.get(node.getR()).getPlace();
 
-        Quads quad  = new Quads("%", op1, op2, temp);
-
-        System.out.println("Quad : "+ quad);
+        this.intermediateCode.genQuad("%", op1, op2, temp);
 
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
 
@@ -661,13 +814,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* Intermediate Code */
-        String temp = intermediateCode.newTemp(BuiltInType.Int);
+        String temp = this.intermediateCode.newTemp(BuiltInType.Int);
         String op1  = "-1";
         String op2  = exprTypes.get(node.getExpr()).getPlace();
         
-        Quads quad  = new Quads("*", op1, op2, temp);
-
-        System.out.println("Quad : "+ quad);
+        this.intermediateCode.genQuad("*", op1, op2, temp);
 
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
     }
@@ -849,18 +1000,16 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             /* Intermediate code */
             LinkedList<Integer> dimList = new LinkedList<Integer>();
             String temp1 = null, temp2 = null;
-            Quads quad = null;
             arrayType.getDimentions(dimList);
             
             /* Code for arrays with 1 dimension */
             if (dimList.size() == 1) {
                 /* Create the quad for '*' */
-                temp2 = intermediateCode.newTemp(BuiltInType.Int);
+                temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
                 if (arrayType.getArrayType().equals("int "))
-                    quad = new Quads("*", placesList.get(0), "4", temp2);  // An int is 4 bytes
+                    this.intermediateCode.genQuad("*", placesList.get(0), "4", temp2);  // An int is 4 bytes
                 else 
-                    quad = new Quads("*", placesList.get(0), "1", temp2);  // An int is 4 bytes
-                System.out.println("Quad :" + quad);
+                    this.intermediateCode.genQuad("*", placesList.get(0), "1", temp2);  // An int is 4 bytes
             } else {
             
                 for (int dim = 0; dim < dimList.size() - 1; dim++) {
@@ -868,41 +1017,72 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                     /* Create the quad for '*' */
                     if (dim == 0) {
                         /* Only for the first time we need a new temp */
-                        temp1 = intermediateCode.newTemp(BuiltInType.Int);
-                        quad = new Quads("*", placesList.get(placesList.size() - dim - 1), dimList.get(dim+1).toString(), temp1);
+                        temp1 = this.intermediateCode.newTemp(BuiltInType.Int);
+                        this.intermediateCode.genQuad("*", placesList.get(placesList.size() - dim - 1), dimList.get(dim+1).toString(), temp1);
                     }
                     else {
-                        quad = new Quads("*", temp2, dimList.get(dim+1).toString(), temp1);
+                        this.intermediateCode.genQuad("*", temp2, dimList.get(dim+1).toString(), temp1);
                     }
 
-                    System.out.println("Quad : " + quad);
-
                     /* Make the quad for '+' */
-                    temp2 = intermediateCode.newTemp(BuiltInType.Int);
-                    quad = new Quads("+", temp1, placesList.get(placesList.size() - (dim+1) -1), temp2);
-                    System.out.println("Quad : " + quad);                    
+                    temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
+                    this.intermediateCode.genQuad("+", temp1, placesList.get(placesList.size() - (dim+1) -1), temp2);
                 }
 
                 temp1 = temp2;
-                temp2 = intermediateCode.newTemp(BuiltInType.Int);
+                temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
                 if (arrayType.getArrayType().equals("int "))
-                    quad = new Quads("*", temp1, "4", temp2);  // An int is 4 bytes
+                    this.intermediateCode.genQuad("*", temp1, "4", temp2);  // An int is 4 bytes
                 else 
-                    quad = new Quads("*", temp1, "1", temp2);  // An int is 4 bytes
+                    this.intermediateCode.genQuad("*", temp1, "1", temp2);  // An int is 4 bytes
                 
-                System.out.println("Quad :" + quad);
             }
             
             /* Make the array quad */
-            temp1 = intermediateCode.newTemp(BuiltInType.Address);
-            quad = new Quads("array", arrayName.toString(), temp2 , temp1);
-            System.out.println("Quad : " + quad);
+            temp1 = this.intermediateCode.newTemp(BuiltInType.Address);
+            this.intermediateCode.genQuad("array", arrayName.toString(), temp2 , temp1);
 
             /* Put the AArrayLvalue parent (which is an expression) in the hashMap */
             exprTypes.put(node, new Attributes(new BuiltInType(arrayType.getArrayType()), "[" + temp1 + "]"));
         }
     }
-
+    
+    @Override
+    public void caseAOrCond(AOrCond node)
+    {
+        inAOrCond(node);
+        if(node.getL() != null)
+        {
+            node.getL().apply(this);
+        }
+        if(node.getKwOr() != null)
+        {
+            node.getKwOr().apply(this);
+        }
+        
+        /* Intermediate code for Left cond */
+        this.intermediateCode.backPatch(exprTypes.get(node.getL()).getTrue(), Quads.nextQuad());
+        
+        if(node.getR() != null)
+        {
+            node.getR().apply(this);
+        }
+        outAOrCond(node);
+        
+        /* Get the attributes of the lhs and rhs of and */
+        Attributes lhsAttributes = exprTypes.get(node.getL());
+        Attributes rhsAttributes = exprTypes.get(node.getR());
+        
+        /* Intermediate code actions for right node */
+        Attributes nodeAttributes = new Attributes(BuiltInType.Boolean);
+        nodeAttributes.setFalse(this.intermediateCode.mergeLists(lhsAttributes.getFalse(), 
+                                                            rhsAttributes.getFalse())
+                               );
+        nodeAttributes.setTrue(rhsAttributes.getTrue());
+        
+        exprTypes.put(node, nodeAttributes);
+    }
+    
     @Override
     public void outAOrCond(AOrCond node) {
         Type leftCondType = exprTypes.get(node.getL()).getType();
@@ -922,8 +1102,43 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "Or operator can be applied to boolean expressions only\n" +
                                             node.getL().toString() + "is not a boolean expression");
         }
-
-        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
+    }
+    
+    @Override
+    public void caseAAndCond(AAndCond node)
+    {
+        inAAndCond(node);
+        if(node.getL() != null)
+        {
+            node.getL().apply(this);
+        }
+        if(node.getKwAnd() != null)
+        {
+            node.getKwAnd().apply(this);
+        }
+        
+        /* Intermediate code for Left cond */
+        this.intermediateCode.backPatch(exprTypes.get(node.getL()).getTrue(), Quads.nextQuad());
+        
+        if(node.getR() != null)
+        {
+            node.getR().apply(this);
+        }
+        outAAndCond(node);
+        
+        /* Get the attributes of the lhs and rhs of and */
+        Attributes lhsAttributes = exprTypes.get(node.getL());
+        Attributes rhsAttributes = exprTypes.get(node.getR());
+        
+        /* Intermediate code actions for node */
+        Attributes nodeAttributes = new Attributes(BuiltInType.Boolean);
+        nodeAttributes.setFalse(this.intermediateCode.mergeLists(lhsAttributes.getFalse(), 
+                                                            rhsAttributes.getFalse())
+                               );
+        nodeAttributes.setTrue(rhsAttributes.getTrue());
+        
+        exprTypes.put(node, nodeAttributes);
+        
     }
 
     @Override
@@ -946,7 +1161,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getL().toString() + "is not a boolean expression");
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
     }
 
     @Override
@@ -961,7 +1175,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getCond().toString() + "is not a boolean expression");
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Boolean));   
+        /* Intermediate code */
+        Attributes nodeAttributes = new Attributes(BuiltInType.Boolean);
+        this.intermediateCode.genCodeForNotOp(nodeAttributes, exprTypes.get(node.getCond()));
+
+        exprTypes.put(node, nodeAttributes);
     }
 
     @Override
@@ -983,7 +1201,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "An \"=\" operator can be applied to int or char types only");
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
+        /* Intermediate code */
+        Attributes nodeAttributes = new Attributes(BuiltInType.Boolean);
+        this.intermediateCode.genCodeForRelOp("=", nodeAttributes, exprTypes.get(node.getL()), exprTypes.get(node.getR()));
+
+        exprTypes.put(node, nodeAttributes);
     }
 
     @Override
@@ -1005,7 +1227,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "An \"#\" operator can be applied to int or char types only");
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
+        /* Intermediate code */
+        Attributes nodeAttributes = new Attributes(BuiltInType.Boolean);
+        this.intermediateCode.genCodeForRelOp("#", nodeAttributes, exprTypes.get(node.getL()), exprTypes.get(node.getR()));
+
+        exprTypes.put(node, nodeAttributes);
+
     }
 
     @Override
@@ -1027,7 +1254,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "A \"<\" operator can be applied to int or char types only");
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
+        /* Intermediate code */
+        Attributes nodeAttributes = new Attributes(BuiltInType.Boolean);
+        this.intermediateCode.genCodeForRelOp("<", nodeAttributes, exprTypes.get(node.getL()), exprTypes.get(node.getR()));
+
+        exprTypes.put(node, nodeAttributes);
+
     }
     
     @Override
@@ -1048,8 +1280,12 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             int column = node.getGt().getPos();
             throw new TypeCheckingException(line, column, "A \">\" operator can be applied to int or char types only");
         }
+        
+        /* Intermediate code */
+        Attributes nodeAttributes = new Attributes(BuiltInType.Boolean);
+        this.intermediateCode.genCodeForRelOp(">", nodeAttributes, exprTypes.get(node.getL()), exprTypes.get(node.getR()));
 
-        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
+        exprTypes.put(node, nodeAttributes);
     }
 
     public void outAGteqCond(AGteqCond node) {
@@ -1070,7 +1306,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "A \">=\" operator can be applied to int or char types only");
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
+        /* Intermediate code */
+        Attributes nodeAttributes = new Attributes(BuiltInType.Boolean);
+        this.intermediateCode.genCodeForRelOp(">=", nodeAttributes, exprTypes.get(node.getL()), exprTypes.get(node.getR()));
+
+        exprTypes.put(node, nodeAttributes);
     }
 
     public void outALteqCond(ALteqCond node) {
@@ -1091,7 +1331,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "A \"<=\" operator can be applied to int or char types only");
         }
 
-        exprTypes.put(node, new Attributes(BuiltInType.Boolean));
+        /* Intermediate code */
+        Attributes nodeAttributes = new Attributes(BuiltInType.Boolean);
+        this.intermediateCode.genCodeForRelOp("<=", nodeAttributes, exprTypes.get(node.getL()), exprTypes.get(node.getR()));
+
+        exprTypes.put(node, nodeAttributes);
     }
 
     @Override

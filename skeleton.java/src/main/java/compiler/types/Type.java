@@ -48,6 +48,11 @@ public abstract class Type {
     public boolean isBoolean() {
         return false;
     }
+    
+    /* Returns true if this is the void type */
+    public boolean isVoid() {
+        return false;
+    }
 
     /* Returns true if this is the array type */
     public boolean isArray() {
@@ -67,5 +72,8 @@ public abstract class Type {
         return 0;
     }
 
-    public void getDimentions(LinkedList<Integer> list) {}
+    public void getDimentions(LinkedList<Integer> list) {
+        
+    }
+
 }
