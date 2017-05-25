@@ -23,6 +23,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     private Stack<TId> currentFunctionId;
     private CompilerErrorList errorList;
     private IntermediateCode intermediateCode;
+    int blockDepth; /* This helps us extinguish function definition blocks for if/while blocks */
 
     /*
      * The semantic analysis phase starts here
@@ -279,20 +280,18 @@ public class SemanticAnalysis extends DepthFirstAdapter {
              * add a declaration to the current scope, before making a new scope,
              * so that it will be visible to function calls in the new scope
              */
-            
             FuncDecInfo type = null;
             try {
                 type = new FuncDecInfo((PDataType) node.getRetType(), node.getFplist(), node.getId());
-            } 
-            catch (TypeCheckingException e){
-                
+            }
+            catch (TypeCheckingException e) {
                 /* Add error to list an continue in the ast */
                 this.errorList.addToList(e.getMessage());
                 throw e;
             }
-                
+
             SymbolTableEntry data = new SymbolTableEntry(type);
-            
+
             /* Function is already matched because it only has a definition */
             type.setFuncDefined(true);
 
@@ -318,26 +317,26 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         try {
             funcDefInfo = new FuncDefInfo((PDataType) node.getRetType(), node.getFplist(), node.getId());
         }
-        catch (TypeCheckingException e){
-            
+        catch (TypeCheckingException e) {
             /* Add error to list an continue */
             this.errorList.addToList(e.getMessage());
             return;
         }
-        
+
         /* Check if the definition is equivalent with the declaration */
         if (funcDec != null) {
-            
             try {
                 ((FunctionInfo) funcDec.getInfo()).isEquivWith(funcDefInfo);
             }
-            catch (TypeCheckingException e){
-                
+            catch (TypeCheckingException e) {
                 /* Add error to list an continue */
                 this.errorList.addToList(e.getMessage());
                 throw e;
             }
         }
+
+        /* A new function definition block begins */
+        blockDepth = 0;
 
         /* In every new func_def we create a new scope */
         this.symbolTable.enter();
@@ -360,10 +359,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outAFuncDef(AFuncDef node) {
-        
         /* Get function definition form symbol table */
         SymbolTableEntry funcDef = this.symbolTable.lookup(node.getId().toString());
-        
+
         /* Check if the function has been matched to a return statement */        
         if (!(funcDef.getInfo().getType().isNothing())) {
             if (!(((FuncDefInfo) funcDef.getInfo()).getIsMatchedToReturnStmt())) {
@@ -371,7 +369,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                             "Function: \"" + node.getId().getText() + "\" has no return statement");
             }
         }
-        
+
         /* When exiting from a function exit from the current scope too */
         this.symbolTable.exit();
 
@@ -411,28 +409,45 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         for (int a = 0 ; a < currentFuncDef.getLocalVariables().size(); a++) 
             System.out.println("Lists :" + currentFuncDef.getLocalVariables().get(a).getName());
     }
-    
-    
+
     @Override
-    public void outABlockStmt(ABlockStmt node)
-    {
-        defaultOut(node);
+    public void inABlockStmt(ABlockStmt node) {
+        /*
+         * This is the start of the main block of a function definition
+         * so we create a unit quad
+         */
+        if (blockDepth == 0) {
+            this.intermediateCode.genQuad("unit", currentFunctionId.peek().toString(), "-", "-");
+        }
+        
+        blockDepth++;
     }
 
     @Override
-    public void caseABlockStmt(ABlockStmt node)
-    {
+    public void outABlockStmt(ABlockStmt node) {
+        blockDepth--;
+
+        /*
+         * This is the end of the main block of a function definition
+         * so we create a endu quad
+         */
+        if (blockDepth == 0) {
+            this.intermediateCode.genQuad("endu", currentFunctionId.peek().toString(), "-", "-");
+        }
+    }
+
+    @Override
+    public void caseABlockStmt(ABlockStmt node) {
         /* For intermediate code */
         LinkedList<Integer> nextList = null;
         int loopTimes = 0;
-        
+
         inABlockStmt(node);
         {
             List<PStmt> copy = new ArrayList<PStmt>(node.getBody());
-            for(PStmt e : copy)
-            {
+            for (PStmt e : copy) {
                 /* BackPatch */
-                if (loopTimes != 0)  // Don't backpatch in the first loop, there is no first stmt code 
+                if (loopTimes != 0) /* Don't backpatch in the first loop, there is no first stmt code */
                     this.intermediateCode.backPatch(nextList, Quads.nextQuad());
                 
                 e.apply(this);
@@ -444,79 +459,66 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             }
         }
         outABlockStmt(node);
-        
+
         Attributes nodeAttributes = new Attributes(BuiltInType.Void);
-        
+
         /* Make the blocks next */
         nodeAttributes.setNext(nextList);
-        
-        /* put the node to the hash Map */
+
         exprTypes.put(node, nodeAttributes);
     }
 
     @Override
-    public void caseAIfStmt(AIfStmt node)
-    {
+    public void caseAIfStmt(AIfStmt node) {
         inAIfStmt(node);
-        if(node.getKwIf() != null)
-        {
+        if (node.getKwIf() != null) {
             node.getKwIf().apply(this);
         }
-        if(node.getCond() != null)
-        {
+
+        if (node.getCond() != null) {
             node.getCond().apply(this);
         }
-        
+
         Attributes condAttributes = exprTypes.get(node.getCond());
-        
+
         /* Back patch cond's true with next quad */
         this.intermediateCode.backPatch(condAttributes.getTrue(), Quads.nextQuad());
-        
-        LinkedList<Integer> l1 = condAttributes.getFalse();  // If there is no else cond.FALSE must point to ifstmt.NEXT
+        LinkedList<Integer> l1 = condAttributes.getFalse(); /* If there is no else cond.FALSE must point to ifstmt.NEXT */
         LinkedList<Integer> l2 = new LinkedList<Integer>();
-        
-        
-        if(node.getThen() != null)
-        {
+
+        if (node.getThen() != null) {
             node.getThen().apply(this);
         }
-        
+
         Attributes thenStmtAttributes = exprTypes.get(node.getThen());
-        
-        if(node.getElse() != null)
-        {
-            
+
+        if (node.getElse() != null) {
             /* Generate intermediate code before the code of stmtElse */
             l1 = new LinkedList<Integer>();
             l1.add(Quads.nextQuad());
-            this.intermediateCode.genQuad("jump", "-", "-", "*");  // make the jump for the thenStmt.Next to pass the elseStmt 
-            
+            this.intermediateCode.genQuad("jump", "-", "-", "*"); /* make the jump for the thenStmt.Next to pass the elseStmt */ 
+
             /* In case there is an else, cond.FALSE must point to the elseStmt */
             this.intermediateCode.backPatch(condAttributes.getFalse(), Quads.nextQuad());
 
             /* Generate code for stmtElse */
             node.getElse().apply(this);
-            
+
             /* The next of elseStmt should point to the next of thenStmt and jump */
             l2 = exprTypes.get(node.getElse()).getNext();
         }
-        
         outAIfStmt(node);
-        
+
         Attributes nodeAttributes = new Attributes(BuiltInType.Void);
 
         /* ifStmt NEXT will be a merged list of thenStmt.NEXT l1 and l2 */
         nodeAttributes.setNext(this.intermediateCode.mergeLists(
-                                            this.intermediateCode.mergeLists(l1, l2), 
-                                            thenStmtAttributes.getNext()
-                                            )
-                              );
-        
+                                this.intermediateCode.mergeLists(l1, l2), thenStmtAttributes.getNext()));
+
         /* put node to hash Map */
         exprTypes.put(node, nodeAttributes);
     }
-    
-    
+
     @Override
     public void outAIfStmt(AIfStmt node) {
         Type aCondType = exprTypes.get(node.getCond()).getType();
@@ -528,49 +530,45 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             node.getCond().toString() + "is not a boolean condition");
         }
     }
-    
+
     @Override
-    public void caseAWhileStmt(AWhileStmt node)
-    {
+    public void caseAWhileStmt(AWhileStmt node) {
         inAWhileStmt(node);
-        if(node.getKwWhile() != null)
-        {
+        if (node.getKwWhile() != null) {
             node.getKwWhile().apply(this);
         }
-        
-        /* Get the cond quad number */
+
+        /* Get the condition's quad number */
         Integer condQuad = Quads.nextQuad();
         
-        if(node.getCond() != null)
-        {
+        if (node.getCond() != null) {
             node.getCond().apply(this);
         }
-        
+
         Attributes condAttributes = exprTypes.get(node.getCond());
-        
-        /* Back patch cond's true with next quad */
+
+        /* Backpatch condition's true with next quad */
         this.intermediateCode.backPatch(condAttributes.getTrue(), Quads.nextQuad());
-        
-        if(node.getBody() != null)
-        {
+
+        if (node.getBody() != null) {
             node.getBody().apply(this);
         }
         outAWhileStmt(node);
-        
+
         /* Get the body's stmt attributes */
         Attributes childStmtAttributes = exprTypes.get(node.getBody());
-        
+
         /* Make the node's Attributes */
         Attributes stmtAttributes = new Attributes(BuiltInType.Void);
-        
-        /* Back patch cond's true with next quad */
+
+        /* Back patch condition's true with the next quad */
         this.intermediateCode.backPatch(childStmtAttributes.getNext(), condQuad);
         this.intermediateCode.genQuad("jump", "-", "-", condQuad.toString());
-        
+
         /* Set the next of this stmt to be the cond false */
         stmtAttributes.setNext(condAttributes.getFalse());
 
-        /* put to hash Map */
+        /* Put to hash Map */
         exprTypes.put(node, stmtAttributes);
     }
 
@@ -609,7 +607,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         
         /* Intermediate Code */
         Attributes nodeAttributes = new Attributes(BuiltInType.Void);
-        
         this.intermediateCode.genQuad(":=", assignRhsExpr.getPlace(), "-", assignLhsLval.getPlace());
         nodeAttributes.makeEmptyList("Next");
         
@@ -626,12 +623,21 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (!(aExprType.isEquivWith(currentFunctionEntry.getInfo().getType()))) {
             int line = node.getKwReturn().getLine();
             int column = node.getKwReturn().getPos();
-            throw new TypeCheckingException(line, column, "Type of returned expression does not match return type of function:" + currentFunctionId.peek().getText() + "\n"
+            throw new TypeCheckingException(line, column, "Type of returned expression does not match return type of function:"
+                                            + currentFunctionId.peek().getText() + "\n"
                                             + "Return type is " + currentFunctionEntry.getInfo().getType());
         }
         
         /* Function definition matched to a return statement */
         ((FuncDefInfo) currentFunctionEntry.getInfo()).setIsMatchedToReturnStmt(true);
+    }
+
+    @Override
+    public void outANoopStmt(ANoopStmt node) {
+        /* Intermediate Code */
+        Attributes nodeAttributes = new Attributes(BuiltInType.Void);
+        nodeAttributes.makeEmptyList("Next");
+        exprTypes.put(node, nodeAttributes);
     }
 
     @Override
@@ -956,7 +962,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             + strLval.toString() + "\" as array type");
         }
 
-        /* If the expression is non int then throw an error */
+        /* If the expression is non integer then throw an error */
         Type aExprType = exprTypes.get(node.getExpr()).getType();
         if (!aExprType.isInt()) {
             int line = node.getLBracket().getLine();
@@ -1002,23 +1008,28 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             String temp1 = null, temp2 = null;
             arrayType.getDimentions(dimList);
             
+            /*
+             * In the above code we assume that an integer has a size of 4 bytes
+             * and a character 1 byte in a 32-bit system
+             */
+
             /* Code for arrays with 1 dimension */
             if (dimList.size() == 1) {
                 /* Create the quad for '*' */
                 temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
                 if (arrayType.getArrayType().equals("int "))
-                    this.intermediateCode.genQuad("*", placesList.get(0), "4", temp2);  // An int is 4 bytes
+                    this.intermediateCode.genQuad("*", placesList.get(0), "4", temp2);
                 else 
-                    this.intermediateCode.genQuad("*", placesList.get(0), "1", temp2);  // An int is 4 bytes
-            } else {
-            
+                    this.intermediateCode.genQuad("*", placesList.get(0), "1", temp2);
+            }
+            else {
                 for (int dim = 0; dim < dimList.size() - 1; dim++) {
-                    
                     /* Create the quad for '*' */
                     if (dim == 0) {
                         /* Only for the first time we need a new temp */
                         temp1 = this.intermediateCode.newTemp(BuiltInType.Int);
-                        this.intermediateCode.genQuad("*", placesList.get(placesList.size() - dim - 1), dimList.get(dim+1).toString(), temp1);
+                        this.intermediateCode.genQuad("*", placesList.get(placesList.size() - dim - 1),
+                                                    dimList.get(dim+1).toString(), temp1);
                     }
                     else {
                         this.intermediateCode.genQuad("*", temp2, dimList.get(dim+1).toString(), temp1);
@@ -1032,10 +1043,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 temp1 = temp2;
                 temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
                 if (arrayType.getArrayType().equals("int "))
-                    this.intermediateCode.genQuad("*", temp1, "4", temp2);  // An int is 4 bytes
+                    this.intermediateCode.genQuad("*", temp1, "4", temp2);
                 else 
-                    this.intermediateCode.genQuad("*", temp1, "1", temp2);  // An int is 4 bytes
-                
+                    this.intermediateCode.genQuad("*", temp1, "1", temp2);
             }
             
             /* Make the array quad */
