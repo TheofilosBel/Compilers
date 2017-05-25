@@ -8,7 +8,7 @@ import java.util.LinkedList;
 public abstract class Type {
 
     public Type() {}
-    
+
     public abstract Type makeCopy();
 
     @Override
@@ -18,12 +18,12 @@ public abstract class Type {
     public String getTypeName() {
         return null;
     }
-    
+
     /* Returns the array type : int or char */
     public String getArrayType() {
         return null;
     }
-    
+
     /* Returns the array dimensions */
     public int getArrayDims() {
         return 0;
@@ -38,12 +38,12 @@ public abstract class Type {
     public boolean isChar() {
         return false;
     }
-    
+
     /* Returns true if this is the nothing type */
     public boolean isNothing() {
         return false;
     }
-    
+
     /* Returns true if this is the boolean type */
     public boolean isBoolean() {
         return false;
@@ -53,12 +53,12 @@ public abstract class Type {
     public boolean isArray() {
         return false;
     }
-    
+
     /* Check if the calling type and the argument type are equivalent */
     public boolean isEquivWith(Type type){
         return false;
     }
-    
+
     public Type getType() {
         return null;
     }
@@ -67,6 +67,5 @@ public abstract class Type {
         return 0;
     }
 
-    public void getDimentions(LinkedList<Integer> list) {
-    }
+    public void getDimentions(LinkedList<Integer> list) {}
 }

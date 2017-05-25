@@ -42,24 +42,20 @@ public class ComplexType extends Type {
         return new ComplexType(this.typeName, this.size,  this.getType());
     }
 
-    
     @Override
     public Integer getSize(){
         return this.size;
     }
-    
-    
+
     public Type getType() {
         return this.type;
     }
 
     /*
-     * Return a string for printng an array type
+     * Return a string to print an array type
      */
-    
     @Override
     public String toString() {
-        
         String str = new String();
         str = this.getArrayType();
         for (int i=0; i < this.getArrayDims(); i++)
@@ -75,7 +71,6 @@ public class ComplexType extends Type {
     
     @Override
     public void getDimentions(LinkedList<Integer> list) {
-        
         /* If our Type is Complex call recursively */
         list.add(this.size);
         if (this.getType() instanceof ComplexType) {
@@ -86,8 +81,7 @@ public class ComplexType extends Type {
             return ;
         }
     }
-    
-    
+
     @Override
     public int getArrayDims() {
         /* If our Type is Complex call recursively */
