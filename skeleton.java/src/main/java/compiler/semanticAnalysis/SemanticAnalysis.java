@@ -865,7 +865,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 
                 /* Make the quad for * */
                 temp2 = intermediateCode.newTemp(BuiltInType.Int);
-                quad = new Quads("*", placesList.get(0), "4", temp2);  // An int is 4 bytes 
+                if (arrayType.getArrayType().equals("int "))
+                    quad = new Quads("*", placesList.get(0), "4", temp2);  // An int is 4 bytes
+                else 
+                    quad = new Quads("*", placesList.get(0), "1", temp2);  // An int is 4 bytes
                 System.out.println("Quad :" + quad);
             } else {
             
@@ -891,9 +894,14 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                
                 temp1 = temp2;
                 temp2 = intermediateCode.newTemp(BuiltInType.Int);
-                quad = new Quads("*", temp1, "4", temp2);  // An int is 4 bytes
+                if (arrayType.getArrayType().equals("int "))
+                    quad = new Quads("*", temp1, "4", temp2);  // An int is 4 bytes
+                else 
+                    quad = new Quads("*", temp1, "1", temp2);  // An int is 4 bytes
+                
                 System.out.println("Quad :" + quad);
             }
+            
             /* Make the array quad */
             temp1 = intermediateCode.newTemp(BuiltInType.Int);
             quad = new Quads("array", arrayName.toString(), temp2 , temp1);
