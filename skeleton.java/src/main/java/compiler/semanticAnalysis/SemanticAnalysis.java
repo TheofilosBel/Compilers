@@ -906,7 +906,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* We subtract 3 from the length to account for the "" and the space at the end */
         strLength.add(node.getStringLiteral().toString().length() - 3);
 
-        exprTypes.put(node, new Attributes(new ComplexType("array", strLength, "char ")));
+        exprTypes.put(node, new Attributes(new ComplexType("array", strLength, "char "), node.getStringLiteral().getText()));
     }
 
     @Override
