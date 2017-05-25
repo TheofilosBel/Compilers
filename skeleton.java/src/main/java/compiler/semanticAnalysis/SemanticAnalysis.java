@@ -1046,43 +1046,38 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             exprTypes.put(node, new Attributes(new BuiltInType(arrayType.getArrayType()), "[" + temp1 + "]"));
         }
     }
-    
+
     @Override
-    public void caseAOrCond(AOrCond node)
-    {
+    public void caseAOrCond(AOrCond node) {
         inAOrCond(node);
-        if(node.getL() != null)
-        {
+        if (node.getL() != null) {
             node.getL().apply(this);
         }
-        if(node.getKwOr() != null)
-        {
+
+        if (node.getKwOr() != null) {
             node.getKwOr().apply(this);
         }
-        
+
         /* Intermediate code for Left cond */
-        this.intermediateCode.backPatch(exprTypes.get(node.getL()).getTrue(), Quads.nextQuad());
-        
-        if(node.getR() != null)
-        {
+        this.intermediateCode.backPatch(exprTypes.get(node.getL()).getFalse(), Quads.nextQuad());
+
+        if (node.getR() != null) {
             node.getR().apply(this);
         }
         outAOrCond(node);
-        
+
         /* Get the attributes of the lhs and rhs of and */
         Attributes lhsAttributes = exprTypes.get(node.getL());
         Attributes rhsAttributes = exprTypes.get(node.getR());
-        
+
         /* Intermediate code actions for right node */
         Attributes nodeAttributes = new Attributes(BuiltInType.Boolean);
-        nodeAttributes.setFalse(this.intermediateCode.mergeLists(lhsAttributes.getFalse(), 
-                                                            rhsAttributes.getFalse())
-                               );
-        nodeAttributes.setTrue(rhsAttributes.getTrue());
-        
+        nodeAttributes.setTrue(this.intermediateCode.mergeLists(lhsAttributes.getTrue(), rhsAttributes.getTrue()));
+        nodeAttributes.setFalse(rhsAttributes.getFalse());
+
         exprTypes.put(node, nodeAttributes);
     }
-    
+
     @Override
     public void outAOrCond(AOrCond node) {
         Type leftCondType = exprTypes.get(node.getL()).getType();
@@ -1105,40 +1100,35 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     }
     
     @Override
-    public void caseAAndCond(AAndCond node)
-    {
+    public void caseAAndCond(AAndCond node) {
         inAAndCond(node);
-        if(node.getL() != null)
-        {
+        
+        if (node.getL() != null) {
             node.getL().apply(this);
         }
-        if(node.getKwAnd() != null)
-        {
+
+        if (node.getKwAnd() != null) {
             node.getKwAnd().apply(this);
         }
-        
+
         /* Intermediate code for Left cond */
         this.intermediateCode.backPatch(exprTypes.get(node.getL()).getTrue(), Quads.nextQuad());
-        
-        if(node.getR() != null)
-        {
+
+        if (node.getR() != null) {
             node.getR().apply(this);
         }
         outAAndCond(node);
-        
+
         /* Get the attributes of the lhs and rhs of and */
         Attributes lhsAttributes = exprTypes.get(node.getL());
         Attributes rhsAttributes = exprTypes.get(node.getR());
-        
+
         /* Intermediate code actions for node */
         Attributes nodeAttributes = new Attributes(BuiltInType.Boolean);
-        nodeAttributes.setFalse(this.intermediateCode.mergeLists(lhsAttributes.getFalse(), 
-                                                            rhsAttributes.getFalse())
-                               );
+        nodeAttributes.setFalse(this.intermediateCode.mergeLists(lhsAttributes.getFalse(), rhsAttributes.getFalse()));
         nodeAttributes.setTrue(rhsAttributes.getTrue());
-        
+
         exprTypes.put(node, nodeAttributes);
-        
     }
 
     @Override
@@ -1160,7 +1150,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(line, column, "And operator can be applied to boolean expressions only\n" +
                                             node.getL().toString() + "is not a boolean expression");
         }
-
     }
 
     @Override

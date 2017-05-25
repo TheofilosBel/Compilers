@@ -21,7 +21,7 @@ public class Quads {
         this.x      = x;
         this.y      = y;
         this.z      = z;
-        
+
         this.labelCount++;
         this.label  = labelCount;
     }
@@ -31,36 +31,35 @@ public class Quads {
         return this.label + ": " + this.opName + ", " + this.x + ", " +
                 this.y + ", " + this.z;
     }
-    
+
     /* Returns the x String */
     public String getX(){
         return this.x;
     }
-    
+
     /* Returns the y String */
     public String getY(){
         return this.y;
     }
-    
+
     /* Returns the Z String */
     public String getZ(){
         return this.z;
     }
-    
-    
+
     /* Set the x String */ 
     public void setX(String newStr) {
         this.x = newStr;
     }
-    
+
     /* Set the y String */ 
     public void setY(String newStr) {
         this.y = newStr;
     }
-    
+
     /* Set the z String */ 
     public void setZ(String newStr) {
         this.z = newStr;
     }
-    
+
 }
