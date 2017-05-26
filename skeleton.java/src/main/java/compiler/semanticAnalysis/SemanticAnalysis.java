@@ -419,7 +419,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (blockDepth == 0) {
             this.intermediateCode.genQuad("unit", currentFunctionId.peek().toString(), "-", "-");
         }
-        
+
         blockDepth++;
     }
 
@@ -698,7 +698,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         this.intermediateCode.genQuad("-", op1, op2, temp);
 
         exprTypes.put(node, new Attributes(BuiltInType.Int, temp));
-
     }
 
     @Override
@@ -858,6 +857,46 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (type != null) {
             exprTypes.put(node, new Attributes(type, exprTypes.get(node.getLvalue()).getPlace()));
         }
+    }
+
+    @Override
+    public void caseAFuncCall(AFuncCall node) {
+        inAFuncCall(node);
+
+        if (node.getId() != null) {
+            node.getId().apply(this);
+        }
+
+        /* Search for the function declaration in the symbol table */
+        SymbolTableEntry funcDec = this.symbolTable.lookup(node.getId().toString());
+        int n = 1;
+
+        {
+            List<PExpr> copy = new ArrayList<PExpr>(node.getExprList());
+            for(PExpr e : copy) {
+                e.apply(this);
+
+                /* Create a "par" Quad for every argument */
+                if (funcDec != null) {
+                    this.intermediateCode.genQuad("par", exprTypes.get(e).getPlace(),
+                                                ((FunctionInfo) funcDec.getInfo()).paramMode(n), "-");
+                }
+                n++;
+            }
+        }
+        outAFuncCall(node);
+
+        /* Create a Quad for the function's return value */
+        if ((((FunctionInfo) funcDec.getInfo()).getType()).isEquivWith(BuiltInType.Nothing)) {
+            String w = this.intermediateCode.newTemp(((FunctionInfo) funcDec.getInfo()).getType());
+            System.out.println(w);
+            this.intermediateCode.genQuad("par", "RET", w, "-");
+            
+            Attributes nodeAttributes = new Attributes(BuiltInType.Void);
+            nodeAttributes.setPlace(w);
+            exprTypes.put(node, nodeAttributes);
+        }
+        this.intermediateCode.genQuad("call", "-", "-", node.getId().toString());
     }
 
     @Override

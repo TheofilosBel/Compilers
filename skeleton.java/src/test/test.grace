@@ -1,13 +1,11 @@
 fun main () : nothing
-    fun p2 (b : char) : nothing;
+    var x : char;
+    var y : int;
+    fun p1 (b : char; ref c : int) : nothing;
 
-    fun p2 (c : char) : nothing
-        $var x, y : int;
-        $var b : char[3];
-        $var a : int[3][5];
-    {
-        $x <- a[2][0];
-        $b <- "abc";
-    }
+    fun p1 (c : char; ref c : int) : nothing
+    {}
     
-{}
+{
+    p1(x, y);
+}
