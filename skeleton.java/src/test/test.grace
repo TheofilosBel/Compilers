@@ -1,5 +1,5 @@
 fun main () : nothing
-    var x : int;
+    var x : char;
     var y : int;
     fun p1 (b : char; ref c : int) : int;
 
@@ -7,7 +7,7 @@ fun main () : nothing
     {
         return 3;
     }
-    
+
 {
-    p1(x, y);
+    $y <- p1(x, y);
 }

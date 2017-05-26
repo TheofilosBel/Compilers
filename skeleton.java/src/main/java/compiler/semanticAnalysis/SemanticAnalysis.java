@@ -432,6 +432,16 @@ public class SemanticAnalysis extends DepthFirstAdapter {
          * so we create a endu quad
          */
         if (blockDepth == 0) {
+            /* Get the current FunctionInfo */
+            SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString());
+
+            /*
+             * If the function definition has not been matched to a return statement
+             * we have to generate a ret Quad manually
+             */
+            if (((FuncDefInfo) currentFunctionEntry.getInfo()).getIsMatchedToReturnStmt() == false) {
+                this.intermediateCode.genQuad("ret", "-", "-", "-");
+            }
             this.intermediateCode.genQuad("endu", currentFunctionId.peek().toString(), "-", "-");
         }
     }
@@ -619,7 +629,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
         /* Search the function this return statement corresponds to */
         SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString());
-        
+
         if (!(aExprType.isEquivWith(currentFunctionEntry.getInfo().getType()))) {
             int line = node.getKwReturn().getLine();
             int column = node.getKwReturn().getPos();
@@ -630,6 +640,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         
         /* Function definition matched to a return statement */
         ((FuncDefInfo) currentFunctionEntry.getInfo()).setIsMatchedToReturnStmt(true);
+
+        /* Intermediate Code */
+        this.intermediateCode.genQuad("ret", "-", "-", "-");
+
+        exprTypes.put(node, new Attributes(BuiltInType.Void));
     }
 
     @Override
@@ -898,7 +913,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         this.intermediateCode.genQuad("call", "-", "-", node.getId().toString());
-        exprTypes.put(node, nodeAttributes);
+        exprTypes.put(node.parent(), nodeAttributes);
     }
 
     @Override
