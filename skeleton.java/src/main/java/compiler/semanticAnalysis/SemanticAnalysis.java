@@ -886,17 +886,19 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
         outAFuncCall(node);
 
+        Attributes nodeAttributes = new Attributes(((FunctionInfo) funcDec.getInfo()).getType());
+
         /* Create a Quad for the function's return value */
         if ((((FunctionInfo) funcDec.getInfo()).getType()).isEquivWith(BuiltInType.Nothing)) {
             String w = this.intermediateCode.newTemp(((FunctionInfo) funcDec.getInfo()).getType());
             System.out.println(w);
             this.intermediateCode.genQuad("par", "RET", w, "-");
-            
-            Attributes nodeAttributes = new Attributes(BuiltInType.Void);
+
             nodeAttributes.setPlace(w);
-            exprTypes.put(node, nodeAttributes);
         }
+
         this.intermediateCode.genQuad("call", "-", "-", node.getId().toString());
+        exprTypes.put(node, nodeAttributes);
     }
 
     @Override
@@ -941,8 +943,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 "Calling function \"" + name.getText() + "\": wrong number of arguments provided");
         }
 
-        /* Put the return type to the HashMap */
-        exprTypes.put(node.parent(), new Attributes(funcInfo.getType()));
+        //exprTypes.put(node.parent(), new Attributes(funcInfo.getType()));
     }
 
     @Override
