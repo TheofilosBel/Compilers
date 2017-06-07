@@ -642,6 +642,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         ((FuncDefInfo) currentFunctionEntry.getInfo()).setIsMatchedToReturnStmt(true);
 
         /* Intermediate Code */
+        this.intermediateCode.genQuad(":=", exprTypes.get(node.getExpr()).getPlace(), "-", "$$");
         this.intermediateCode.genQuad("ret", "-", "-", "-");
 
         exprTypes.put(node, new Attributes(BuiltInType.Void));
@@ -907,7 +908,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if ((((FunctionInfo) funcDec.getInfo()).getType()).isEquivWith(BuiltInType.Nothing)) {
             String w = this.intermediateCode.newTemp(((FunctionInfo) funcDec.getInfo()).getType());
             System.out.println(w);
-            this.intermediateCode.genQuad("par", "RET", w, "-");
+            this.intermediateCode.genQuad("par", w, "RET", "-");
 
             nodeAttributes.setPlace(w);
         }
