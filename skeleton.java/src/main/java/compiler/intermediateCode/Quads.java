@@ -32,6 +32,11 @@ public class Quads {
                 this.y + ", " + this.z;
     }
 
+    /* Returns the operation name */
+    public String getOpName(){
+        return this.opName;
+    }
+
     /* Returns the x String */
     public String getX(){
         return this.x;

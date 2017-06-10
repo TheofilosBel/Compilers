@@ -202,4 +202,9 @@ public class FunctionInfo extends Info {
         return this.name;
     }
 
+    @Override
+    public boolean isFunctionInfo() {
+        return true;
+    }
+
 }

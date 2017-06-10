@@ -11,4 +11,7 @@ public abstract class Info {
 
     public abstract Type getType();
 
+    public boolean isVariableInfo() { return false;}
+    public boolean isFunctionInfo() { return false;}
+
 }
