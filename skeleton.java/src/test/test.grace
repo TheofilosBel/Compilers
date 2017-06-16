@@ -1,5 +1,8 @@
-fun main () : nothing
+fun main(): nothing
+    fun ref_must_be_lvalue(): int
+    {
+        return;
+    }
 {
-    puts("Moving from ");
-    puts("to");
+    ref_must_be_lvalue();
 }

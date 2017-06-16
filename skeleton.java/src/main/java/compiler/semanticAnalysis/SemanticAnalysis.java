@@ -645,15 +645,24 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outAReturnStmt(AReturnStmt node) {
-        Type aExprType = exprTypes.get(node.getExpr()).getType();
-
         /* Search the function this return statement corresponds to */
         SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString(), null);
+
+        /* Check for empty return statement in function that returns something */
+        if ((node.getExpr() == null) && !(currentFunctionEntry.getInfo().getType().isEquivWith(BuiltInType.Nothing))) {
+            int line = node.getKwReturn().getLine();
+            int column = node.getKwReturn().getPos();
+            throw new TypeCheckingException(line, column, "Empty return statement in function: "
+                                            + currentFunctionId.peek().getText() + "\n"
+                                            + "Return type is " + currentFunctionEntry.getInfo().getType());
+        }
+
+        Type aExprType = exprTypes.get(node.getExpr()).getType();
 
         if (!(aExprType.isEquivWith(currentFunctionEntry.getInfo().getType()))) {
             int line = node.getKwReturn().getLine();
             int column = node.getKwReturn().getPos();
-            throw new TypeCheckingException(line, column, "Type of returned expression does not match return type of function:"
+            throw new TypeCheckingException(line, column, "Type of returned expression does not match return type of function: "
                                             + currentFunctionId.peek().getText() + "\n"
                                             + "Return type is " + currentFunctionEntry.getInfo().getType());
         }
