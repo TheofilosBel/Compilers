@@ -90,7 +90,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* No arguments to be added to the list */
-        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo("int ", argList, passBy));
         this.symbolTable.insert("geti ", data);
         data    = null;
         argList = null;
@@ -658,7 +658,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         this.intermediateCode.genQuad(":=", exprTypes.get(node.getExpr()).getPlace(), "-", "$$");
         this.intermediateCode.genQuad("ret", "-", "-", "-");
 
-        exprTypes.put(node, new Attributes(BuiltInType.Void));
+        /* Create nodes attributes */
+        Attributes nodeAttributes = new Attributes(BuiltInType.Void);
+        nodeAttributes.makeEmptyList("Next");
+
+        exprTypes.put(node, nodeAttributes);
     }
 
     @Override
