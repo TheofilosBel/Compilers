@@ -906,6 +906,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
         {
             List<PExpr> copy = new ArrayList<PExpr>(node.getExprList());
+
             for(PExpr e : copy) {
                 e.apply(this);
 

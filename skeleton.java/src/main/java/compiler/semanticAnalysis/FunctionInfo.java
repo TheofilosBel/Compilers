@@ -185,6 +185,10 @@ public class FunctionInfo extends Info {
 
     /* Returns "R" for an argument that has been passed by reference, or "V" otherwise */
     public String paramMode(int n) {
+        if (n > this.getPassByMethods().size()) {
+            return (new String("-"));
+        }
+
         if ((this.getPassByMethods().get(n-1)).equals(new String("ref"))) {
             return (new String("R"));
         }
