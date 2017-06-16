@@ -1,8 +1,4 @@
 fun main(): nothing
-    fun ref_must_be_lvalue(): int
-    {
-        return;
-    }
+    fun ref_must_be_lvalue() : int;
 {
-    ref_must_be_lvalue();
 }

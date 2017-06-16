@@ -48,8 +48,8 @@ public class SymbolTable {
 
     /* Returns : SymbolTableEntry or null
      * Parameters : @key to search in the symbol table
-     *              if @boolptr == null then nothing happens else it must be
-     *              an one elem array to return the locality o the variable
+     *              if @localityFlag == null then nothing happens else it must be
+     *              a one element array to return the locality of the variable
      */
     public SymbolTableEntry lookup(String key, boolean[] localityFlag) {
         boolean found = false;

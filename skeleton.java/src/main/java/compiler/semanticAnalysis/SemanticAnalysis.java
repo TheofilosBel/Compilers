@@ -25,7 +25,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     private CompilerErrorList errorList;
     private IntermediateCode intermediateCode;
     private FinalCode finalCode;
-    int blockDepth; /* This helps us extinguish function definition blocks for if/while blocks */
+    private HashMap<String, List<Integer>> declaredFunctions = new HashMap<String, List<Integer>>();
+    int blockDepth; /* This helps us distinguish function definition blocks for if/while blocks */
 
     /*
      * The semantic analysis phase starts here
@@ -41,7 +42,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Add the first scope that will hold the built in library functions */
         this.symbolTable.enter();
         this.intermediateCode = new IntermediateCode();
-
         
         LinkedList<VariableInfo> argList; /* A list containing the arguments to each function */
         LinkedList<String> passBy;        /* A list containing the pass method (by reference / by value) of each argument */
@@ -232,13 +232,18 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void inAFuncDec(AFuncDec node) {
-
         /* Look up for an existing func declaration with that name */
         SymbolTableEntry existingFuncDec = this.symbolTable.lookup(node.getId().toString(), null);
         if (existingFuncDec != null) {
             throw new SemanticAnalysisException(node.getId().getLine(), node.getId().getPos(),
                     "Conflicting types: Function declaration of \"" + node.getId().getText() + "\" already exists");
         }
+
+        /* Add the name to the list of declared Functions */
+        List<Integer> position = new ArrayList<Integer>();
+        position.add(node.getId().getLine());
+        position.add(node.getId().getPos());
+        declaredFunctions.put(node.getId().toString(), position);
 
         /* Create a SymbolTableEntry object to pass to the insert function */
         FunctionInfo info = null;
@@ -272,17 +277,22 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 throw new SemanticAnalysisException(node.getId().getLine(), node.getId().getPos(),
                         "Function with name " + node.getId().toString() + " can't be used, is already in use");
             }
-            else if(((FuncDecInfo) funcDec.getInfo()).getFuncDefined() == true){
+            else if (((FuncDecInfo) funcDec.getInfo()).getFuncDefined() == true) {
                 /* In case the function declaration was already matched with another function definition */
                 throw new SemanticAnalysisException(node.getId().getLine(), node.getId().getPos(),
                         "Function with name " + node.getId().toString() + " can't be used, is already defined");
+            }
+
+            /* Remove the name of the function from the declaredFunctions map */
+            if (declaredFunctions.containsKey(node.getId().toString())) {
+                declaredFunctions.remove(node.getId().toString());
             }
 
             /*
              * A non matched declaration has been found
              * Update its flag to indicate that it has been matched
              */
-            ((FuncDecInfo) funcDec.getInfo()).setFuncDefined(true); 
+            ((FuncDecInfo) funcDec.getInfo()).setFuncDefined(true);
         }
         else if ((this.symbolTable.getIsMainDefined()) == true) {
             /*
@@ -409,15 +419,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
             /* Add the variable to the function's definition list that holds local variables */
             currentFuncDef.addLocalVariable(v);
-
-            /* Print each variable */
-            //indentNprint("Name :" + v.getName());
-            //indentNprint("Type :" + v.getType());
-            //indentNprint("Int ?:" + v.getType().isInt());
         }
-
-        //for (int a = 0 ; a < currentFuncDef.getLocalVariables().size(); a++)
-            //System.out.println("Lists :" + currentFuncDef.getLocalVariables().get(a).getName());
     }
 
     @Override
@@ -427,11 +429,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
          * so we create a unit quad
          */
         if (blockDepth == 0) {
-            /* In every block create a new final Code block - Intermediate code block at the end we are going to produce it */
             System.out.println("Current Function is " + this.currentFunctionId.peek().toString());
             this.finalCode = new FinalCode(this.symbolTable,
-                    (FunctionInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo()
-                    );
+                    (FunctionInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo());
 
             this.intermediateCode.genQuad("unit", currentFunctionId.peek().toString(), "-", "-");
         }
@@ -471,6 +471,18 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* For intermediate code */
         LinkedList<Integer> nextList = null;
         int loopTimes = 0;
+
+        /* Check that every local function declaration has been matched to a definition */
+        if (blockDepth == 0) {
+            boolean[] isLocal = new boolean[1];
+
+            for (String key : declaredFunctions.keySet()) {
+                if ((this.symbolTable.lookup(key, isLocal) != null) && (isLocal[0] == true)) {
+                    throw new SemanticAnalysisException(declaredFunctions.get(key).get(0), declaredFunctions.get(key).get(1)-4,
+                        "Function: \"" + key + "\" declared but not defined");
+                }
+            }
+        }
 
         inABlockStmt(node);
         {
