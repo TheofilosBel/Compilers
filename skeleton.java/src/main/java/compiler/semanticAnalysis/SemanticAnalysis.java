@@ -40,6 +40,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         
         /* Add the first scope that will hold the built in library functions */
         this.symbolTable.enter();
+        this.intermediateCode = new IntermediateCode();
+
         
         LinkedList<VariableInfo> argList; /* A list containing the arguments to each function */
         LinkedList<String> passBy;        /* A list containing the pass method (by reference / by value) of each argument */
@@ -424,8 +426,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                     (FunctionInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo()
                     );
 
-            this.intermediateCode = new IntermediateCode();
-
             this.intermediateCode.genQuad("unit", currentFunctionId.peek().toString(), "-", "-");
         }
 
@@ -455,7 +455,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             this.intermediateCode.genQuad("endu", currentFunctionId.peek().toString(), "-", "-");
 
             /* Produce the Functions's final code */
-            this.finalCode.intermediateToFinalCode(this.intermediateCode.getQuadsList());
+            //this.finalCode.intermediateToFinalCode(this.intermediateCode.getQuadsList());
         }
     }
 
