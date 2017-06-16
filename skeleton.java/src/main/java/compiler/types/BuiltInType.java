@@ -61,21 +61,21 @@ public class BuiltInType extends Type {
     }
     
     @Override
-    public boolean isEquivWith(Type type) {
+    public int isEquivWith(Type type) {
 
         /* Array can't be equal with bultIn type */
         if (type.isArray())
-            return false;
+            return 0;
         
         if (this.isInt() == type.isInt() && this.isInt())
-            return true;
+            return 1;
         else if (this.isChar() == type.isChar() && this.isChar())
-            return true;
+            return 1;
         else if (this.isBoolean() == type.isBoolean() && this.isBoolean())
-            return true;
+            return 1;
         else if (this.isNothing() == type.isNothing() && this.isNothing())
-            return true;
+            return 1;
         
-        return false;
+        return 0;
     }
 }

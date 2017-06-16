@@ -620,7 +620,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Type assignLhsType = assignLhsLval.getType();
 
         /* String literals not allowed as lvalues in assignments */
-        if (assignLhsType.isArray() && assignLhsType.isEquivWith(BuiltInType.Char)) {
+        if (assignLhsType.isArray() && assignLhsType.isEquivWith(BuiltInType.Char) == 1) {
             int line = node.getAssign().getLine();
             int column = node.getAssign().getPos();
             throw new TypeCheckingException(line, column, "Left hand side of an assignment can not be a string literal");
@@ -629,7 +629,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Attributes assignRhsExpr = exprTypes.get(node.getExpr());
         Type assignRhsType = assignRhsExpr.getType();
 
-        if (!(assignLhsType.isEquivWith(assignRhsType))) {
+        if (!(assignLhsType.isEquivWith(assignRhsType) == 1)) {
             int line = node.getAssign().getLine();
             int column = node.getAssign().getPos();
             throw new TypeCheckingException(line, column, "Both sides of an assignment should have the same type");
@@ -650,7 +650,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Search the function this return statement corresponds to */
         SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString(), null);
 
-        if (!(aExprType.isEquivWith(currentFunctionEntry.getInfo().getType()))) {
+        if (!(aExprType.isEquivWith(currentFunctionEntry.getInfo().getType()) == 1)) {
             int line = node.getKwReturn().getLine();
             int column = node.getKwReturn().getPos();
             throw new TypeCheckingException(line, column, "Type of returned expression does not match return type of function:"
@@ -934,7 +934,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         nodeAttributes.makeEmptyList("Next");
 
         /* Create a Quad for the function's return value */
-        if ((((FunctionInfo) funcDec.getInfo()).getType()).isEquivWith(BuiltInType.Nothing)) {
+        if ((((FunctionInfo) funcDec.getInfo()).getType()).isEquivWith(BuiltInType.Nothing) == 1) {
             String w = this.intermediateCode.newTemp(((FunctionInfo) funcDec.getInfo()).getType());
             System.out.println(w);
             this.intermediateCode.genQuad("par", w, "RET", "-");
@@ -984,13 +984,21 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 funcDecExprType = ((FunctionInfo) funcDec.getInfo()).getArguments().get(arg).getType();
                 funcCallExprType = exprTypes.get(node.getExprList().get(arg)).getType();
 
-                if (!funcDecExprType.isEquivWith(funcCallExprType)) {
+                int ret = funcDecExprType.isEquivWith(funcCallExprType);
+                if (ret == 0) {
                     TId name  = node.getId();
                     Node expr = node.getExprList().get(arg);
                     throw new TypeCheckingException(name.getLine(), name.getPos(),
                             "In function \"" + name.getText() + "\": calling with expression: \"" +
                             expr.toString() + "\" with incompatible type: " + funcCallExprType.toString() +
                             "when arguments type was declared: " + funcDecExprType.toString());
+                }
+                else if(ret == 2) {
+                    TId name  = node.getId();
+                    Node expr = node.getExprList().get(arg);
+                    throw new TypeCheckingException(name.getLine(), name.getPos(),
+                            "In function \"" + name.getText() + "\": calling with array: \"" +
+                            expr.toString() + "\" with incompatible size");
                 }
             }
         }
@@ -1038,7 +1046,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         dimPlaces.add(dimPlace);
 
         /* Add the size to the linked list and call again */
-        dimList.add(0);
+        if (node.getExpr() != null && node.getExpr() instanceof AIntExpr)
+            dimList.add(Integer.parseInt(((AIntExpr) node.getExpr()).getIntConst().getText()));
+        else
+            dimList.add(0);
 
         /* There is no case for a AStrLvalue because an exception would have already been thrown */
         if (node.getLvalue() instanceof AIdLvalue) {
@@ -1092,12 +1103,19 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             /* Make a new type representing the array access (we need this to check the dimension number) */
             Type arrayAccessType = new ComplexType("array", list, arrayType.getArrayType()); 
 
-            if (!arrayType.isEquivWith(arrayAccessType)) {
+            int ret = arrayType.isEquivWith(arrayAccessType);
+            if ( ret == 0) {
                 int line = arrayName.getLine();
                 int column = arrayName.getPos();
                 throw new TypeCheckingException(line, column, "Invalid action: array with id \""
                                     + arrayName.getText()+"\" was defined with " + arrayType.getArrayDims() +
                                     " dimension(s) but is used with " + arrayAccessType.getArrayDims() + " dimension(s)");
+            }
+            else if(ret == 2) {
+                int line = arrayName.getLine();
+                int column = arrayName.getPos();
+                throw new TypeCheckingException(line, column, "Invalid action: array with id \""
+                        + arrayName.getText()+"\" was used with wrong size");
             }
 
             /* Intermediate code */
@@ -1284,7 +1302,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* An equality comparison operator can be applied to equivalent types only */
-        if (!(leftExprType.isEquivWith(rightExprType))) {
+        if (!(leftExprType.isEquivWith(rightExprType) == 1)) {
             int line = node.getEq().getLine();
             int column = node.getEq().getPos();
             throw new TypeCheckingException(line, column, "An \"=\" operator can be applied to equivalent types only");
@@ -1310,7 +1328,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* A non-equality comparison operator can be applied to equivalent types only */
-        if (!(leftExprType.isEquivWith(rightExprType))) {
+        if (!(leftExprType.isEquivWith(rightExprType) == 1)) {
             int line = node.getNeq().getLine();
             int column = node.getNeq().getPos();
             throw new TypeCheckingException(line, column, "An \"#\" operator can be applied to equivalent types only");
@@ -1337,7 +1355,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* A less-than comparison operator can be applied to equivalent types only */
-        if (!(leftExprType.isEquivWith(rightExprType))) {
+        if (!(leftExprType.isEquivWith(rightExprType)== 1)) {
             int line = node.getLt().getLine();
             int column = node.getLt().getPos();
             throw new TypeCheckingException(line, column, "A \"<\" operator can be applied to equivalent types only");
@@ -1364,7 +1382,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Type rightExprType = exprTypes.get(node.getR()).getType();
         
         /* A greater-than comparison operator can be applied to equivalent types only */
-        if (!(leftExprType.isEquivWith(rightExprType))) {
+        if (!(leftExprType.isEquivWith(rightExprType) == 1)) {
             int line = node.getGt().getLine();
             int column = node.getGt().getPos();
             throw new TypeCheckingException(line, column, "A \">\" operator can be applied to equivalent types only");
@@ -1389,7 +1407,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* A greater-than-or-equal comparison operator can be applied to equivalent types only */
-        if (!(leftExprType.isEquivWith(rightExprType))) {
+        if (!(leftExprType.isEquivWith(rightExprType) == 1)) {
             int line = node.getGteq().getLine();
             int column = node.getGteq().getPos();
             throw new TypeCheckingException(line, column, "A \">=\" operator can be applied to equivalent types only");
@@ -1414,7 +1432,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Type rightExprType = exprTypes.get(node.getR()).getType();
 
         /* A less-than-or-equal comparison operator can be applied to equivalent types only */
-        if (!(leftExprType.isEquivWith(rightExprType))) {
+        if (!(leftExprType.isEquivWith(rightExprType) == 1)) {
             int line = node.getLteq().getLine();
             int column = node.getLteq().getPos();
             throw new TypeCheckingException(line, column, "A \"<=\" operator can be applied to equivalent types only");
