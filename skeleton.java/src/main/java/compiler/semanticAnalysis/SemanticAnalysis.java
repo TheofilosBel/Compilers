@@ -232,7 +232,14 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void inAFuncDec(AFuncDec node) {
-        
+
+        /* Look up for an existing func declaration with that name */
+        SymbolTableEntry existingFuncDec = this.symbolTable.lookup(node.getId().toString(), null);
+        if (existingFuncDec != null) {
+            throw new SemanticAnalysisException(node.getId().getLine(), node.getId().getPos(),
+                    "Conflicting types: Function declaration of \"" + node.getId().getText() + "\" already exists");
+        }
+
         /* Create a SymbolTableEntry object to pass to the insert function */
         FunctionInfo info = null;
         try {
@@ -953,7 +960,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Equivalence check with declaration */
         FunctionInfo funcInfo = (FunctionInfo) funcDec.getInfo();
 
-        System.out.println(node.getExprList().size());
+        //System.out.println(node.getExprList().size());
 
         /* First check for equal number of arguments */
         Type funcDecExprType  = null;
@@ -961,6 +968,18 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (funcInfo.getArguments().size() == node.getExprList().size() && node.getExprList().size() > 0) {
             /* Check every expression with its equivalent argument */
             for (int arg = 0; arg < node.getExprList().size(); arg++) {
+
+                /* Check if a by ref arg is passed but its not an lvalue */
+                if ( !(node.getExprList().get(arg) instanceof ALvalExpr) && ((FunctionInfo) funcDec.getInfo()).getPassByMethods().get(arg).equals("ref")) {
+
+                    /* Throw exception */
+                    TId name  = node.getId();
+                    Node expr = node.getExprList().get(arg);
+                    throw new TypeCheckingException(name.getLine(), name.getPos(),
+                            "In function \"" + name.getText() + "\": by ref argument: \"" +
+                                    expr.toString() + "\" is not an lvalue.");
+                }
+
                 /* Get the function declaration's arguments type and function call's expressions' type */
                 funcDecExprType = ((FunctionInfo) funcDec.getInfo()).getArguments().get(arg).getType();
                 funcCallExprType = exprTypes.get(node.getExprList().get(arg)).getType();
@@ -970,8 +989,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                     Node expr = node.getExprList().get(arg);
                     throw new TypeCheckingException(name.getLine(), name.getPos(),
                             "In function \"" + name.getText() + "\": calling with expression: \"" +
-                            expr.toString() + "\" with type incompatible type " + funcCallExprType.toString() + 
-                            "\nwhen declaration type  is " + funcDecExprType.toString());
+                            expr.toString() + "\" with incompatible type: " + funcCallExprType.toString() +
+                            "when arguments type was declared: " + funcDecExprType.toString());
                 }
             }
         }
