@@ -1,0 +1,4 @@
+#! /bin/bash
+
+# Run the javac on the argument given
+java -cp target/compiler-1.0-SNAPSHOT.jar compiler.Compiler $1 

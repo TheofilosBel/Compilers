@@ -16,6 +16,7 @@ public class VariableInfo extends Info {
 
     private TId  name; /* Name of the variable */
     private Type type; /* Type of the variable */
+    private int  stackIndex;  /* For final code , its the index of the var in the activation record */
 
     public VariableInfo() {}
     
@@ -23,6 +24,7 @@ public class VariableInfo extends Info {
     public VariableInfo(VariableInfo var) {
         this.name = (TId) var.getName().clone();
         this.type = var.getType().makeCopy();
+        this.stackIndex = 0;
     }
 
     /*
@@ -89,7 +91,6 @@ public class VariableInfo extends Info {
             }
         }
         else {
-            System.out.println("\"" + type.getDataType().toString() +"\"");
 
             /* Make a built in type */
             this.type = new BuiltInType(type.getDataType().toString());
@@ -128,6 +129,21 @@ public class VariableInfo extends Info {
     /* Returns the type of the variable */
     public Type getType() {
         return this.type;
+    }
+
+    /* set the stackIndex */
+    public void setStackIndex(int index) {
+        this.stackIndex = index;
+    }
+
+    /* set the stackIndex */
+    public int getStackIndex() {
+        return this.stackIndex;
+    }
+
+    @Override
+    public boolean isVariableInfo() {
+        return true;
     }
 
 }

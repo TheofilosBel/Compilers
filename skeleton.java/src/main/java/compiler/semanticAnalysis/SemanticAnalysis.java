@@ -5,6 +5,7 @@ import compiler.node.*;
 import compiler.types.*;
 import compiler.exceptions.*;
 import compiler.intermediateCode.*;
+import compiler.fianlCode.*;
 import compiler.semanticAnalysis.VariableInfo;
 import compiler.semanticAnalysis.SymbolTableEntry;
 
@@ -23,6 +24,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     private Stack<TId> currentFunctionId;
     private CompilerErrorList errorList;
     private IntermediateCode intermediateCode;
+    private FinalCode finalCode;
     int blockDepth; /* This helps us extinguish function definition blocks for if/while blocks */
 
     /*
@@ -35,7 +37,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Create instances of the member classes */
         this.symbolTable = new SymbolTable();
         this.errorList = new CompilerErrorList();
-        this.intermediateCode = new IntermediateCode();
         
         /* Add the first scope that will hold the built in library functions */
         this.symbolTable.enter();
@@ -251,7 +252,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void inAFuncDef(AFuncDef node) {
         /* Check for a function declaration in the same nesting */
-        SymbolTableEntry funcDec = this.symbolTable.lookup(node.getId().toString());
+        SymbolTableEntry funcDec = this.symbolTable.lookup(node.getId().toString(), null);
         
         if (funcDec != null) {
             /*
@@ -360,7 +361,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void outAFuncDef(AFuncDef node) {
         /* Get function definition form symbol table */
-        SymbolTableEntry funcDef = this.symbolTable.lookup(node.getId().toString());
+        SymbolTableEntry funcDef = this.symbolTable.lookup(node.getId().toString(), null);
 
         /* Check if the function has been matched to a return statement */        
         if (!(funcDef.getInfo().getType().isNothing())) {
@@ -380,7 +381,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void inAVarDef(AVarDef node) {
         /* Get the current FunctionInfo */
-        SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString());
+        SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString(), null);
         FuncDefInfo currentFuncDef = (FuncDefInfo) currentFunctionEntry.getInfo();
 
         /* Get the type of the variables in the current definition */
@@ -401,13 +402,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             currentFuncDef.addLocalVariable(v);
 
             /* Print each variable */
-            indentNprint("Name :" + v.getName());
-            indentNprint("Type :" + v.getType());
-            indentNprint("Int ?:" + v.getType().isInt());            
+            //indentNprint("Name :" + v.getName());
+            //indentNprint("Type :" + v.getType());
+            //indentNprint("Int ?:" + v.getType().isInt());
         }
 
-        for (int a = 0 ; a < currentFuncDef.getLocalVariables().size(); a++) 
-            System.out.println("Lists :" + currentFuncDef.getLocalVariables().get(a).getName());
+        //for (int a = 0 ; a < currentFuncDef.getLocalVariables().size(); a++)
+            //System.out.println("Lists :" + currentFuncDef.getLocalVariables().get(a).getName());
     }
 
     @Override
@@ -417,8 +418,17 @@ public class SemanticAnalysis extends DepthFirstAdapter {
          * so we create a unit quad
          */
         if (blockDepth == 0) {
+            /* In every block create a new final Code block - Intermediate code block at the end we are going to produce it */
+            System.out.println("Current Function is " + this.currentFunctionId.peek().toString());
+            this.finalCode = new FinalCode(this.symbolTable,
+                    (FunctionInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo()
+                    );
+
+            this.intermediateCode = new IntermediateCode();
+
             this.intermediateCode.genQuad("unit", currentFunctionId.peek().toString(), "-", "-");
         }
+
 
         blockDepth++;
     }
@@ -433,7 +443,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
          */
         if (blockDepth == 0) {
             /* Get the current FunctionInfo */
-            SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString());
+            SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString(), null);
 
             /*
              * If the function definition has not been matched to a return statement
@@ -443,6 +453,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 this.intermediateCode.genQuad("ret", "-", "-", "-");
             }
             this.intermediateCode.genQuad("endu", currentFunctionId.peek().toString(), "-", "-");
+
+            /* Produce the Functions's final code */
+            this.finalCode.intermediateToFinalCode(this.intermediateCode.getQuadsList());
         }
     }
 
@@ -628,7 +641,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Type aExprType = exprTypes.get(node.getExpr()).getType();
 
         /* Search the function this return statement corresponds to */
-        SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString());
+        SymbolTableEntry currentFunctionEntry = this.symbolTable.lookup(currentFunctionId.peek().toString(), null);
 
         if (!(aExprType.isEquivWith(currentFunctionEntry.getInfo().getType()))) {
             int line = node.getKwReturn().getLine();
@@ -884,7 +897,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
 
         /* Search for the function declaration in the symbol table */
-        SymbolTableEntry funcDec = this.symbolTable.lookup(node.getId().toString());
+        SymbolTableEntry funcDec = this.symbolTable.lookup(node.getId().toString(), null);
         int n = 1;
 
         {
@@ -920,7 +933,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void outAFuncCall(AFuncCall node) {
         /* Get the declaration from the symbol table */
-        SymbolTableEntry funcDec = this.symbolTable.lookup(node.getId().toString());
+        SymbolTableEntry funcDec = this.symbolTable.lookup(node.getId().toString(), null);
 
         /* If the function is not declared throw an exception */
         if (funcDec == null) {
@@ -973,7 +986,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
     @Override
     public void outAIdLvalue(AIdLvalue node) {
-        SymbolTableEntry anId = this.symbolTable.lookup(node.getId().toString());
+        SymbolTableEntry anId = this.symbolTable.lookup(node.getId().toString(), null);
 
         /* If the id was not found in the symbol table throw an exception */
         if (anId == null) {
@@ -1035,7 +1048,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             arrayName = recArrayIdFinder(node, list, placesList);
 
             /* Lookup in the symbol table for the array */
-            SymbolTableEntry array = this.symbolTable.lookup(arrayName.toString());  
+            SymbolTableEntry array = this.symbolTable.lookup(arrayName.toString(), null);
 
             /* Get the Type */
             Type arrayType = array.getInfo().getType();
