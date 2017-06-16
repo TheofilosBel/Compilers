@@ -141,7 +141,7 @@ public class FunctionInfo extends Info {
                 VariableInfo declvar = this.getArguments().get(arg);
  
                 /* If the args are not equivalent throw exception */
-                if (!funcInfo.getArguments().get(arg).getType().isEquivWith(this.getArguments().get(arg).getType())) {
+                if (!(funcInfo.getArguments().get(arg).getType().isEquivWith(this.getArguments().get(arg).getType()) == 0)) {
                     throw new TypeCheckingException(defvar.getName().getLine(), defvar.getName().getPos(),
                             "In function \"" + name.getText() + "\": passing variable: \"" + defvar.getName().getText()
                             + "\" with type " + defvar.getType().toString() +
@@ -165,7 +165,7 @@ public class FunctionInfo extends Info {
                     + "Not matching arguments number between function declaration and function definition.");
         }
 
-        if (!funcInfo.getType().isEquivWith(this.getType())) {
+        if (!(funcInfo.getType().isEquivWith(this.getType()) == 0)) {
             TId name = funcInfo.getName();
             throw new TypeCheckingException(name.getLine(), name.getPos(),
                     "In function \"" + name.getText() + "\" returned type is declared as " + this.getType()

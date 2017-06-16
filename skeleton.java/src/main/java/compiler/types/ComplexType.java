@@ -106,19 +106,25 @@ public class ComplexType extends Type {
     }
 
     @Override
-    public boolean isEquivWith(Type type) {
+    public int isEquivWith(Type type) {
         /* Check the type names */
         if (this.getTypeName().equals(type.getTypeName())) {
             /* Recursive call to see the resemblance of the inner types */
-            if (this.getType().isEquivWith(type.getType())) {
-                return true;
+            int ret = this.getType().isEquivWith(type.getType());
+            if (ret == 1) {
+
+                if ((this.size != 0 && type.getSize() != 0) && this.size != type.getSize()) {
+                    System.out.println("EDW TIS MANA SOU ");
+                    return 2;  // size fails
+                }
+                return 1;
             }
             else {
-                return false;
+                return ret;
             }
         }
 
-        return false; 
+        return 0;
     }
 
 }

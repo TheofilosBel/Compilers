@@ -60,8 +60,8 @@ public abstract class Type {
     }
 
     /* Check if the calling type and the argument type are equivalent */
-    public boolean isEquivWith(Type type){
-        return false;
+    public int isEquivWith(Type type){
+        return 0;
     }
 
     public Type getType() {
