@@ -915,7 +915,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         }
         outAFuncCall(node);
 
+        /* Create attributes */
         Attributes nodeAttributes = new Attributes(((FunctionInfo) funcDec.getInfo()).getType());
+
+        /* Create an empty list */
+        nodeAttributes.makeEmptyList("Next");
 
         /* Create a Quad for the function's return value */
         if ((((FunctionInfo) funcDec.getInfo()).getType()).isEquivWith(BuiltInType.Nothing)) {
