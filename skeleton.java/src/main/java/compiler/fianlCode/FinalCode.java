@@ -189,7 +189,7 @@ public class FinalCode {
             }
             else {
                 /* In this case it's non local */
-
+                getAR(data);
                 System.out.println("Variable " + data + " is not local");
             }
         }

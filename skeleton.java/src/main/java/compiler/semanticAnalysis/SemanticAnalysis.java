@@ -474,10 +474,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
         /* Check that every local function declaration has been matched to a definition */
         if (blockDepth == 0) {
-            boolean[] isLocal = new boolean[1];
+            int[] isLocal = new int[1];
 
             for (String key : declaredFunctions.keySet()) {
-                if ((this.symbolTable.lookup(key, isLocal) != null) && (isLocal[0] == true)) {
+                if ((this.symbolTable.lookup(key, isLocal) != null) && (isLocal[0] == 0)) {
                     throw new SemanticAnalysisException(declaredFunctions.get(key).get(0), declaredFunctions.get(key).get(1)-4,
                         "Function: \"" + key + "\" declared but not defined");
                 }
