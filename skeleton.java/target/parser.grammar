@@ -1,0 +1,335 @@
+Package compiler;
+
+Helpers
+
+    all         = [0 .. 127];
+    sp          = ' ';
+    tab         = 9;
+    lf          = 10;
+    ff          = 12;
+    cr          = 13; 
+    eol         = lf | cr | cr lf;
+    not_eol     = [all - [cr + lf]];
+    white_space = (sp | tab | ff | eol)*;
+    
+    underscore    = '_';
+    letter        = [['a' .. 'z'] + ['A' .. 'Z']];
+    digit         = ['0' .. '9'];
+    hex_digit     = [digit + [['a' .. 'f'] + ['A' .. 'F']]];
+
+    simple_escape_sequence = '\' ''' | '\"' | '\\' | '\n' | '\r' | '\t' | '\0';
+    hex_escape_sequence    = '\x' hex_digit hex_digit;
+    escape_sequence        = simple_escape_sequence | hex_escape_sequence;
+    c_char                 = [all - [''' + ['"' + ['\' + [cr + lf]]]]] | escape_sequence;
+    s_char                 = [all - ['"' + ['\' + [cr + lf]]]] | escape_sequence;
+    
+    not_dollar = [all - '$'];
+  
+Tokens
+
+    white_space = white_space;
+    
+    /* Comments */
+    comment = ('$' not_dollar not_eol* eol |
+               '$$' '$'* ((not_dollar+ '$'? not_dollar+ '$'?) | (not_dollar*))* '$$');
+    
+    l_par     = '(';
+    r_par     = ')';
+    l_bracket = '[';
+    r_bracket = ']';
+    l_brace   = '{';
+    r_brace   = '}';
+    colon     = ':';
+    semicolon = ';';
+    comma     = ',';
+    assign    = '<-';
+    plus      = '+';
+    minus     = '-';
+    mult      = '*';
+    eq        = '=';
+    neq       = '#';
+    lt        = '<';
+    gt        = '>';
+    lteq      = '<=';
+    gteq      = '>=';
+
+    /* Keywords */
+    kw_and     = 'and';
+    kw_or      = 'or';
+    kw_int     = 'int';
+    kw_then    = 'then';
+    kw_char    = 'char';
+    kw_mod     = 'mod';
+    kw_var     = 'var';
+    kw_div     = 'div';
+    kw_not     = 'not';
+    kw_while   = 'while';
+    kw_do      = 'do';
+    kw_if      = 'if';
+    kw_else    = 'else';
+    kw_fun     = 'fun';
+    kw_return  = 'return';
+    kw_ref     = 'ref';
+    kw_nothing = 'nothing';
+
+    /* Constants */
+    int_const      = digit+;
+    char_const     = ''' c_char? ''';
+    string_literal = '"' s_char* '"';
+    
+    /* Boolean Constants */
+    true  = 'TRUE';
+    false = 'FALSE';
+
+    /* Identifiers */
+    id = letter (letter | digit | underscore)*;
+    
+    /* For identifiers starting with digits */
+	erroneous_id = (digit)+ letter (letter | digit | underscore)*;
+    
+Ignored Tokens
+    comment,
+    white_space;
+    
+Productions
+
+    program {->program} =
+        {func_def} func_def {-> New program(func_def.func_def)};
+        
+    func_def {-> func_def} =
+                {func_def} header local_def_list block {->New func_def(header.id, header.fpar_list, header.data_type, local_def_list, block.stmt)};
+        
+    func_decl {-> func_dec} =
+        {func_decl} header semicolon {-> New func_dec(header.id, header.fpar_list, header.data_type)};
+ 
+    local_def_list {-> local_def_list} =
+        {non_empty} local_def+ {-> New local_def_list.existing([local_def])} |
+        {empty}                {-> New local_def_list.non_existing()};
+        
+    local_def {-> local_def} =
+        {inner_decl} func_decl {-> New local_def.func_dec(func_decl.func_dec)} |
+        {inner_def}  func_def  {-> New local_def.func_def(func_def)}           |
+        {inner_vars} var_def   {-> New local_def.var_def(var_def.var_def)};
+        
+    header {-> id fpar_list data_type} = 
+        {header} kw_fun id l_par fpar_list r_par colon ret_type {-> id fpar_list ret_type.data_type};
+        
+    fpar_list {-> fpar_list} =
+        {multi_fpar}  fpar_def fpar_list_tail* {-> New fpar_list.existing([fpar_def, fpar_list_tail.fpar_def])} |
+        {empty}                                {-> New fpar_list.non_existing()};
+        
+    fpar_list_tail {-> fpar_def} =
+        semicolon fpar_def {-> fpar_def};
+
+    fpar_def {-> fpar_def} =
+        {by_ref}  kw_ref id_list colon fpar_type {-> New fpar_def.by_ref([id_list.id], fpar_type.type, kw_ref)} |
+        {by_vall} id_list colon fpar_type {-> New fpar_def.by_val([id_list.id], fpar_type.type)};
+
+    var_def {-> var_def} =
+        {var_def} kw_var id_list colon type semicolon {-> New var_def([id_list.id], type)};
+
+    id_list {-> id*} =
+        {multi} id comma id_list {-> [id, id_list.id]} |
+        {single} id {-> [id]};
+
+    fpar_type {-> type} =
+        {fpar_type} data_type array_declarator {-> New type(data_type.data_type, array_declarator.array_dec)};
+        
+    type {-> type} =
+        {type} data_type array_declarator {-> New type(data_type.data_type, array_declarator.array_dec)};
+
+    ret_type {-> data_type} =
+        {ret_data} data_type  {-> data_type}                     |
+        {ret_noth} kw_nothing {-> New data_type.noth(kw_nothing)};
+
+    data_type {-> data_type} =
+        {type_int}  kw_int  {-> New data_type.int(kw_int)}  |
+        {type_char} kw_char {-> New data_type.char(kw_char)};
+
+    stmt {-> stmt} =
+        {matched}   matched   {-> matched.stmt}  |
+        {unmatched} unmatched {-> unmatched.stmt};
+
+    matched {-> stmt} =
+        {if}        matched_if                    {-> matched_if.stmt}                                    |
+        {while}     matched_while                 {-> matched_while.stmt}                                 |
+        {noop}      semicolon                     {-> New stmt.noop()}                                    |
+        {assign}    l_value assign expr semicolon {-> New stmt.assign(l_value.lvalue, assign, expr.expr)} |
+        {block}     block                         {-> block.stmt}                                         |
+        {func_call} func_call semicolon           {-> New stmt.func_call(func_call)}                      |
+        {return}    kw_return expr? semicolon     {-> New stmt.return(kw_return, expr)};
+
+    unmatched {-> stmt} =
+        {if}    unmatched_if    {-> unmatched_if.stmt}   |
+        {while} unmatched_while {-> unmatched_while.stmt};
+
+    matched_if {-> stmt} = kw_if cond kw_then [then]:matched kw_else [else]:matched
+                                 {-> New stmt.if(kw_if, cond.cond, then.stmt, else.stmt)};
+
+    unmatched_if {-> stmt} =
+        {no_else}   kw_if cond kw_then stmt {-> New stmt.if(kw_if, cond.cond, stmt.stmt, Null)} |
+        {with_else} kw_if cond kw_then matched kw_else unmatched
+                    {-> New stmt.if(kw_if, cond.cond, matched.stmt, unmatched.stmt)};
+
+    matched_while {-> stmt} = kw_while cond kw_do matched {-> New stmt.while(kw_while, cond.cond, matched.stmt)};
+
+    unmatched_while {-> stmt} = kw_while cond kw_do unmatched {-> New stmt.while(kw_while, cond.cond, unmatched.stmt)};
+
+    block {-> stmt} = l_brace block_stmt_list r_brace {-> New stmt.block([block_stmt_list.stmt])};
+
+    block_stmt_list {-> stmt*} = stmt* {-> [stmt]};
+
+    func_call {-> func_call} = id l_par expr_list? r_par {-> New func_call(id, [expr_list.expr])};
+
+    expr_list {-> expr*} = {multi} expr expr_list_tail* {-> [expr, expr_list_tail.expr]};
+
+    expr_list_tail {-> expr} = comma expr {-> expr};
+
+    array_declarator {-> array_dec} =
+        {array_decl}  l_bracket int_const r_bracket array_declarator_tail*
+            {-> New array_dec.existing([int_const, array_declarator_tail.int_const])} |
+        {fempty_decl} l_bracket r_bracket array_declarator_tail+
+            {-> New array_dec.first_empty([array_declarator_tail.int_const])}         |
+        {empty_dec}   l_bracket r_bracket
+            {-> New array_dec.empty()}                                                |
+        {no_array_decl}
+            {-> New array_dec.not_existing()};
+
+    array_declarator_tail {-> int_const} =
+        {multiple} l_bracket int_const r_bracket {-> int_const};
+
+    l_value {-> lvalue} =
+        {id}   id                               {-> New lvalue.id(id)}                                |
+        {str}  string_literal                   {-> New lvalue.str(string_literal)}                   |
+        {expr} l_value l_bracket expr r_bracket {-> New lvalue.array(l_value.lvalue, l_bracket, expr)};
+
+    expr {-> expr} =
+        {add}  expr plus term  {-> New expr.add(expr, plus, term.expr)}  |
+        {sub}  expr minus term {-> New expr.sub(expr, minus, term.expr)} |
+        {term} term            {-> term.expr};
+
+    term {-> expr} =
+        {mult}     term mult signed_factor   {-> New expr.mult(term.expr, mult, signed_factor.expr)}  |
+        {div}      term kw_div signed_factor {-> New expr.div(term.expr, kw_div, signed_factor.expr)} |
+        {mod}      term kw_mod signed_factor {-> New expr.mod(term.expr, kw_mod, signed_factor.expr)} |
+        {s_factor} signed_factor             {-> signed_factor.expr};
+
+    signed_factor {-> expr} =
+        {pos}    plus signed_factor  {-> New expr.pos(plus, signed_factor.expr)}  |
+        {neg}    minus signed_factor {-> New expr.neg(minus, signed_factor.expr)} |
+        {factor} factor              {-> factor.expr};
+
+    factor {-> expr} =
+        {int}    int_const        {-> New expr.int(int_const)}       |
+        {char}   char_const       {-> New expr.char(char_const)}     |
+        {lval}   l_value          {-> New expr.lval(l_value.lvalue)} |
+        {func}   func_call        {-> New expr.func(func_call)}      |
+        {parens} l_par expr r_par {-> expr};
+
+    cond {-> cond} =
+        {or} cond kw_or cond1 {-> New cond.or(cond, kw_or, cond1.cond)} |
+        {cond1} cond1         {-> cond1.cond};
+
+    cond1 {-> cond} =
+        {and}   cond1 kw_and cond2 {-> New cond.and(cond1.cond, kw_and, cond2.cond)} |
+        {cond2} cond2              {-> cond2.cond};
+
+    cond2 {-> cond} =
+        {not}   kw_not cond2 {-> New cond.not(kw_not, cond2.cond)} |
+        {cond3} cond3        {-> cond3.cond};
+
+    cond3 {-> cond} =
+        {eq}   [left]:expr eq [right]:expr   {-> New cond.eq(left.expr, eq, right.expr)}     |
+        {neq}  [left]:expr neq [right]:expr  {-> New cond.neq(left.expr, neq, right.expr)}   |
+        {lt}   [left]:expr lt [right]:expr   {-> New cond.lt(left.expr, lt, right.expr)}     |
+        {gt}   [left]:expr gt [right]:expr   {-> New cond.gt(left.expr, gt, right.expr)}     |
+        {lteq} [left]:expr lteq [right]:expr {-> New cond.lteq(left.expr, lteq, right.expr)} |
+        {gteq} [left]:expr gteq [right]:expr {-> New cond.gteq(left.expr, gteq, right.expr)} |
+        {bool} bool                          {-> bool.cond};
+
+    bool {-> cond} =
+        {true}     true             {-> New cond.true(true)}   |
+        {false}    false            {-> New cond.false(false)} |
+        {c_parens} l_par cond r_par {-> cond} ;
+
+Abstract Syntax Tree
+
+    program = func_def;
+
+    local_def_list =
+        {existing} local_def* |
+        {non_existing} ;
+
+    local_def =
+        {func_def} func_def |
+        {func_dec} func_dec |
+        {var_def}  var_def;
+
+    func_def = id [fplist]:fpar_list [ret_type]:data_type [local_defs]:local_def_list [block]:stmt;
+
+    func_dec = id [fplist]:fpar_list [ret_type]:data_type;
+
+    func_call = id [expr_list]:expr*;
+
+    fpar_list =
+        {existing} [args]:fpar_def* |
+        {non_existing};
+
+    fpar_def = 
+    	{by_ref} [id_list]:id* type [passby]:kw_ref |
+    	{by_val} [id_list]:id* type;
+
+    var_def = [id_list]:id* type;
+
+    type = data_type array_dec;
+
+    array_dec =
+        {existing}    int_const* |
+        {first_empty} int_const* |
+        {empty}                  |
+        {not_existing} ;
+
+    data_type =
+        {int}  kw_int     |
+        {char} kw_char    |
+        {noth} kw_nothing ;
+
+    stmt =
+        {if}        kw_if cond [then]:stmt [else]:stmt? |
+        {while}     kw_while cond [body]:stmt           |
+        {assign}    lvalue assign expr                  |
+        {block}     [body]:stmt*                        |
+        {func_call} func_call                           |
+        {return}    kw_return expr?                     |
+        {noop}      ;
+
+    expr =
+        {add}  [l]:expr plus [r]:expr   |
+        {sub}  [l]:expr minus [r]:expr  |
+        {mult} [l]:expr mult [r]:expr   |
+        {div}  [l]:expr kw_div [r]:expr |
+        {mod}  [l]:expr kw_mod [r]:expr |
+        {pos}  plus expr                |
+        {neg}  minus expr               |
+        {int}  int_const                |
+        {char} char_const               |
+        {lval} lvalue                   |
+        {func} func_call;  
+
+    lvalue =
+        {str}   string_literal  |
+        {id}    id              |
+        {array} lvalue l_bracket expr;
+
+    cond =
+        {or}    [l]:cond kw_or [r]:cond  |
+        {and}   [l]:cond kw_and [r]:cond |
+        {not}   kw_not cond              |
+        {eq}    [l]:expr eq [r]:expr     |
+        {neq}   [l]:expr neq [r]:expr    |
+        {lt}    [l]:expr lt [r]:expr     |
+        {gt}    [l]:expr gt [r]:expr     |
+        {gteq}  [l]:expr gteq [r]:expr   |
+        {lteq}  [l]:expr lteq [r]:expr   |
+        {true}  true                     |
+        {false} false;

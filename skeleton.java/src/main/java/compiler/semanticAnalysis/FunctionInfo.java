@@ -14,6 +14,7 @@ public class FunctionInfo extends Info {
     
     private TId  name;
     private Type returnType; /* Return type of the function */
+    private int nestingLevel;
 
     private LinkedList<VariableInfo> arguments; /* List of arguments passed to the function*/
     private LinkedList<String> passedBy;        /* List of Strings that show the way the arguments where passed by */
@@ -25,8 +26,9 @@ public class FunctionInfo extends Info {
      * @argList List of arguments passed to the function
      * @name Name of the function
      */
-    public FunctionInfo(PDataType returnType, PFparList argList, TId name) {
+    public FunctionInfo(PDataType returnType, PFparList argList, TId name, int nesting) {
         this.name = (TId) name.clone();
+        this.nestingLevel = nesting;
 
         /* Find and save the return type of the function */
         if (returnType instanceof ANothDataType) {
@@ -91,10 +93,11 @@ public class FunctionInfo extends Info {
      * @argList List of arguments passed to the function
      * @passBy List of the pass method of every argument in argList
      */
-    public FunctionInfo(String returnType, LinkedList<VariableInfo> argList, LinkedList<String> passBy) {
+    public FunctionInfo(String returnType, LinkedList<VariableInfo> argList, LinkedList<String> passBy, int nesting) {
         this.returnType = new BuiltInType(returnType);
         this.arguments  = new LinkedList<VariableInfo>();
         this.passedBy   = new LinkedList<String>();
+        this.nestingLevel = nesting;
 
         /* Get all the arguments and their passBy method */
         this.arguments.addAll(argList);
@@ -204,6 +207,11 @@ public class FunctionInfo extends Info {
 
     public TId getName() {
         return this.name;
+    }
+
+    /* Returns the nesting leve */
+    public int getNestingLevel() {
+        return this.nestingLevel;
     }
 
     @Override
