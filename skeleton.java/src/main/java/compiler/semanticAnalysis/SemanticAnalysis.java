@@ -668,22 +668,25 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                             + currentFunctionId.peek().getText() + "\n"
                                             + "Return type is " + currentFunctionEntry.getInfo().getType());
         }
-
-        Type aExprType = exprTypes.get(node.getExpr()).getType();
-
-        if (!(aExprType.isEquivWith(currentFunctionEntry.getInfo().getType()) == 1)) {
-            int line = node.getKwReturn().getLine();
-            int column = node.getKwReturn().getPos();
-            throw new TypeCheckingException(line, column, "Type of returned expression does not match return type of function: "
-                                            + currentFunctionId.peek().getText() + "\n"
-                                            + "Return type is " + currentFunctionEntry.getInfo().getType());
-        }
         
-        /* Function definition matched to a return statement */
-        ((FuncDefInfo) currentFunctionEntry.getInfo()).setIsMatchedToReturnStmt(true);
+        if ((node.getExpr() != null)) {
+            Type aExprType = exprTypes.get(node.getExpr()).getType();
 
-        /* Intermediate Code */
-        this.intermediateCode.genQuad(":=", exprTypes.get(node.getExpr()).getPlace(), "-", "$$");
+            if (!(aExprType.isEquivWith(currentFunctionEntry.getInfo().getType()) == 1)) {
+                int line = node.getKwReturn().getLine();
+                int column = node.getKwReturn().getPos();
+                throw new TypeCheckingException(line, column, "Type of returned expression does not match return type of function: "
+                                                + currentFunctionId.peek().getText() + "\n"
+                                                + "Return type is " + currentFunctionEntry.getInfo().getType());
+            }
+        
+            /* Function definition matched to a return statement */
+            ((FuncDefInfo) currentFunctionEntry.getInfo()).setIsMatchedToReturnStmt(true);
+
+            /* Intermediate Code */
+            this.intermediateCode.genQuad(":=", exprTypes.get(node.getExpr()).getPlace(), "-", "$$");
+        }
+
         this.intermediateCode.genQuad("ret", "-", "-", "-");
 
         /* Create nodes attributes */
