@@ -462,7 +462,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             this.intermediateCode.genQuad("endu", currentFunctionId.peek().toString(), "-", "-");
 
             /* Produce the Functions's final code */
-            //this.finalCode.intermediateToFinalCode(this.intermediateCode.getQuadsList());
+            this.finalCode.intermediateToFinalCode(this.intermediateCode.getQuadsList());
         }
     }
 

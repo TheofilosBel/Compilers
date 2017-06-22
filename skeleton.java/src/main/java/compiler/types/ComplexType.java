@@ -114,7 +114,6 @@ public class ComplexType extends Type {
             if (ret == 1) {
 
                 if ((this.size != 0 && type.getSize() != 0) && this.size != type.getSize()) {
-                    System.out.println("EDW TIS MANA SOU ");
                     return 2;  // size fails
                 }
                 return 1;

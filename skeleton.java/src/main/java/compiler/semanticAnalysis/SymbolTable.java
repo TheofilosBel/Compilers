@@ -51,7 +51,7 @@ public class SymbolTable {
      *              if @boolptr == null then nothing happens else it must be
      *              an one elem array to return the locality o the variable
      */
-    public SymbolTableEntry lookup(String key, boolean[] localityFlag) {
+    public SymbolTableEntry lookup(String key, int[] locality) {
         boolean found = false;
 
         /* Loop all the stack from the top to the start */
@@ -69,13 +69,13 @@ public class SymbolTable {
             System.out.println();
 
             if (found == true) {
-                System.out.println("Found id:" + key + " scope " + scope_n);
+                System.out.println("Found id:" + key + " scope " + (this.scope_st.size() - 1 - scope_n));
 
                 /* Determine locality */
-                if (localityFlag != null && scope_n == this.scope_st.size() - 1)
-                    localityFlag[0] = true;
-                else if (localityFlag != null && scope_n != this.scope_st.size() - 1)
-                    localityFlag[0] = false;
+                if (locality != null && scope_n == this.scope_st.size() - 1)
+                    locality[0] =  this.scope_st.size() - 1 - scope_n;
+                else if (locality != null && scope_n != this.scope_st.size() - 1)
+                    locality[0] = this.scope_st.size() - 1 - scope_n;
 
                 /* Return the object */
                 return this.scope_st.get(scope_n).get(key);

@@ -10,6 +10,8 @@ import java.util.LinkedList;
 
 /**
  * Created by theo on 10/6/2017.
+ * Final code will be produced in
+ * every function definition.
  */
 public class FinalCode {
 
@@ -35,7 +37,7 @@ public class FinalCode {
     }
 
     /* Needed data for final code production */
-    SymbolTable copyOfST;
+    SymbolTable copyOfST;                    // Needed
     LinkedList<asCommand> finalCode;
     FunctionInfo currentFunctionInfo;
     int localVarStackIndex;
@@ -93,7 +95,7 @@ public class FinalCode {
      * Parameters : @str the string to recognize
      *              @boolptr a one elem array to fit a boolean
      */
-    public VariableInfo isVariable(String str, boolean[] variableLocality){
+    public VariableInfo isVariable(String str, int[] variableLocality){
         return (VariableInfo) copyOfST.lookup(str, variableLocality).getInfo();
     }
 
@@ -113,9 +115,22 @@ public class FinalCode {
 
     /* Returns : Nothing
      * Parameters : The @nonLocal string to find in the others Access links
+     * Produces final code for the transfer to the Access link of the wanted
+     * variable (there it's local)
      */
     public void getAR(String nonLocal) {
+        int[] nestingsBack = new int[1];
 
+        /* Get the times we have to go back */
+        copyOfST.lookup(nonLocal, nestingsBack);
+
+        /* We are going to get the access link of the current AR to esi register */
+        this.finalCode.add(new asCommand("\t", "mov", "esi", "DWORD PTR  [ebp + 8]" ));
+
+        /* Then go back to the asked AR */
+        for (int i=0; i < nestingsBack[0]; i++) {
+            this.finalCode.add(new asCommand("\t", "mov", "esi", "DWORD PTR  [esi + 8]" ));
+        }
     }
 
     /* Returns : True or false in case of error
@@ -125,7 +140,7 @@ public class FinalCode {
         VariableInfo varInfo = null;  // If data is variable keep its info
         String  sizeOfVar = null;     // If data is variable the string to put on assembly move
         int variableStackIndex = 0;   // If data is variable the stackIndex that it resides
-        boolean[] variableLocality = new boolean[1];  // For the locality of the variable
+        int[] variableLocality = new int[1];  // For the locality of the variable
 
         /* In case of data's type produce code */
         if (isIntConst(data)) {
@@ -140,8 +155,10 @@ public class FinalCode {
         }
         else if ((varInfo = isVariable(data, variableLocality)) != null || isTempVariable(data)) {
 
+            System.out.println("Variable locallity----------------" + variableLocality[0]);
+
             /* Produce code depending on locality and temp variables */
-            if (variableLocality[0] || isTempVariable(data)) {
+            if (variableLocality[0] == 0 || isTempVariable(data)) {
 
                 /* Determine the stack index  AND If its not on the activation record put it */
                 if (varInfo.getStackIndex() == 0) {
@@ -160,9 +177,10 @@ public class FinalCode {
 
                 /* Determine size */
                 if (varInfo.getType().isInt())
-                    sizeOfVar = "DWORD PTR";
-                else if (varInfo.getType().isInt())
+                    sizeOfVar = "DWORD";
+                else if (varInfo.getType().isChar())
                     sizeOfVar = "BYTE";
+
 
 
                 /* Make assembly code */
@@ -170,8 +188,8 @@ public class FinalCode {
                 return true;
             }
             else {
+                /* In this case it's non local */
 
-                /* TODO non local vars */
                 System.out.println("Variable " + data + " is not local");
             }
         }
