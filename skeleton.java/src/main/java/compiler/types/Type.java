@@ -54,6 +54,11 @@ public abstract class Type {
         return false;
     }
 
+    /* Returns true if this is the address type */
+    public boolean isAddress() {
+        return false;
+    }
+
     /* Returns true if this is the array type */
     public boolean isArray() {
         return false;

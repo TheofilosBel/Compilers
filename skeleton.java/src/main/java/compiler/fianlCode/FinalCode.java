@@ -45,7 +45,6 @@ public class FinalCode {
     int localVarStackIndex;
 
 
-
     public FinalCode (SymbolTable st, FunctionInfo currentFn, IntermediateCode copyOfIdObj){
         this.copyOfST = st;
         this.finalCode = new LinkedList<asCommand>();
@@ -66,6 +65,33 @@ public class FinalCode {
      * |            code to Final code                |
      * +----------------------------------------------+ */
 
+    /* Returns : The an int with the stack Index of the temp var
+     * Parameters : The temp var @tempVar to put on the Activation record (stack)
+     */
+    private int assignTempStackInd(String tempVar) {
+        int variableStackIndex;
+
+        /* Get temp vars type */
+        Type tempType = this.interCodeObj.getTempType(Integer.parseInt(tempVar));
+
+        /* Get the stack index of the temp variable */
+        variableStackIndex = this.interCodeObj.getTempIndex(Integer.parseInt(tempVar));
+        if (variableStackIndex == 0) {
+
+            //System.out.println("$" + tempVar + " Updated to " + this.localVarStackIndex);
+            this.interCodeObj.putTempIndex(Integer.parseInt(tempVar), this.localVarStackIndex);
+            variableStackIndex = this.localVarStackIndex;
+
+            /* Update the Stack index pointer */
+            if (tempType.isInt())
+                this.localVarStackIndex -= 4;
+            else if (tempType.isChar())
+                this.localVarStackIndex -= 1;
+        }
+
+        return variableStackIndex;
+    }
+
     /* Returns : True or False if the str is a int const
      * Parameters : A @str to determine if it's int
      */
@@ -80,18 +106,20 @@ public class FinalCode {
         return true;
     }
 
-    /* Returns : True or False if the str is a string const
+    /* Returns : True or False if the str is a char const
      * Parameters : A @str to determine if it's char
      */
     public boolean isCharConst(String str) {
 
-        // try {
-            char c = str.charAt(0);
-        //}
-        //catch(NumberFormatException nfe) {
-        //    return false;
-        //}
-        return false;
+        return str.substring(0,1).equals("\'");
+    }
+
+    /* Returns : True or False if the str is a string const
+     * Parameters : A @str to determine if it's a string const
+     */
+    public boolean isStringConst(String str) {
+
+        return str.substring(0,1).equals("\"");
     }
 
     /* Return : null or VariableInfo type obj
@@ -99,7 +127,15 @@ public class FinalCode {
      *              @variableLocality a one elem array to fit an int
      */
     public VariableInfo isVariable(String str, int[] variableLocality) {
-        return (VariableInfo) copyOfST.lookup(str, variableLocality).getInfo();
+        SymbolTableEntry varEntry = this.copyOfST.lookup(str, variableLocality);
+
+        /* If the var entry exists return it's info */
+        if (varEntry != null) {
+            return (VariableInfo) varEntry.getInfo();
+        }
+
+        /* In case of null return null */
+        return null;
     }
 
     /* Returns : TRUE or FALSE
@@ -116,33 +152,6 @@ public class FinalCode {
     public Boolean isPointerAccess(String str){
         /* If th first letter is $ then its a temp var */
         return  str.substring(0, 1).equals("[");
-    }
-
-    /* Returns : 1 in case of parameter by ref
-     *           2 in case of parameter by val
-     *           0 in case not a parameter
-     * Parameters : @str the string to recognize if its pass by val
-     */
-    public int isParamenter(String variable) {
-        int index = 0;
-        LinkedList<VariableInfo> functionArgs = this.currentFunctionInfo.getArguments();
-
-        /* Check if the variable name exists in the arguments of the current function */
-        for (VariableInfo var : functionArgs) {
-            if (var.getName().equals(variable)) {
-
-                /* In case we found it return the right int to show the passed by method */
-                if (this.currentFunctionInfo.getPassByMethods().get(index).equals("val")) {
-                    System.out.println("Arg by val" + variable);
-                    return 2;
-                }
-                else {
-                    return 1;
-                }
-            }
-            index++;
-        }
-        return 0;
     }
 
     /* +------------------------------------+
@@ -220,39 +229,54 @@ public class FinalCode {
             this.finalCode.add(new asCommand("\t", "mov", reg, Integer.toString((int) c)));
             return true;
         }
-        else if ((varInfo = isVariable(data, variableLocality)) != null || isTempVariable(data)) {
+        else if (isTempVariable(data)) {
 
-            System.out.println("Variable locallity----------------" + variableLocality[0]);
+            /* Get temp vars type */
+            Type tempType = this.interCodeObj.getTempType(Integer.parseInt(data.substring(1)));
 
-            if (!isTempVariable(data)) {
-                /* Determine the stack index  AND If its not any the activation record put it */
-                if (varInfo.getStackIndex() == 0 && variableLocality[0] == 0) {
-                    variableStackIndex = localVarStackIndex;
-                    varInfo.setStackIndex(localVarStackIndex);
+            /* Get the stack index of the temp variable */
+            variableStackIndex = assignTempStackInd(data.substring(1));
 
-                        /* Update the Stack index pointer */
-                    if (varInfo.getType().isInt())
-                        localVarStackIndex -= 4;
-                    else if (varInfo.getType().isInt())
-                        localVarStackIndex -= 1;
-                } else {
-                    variableStackIndex = varInfo.getStackIndex();
-                }
+            /* Determine size */
+            if (tempType.isInt() || tempType.isAddress())
+                sizeOfVar = "DWORD";
+            else if (tempType.isChar())
+                sizeOfVar = "BYTE";
 
-                /* Determine size */
+            /* Make assembly code */
+            this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
+            return true;
+
+        }
+        else if ((varInfo = isVariable(data, variableLocality)) != null) {
+
+            /* Determine the stack index AND If its not in the activation record put it */
+            if (varInfo.getStackIndex() == 0 && variableLocality[0] == 0) {
+                variableStackIndex = localVarStackIndex;
+                varInfo.setStackIndex(localVarStackIndex);
+
+                /* Update the Stack index pointer */
                 if (varInfo.getType().isInt())
-                    sizeOfVar = "DWORD";
+                    localVarStackIndex -= 4;
                 else if (varInfo.getType().isChar())
-                    sizeOfVar = "BYTE";
+                    localVarStackIndex -= 1;
+            } else {
+                variableStackIndex = varInfo.getStackIndex();
             }
 
-            if (varInfo.getMethod().equals("non") || varInfo.getMethod().equals("val") || isTempVariable(data)) {
+            /* Determine size */
+            if (varInfo.getType().isInt())
+                sizeOfVar = "DWORD";
+            else if (varInfo.getType().isChar())
+                sizeOfVar = "BYTE";
+
+            if (varInfo.getMethod().equals("non") || varInfo.getMethod().equals("val")) {
 
                 /* Produce code depending on locality and temp variables */
-                if (variableLocality[0] == 0 || isTempVariable(data)) {
+                if (variableLocality[0] == 0) {
 
                     /* Make assembly code */
-                    this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [ebp" + variableStackIndex + "]"));
+                    this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
                     return true;
                 } else {
 
@@ -260,7 +284,7 @@ public class FinalCode {
                     getAR(data);
 
                     /* Make assembly code */
-                    this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [esi" + variableStackIndex + "]"));
+                    this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
                     return true;
 
                 }
@@ -270,7 +294,7 @@ public class FinalCode {
                 if (variableLocality[0] == 0) {
 
                     /* Make assembly code */
-                    this.finalCode.add(new asCommand("\t", "mov", "esi", sizeOfVar + " PTR [ebp" + variableStackIndex + "]"));
+                    this.finalCode.add(new asCommand("\t", "mov", "esi", sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
                     this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [esi]"));
                     return true;
                 } else {
@@ -279,7 +303,7 @@ public class FinalCode {
                     getAR(data);
 
                     /* Make assembly code */
-                    this.finalCode.add(new asCommand("\t", "mov", "esi", sizeOfVar + " PTR [esi" + variableStackIndex + "]"));
+                    this.finalCode.add(new asCommand("\t", "mov", "esi", sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
                     this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [esi]"));
                     return true;
 
@@ -288,41 +312,192 @@ public class FinalCode {
         } else if (isPointerAccess(data)) {
 
             /* Inside [ ] there is always a temp var */
-            Type tempType = this.interCodeObj.getTempType(Integer.parseInt(data.substring(1, data.length() - 2)));
+            int tempNum = Integer.parseInt(data.substring(2, data.length() - 1));
+            Type tempType = this.interCodeObj.getTempType(tempNum);
 
             /* Determine the stack index */
-            variableStackIndex = this.interCodeObj.getTempIndex(Integer.parseInt(data.substring(1, data.length() - 2)));
-            if (variableStackIndex == 0) {
-                this.interCodeObj.putTempIndex(Integer.parseInt(data.substring(1, data.length() - 2)), variableStackIndex);
-            }
+            variableStackIndex = assignTempStackInd(data.substring(2, data.length() - 1));
 
             /* Determine size */
-            if (tempType.isInt())
+            if (tempType.isInt() || tempType.isAddress())
                 sizeOfVar = "DWORD";
             else if (tempType.isChar())
                 sizeOfVar = "BYTE";
 
-            load("edi", data.substring(1, data.length() - 2));
-            this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [ebp" + variableStackIndex + "]"));
+            load("edi", data.substring(1, data.length() - 1));
+            this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
             return true;
         }
         else {
 
             /* Its the { } case */
-            loadAddress(reg, data.substring(1, data.length() - 2));
+            loadAddress(reg, data.substring(2, data.length() - 1));
 
         }
 
         return false;
     }
 
-    public void loadAddress(String reg, String data){
+    public boolean loadAddress(String reg, String data) {
+        VariableInfo varInfo = null;  // If data is variable keep its info
+        String  sizeOfVar = null;     // If data is variable the string to put on assembly move
+        int variableStackIndex = 0;   // If data is variable the stackIndex that it resides
+        int[] variableLocality = new int[1];  // For the locality of the variable
 
+
+        /* Based on data type produce final code */
+        if (isStringConst(data)) {
+
+
+        }
+        else if ((varInfo = isVariable(data, variableLocality)) != null) {
+
+            /* Determine the stack index AND If its not in the activation record put it */
+            if (varInfo.getStackIndex() == 0 && variableLocality[0] == 0) {
+                variableStackIndex = localVarStackIndex;
+                varInfo.setStackIndex(localVarStackIndex);
+
+                /* Update the Stack index pointer */
+                if (varInfo.getType().isInt())
+                    localVarStackIndex -= 4;
+                else if (varInfo.getType().isChar())
+                    localVarStackIndex -= 1;
+            } else {
+                variableStackIndex = varInfo.getStackIndex();
+            }
+
+            /* Determine size */
+            if (varInfo.getType().isInt())
+                sizeOfVar = "DWORD";
+            else if (varInfo.getType().isChar())
+                sizeOfVar = "BYTE";
+
+            /* Check if it's parameter , and locality */
+            if (variableLocality[0] == 0 && varInfo.getMethod().equals("val")) {
+                /* Make assembly code */
+                this.finalCode.add(new asCommand("\t", "lea", reg, sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
+                return true;
+            }
+            else if (variableLocality[0] == 0 && varInfo.getMethod().equals("ref")) {
+                /* Make assembly code */
+                this.finalCode.add(new asCommand("\t", "mov", reg,  "DWORD PTR [ebp + " + variableStackIndex + "]"));
+                return true;
+            }
+            else if (variableLocality[0] != 0 && varInfo.getMethod().equals("val")) {
+                /* Make assembly code */
+                getAR(data);
+                this.finalCode.add(new asCommand("\t", "lea", reg,  sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
+                return true;
+            }
+            else if (variableLocality[0] != 0 && varInfo.getMethod().equals("ref")) {
+                /* Make assembly code */
+                getAR(data);
+                this.finalCode.add(new asCommand("\t", "mov", reg,  sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean store(String reg, String data) {
+
+        VariableInfo varInfo = null;  // If data is variable keep its info
+        String  sizeOfVar = null;     // If data is variable the string to put on assembly move
+        int variableStackIndex = 0;   // If data is variable the stackIndex that it resides
+        int[] variableLocality = new int[1];  // For the locality of the variable
+
+
+        /* Based on data type produce final code */
+        if (isTempVariable(data)) {
+
+            /* Get temp vars type */
+            Type tempType = this.interCodeObj.getTempType(Integer.parseInt(data.substring(1)));
+
+            /* Get the stack index of the temp variable */
+            variableStackIndex = assignTempStackInd(data.substring(1));
+
+            /* Determine size */
+            if (tempType.isInt() || tempType.isAddress())
+                sizeOfVar = "DWORD";
+            else if (tempType.isChar())
+                sizeOfVar = "BYTE";
+
+            /* Make assembly code */
+            this.finalCode.add(new asCommand("\t", "mov",sizeOfVar + " PTR [ebp + " + variableStackIndex + "]", reg));
+            return true;
+        }
+        else if (isPointerAccess(data)) {
+
+            /* Inside [ ] there is always a temp var */
+            int tempNum = Integer.parseInt(data.substring(2, data.length() - 1));
+            Type tempType = this.interCodeObj.getTempType(tempNum);
+
+            /* Determine size */
+            if (tempType.isArray() && tempType.getArrayType().equals("int "))
+                sizeOfVar = "DWORD";
+            else if (tempType.isArray() && tempType.getArrayType().equals("char "))
+                sizeOfVar = "BYTE";
+
+            load("edi", data.substring(1, data.length() - 1));
+            this.finalCode.add(new asCommand("\t", "mov", sizeOfVar + " PTR [ebp + " + variableStackIndex + "]", reg));
+            return true;
+        }
+        else if ((varInfo = isVariable(data, variableLocality)) != null) {
+
+            /* Determine the stack index AND If its not in the activation record put it */
+            if (varInfo.getStackIndex() == 0 && variableLocality[0] == 0) {
+                variableStackIndex = localVarStackIndex;
+                varInfo.setStackIndex(localVarStackIndex);
+
+                /* Update the Stack index pointer */
+                if (varInfo.getType().isInt())
+                    localVarStackIndex -= 4;
+                else if (varInfo.getType().isChar())
+                    localVarStackIndex -= 1;
+            } else {
+                variableStackIndex = varInfo.getStackIndex();
+            }
+
+            /* Determine size */
+            if (varInfo.getType().isInt())
+                sizeOfVar = "DWORD";
+            else if (varInfo.getType().isChar())
+                sizeOfVar = "BYTE";
+
+            /* Check if it's parameter , and locality */
+            if (variableLocality[0] == 0 && (varInfo.getMethod().equals("val") || varInfo.getMethod().equals("non"))) {
+                /* Make assembly code */
+                this.finalCode.add(new asCommand("\t", "mov",sizeOfVar + " PTR [ebp + " + variableStackIndex + "]", reg));
+                return true;
+            }
+            else if (variableLocality[0] == 0 && varInfo.getMethod().equals("ref")) {
+                /* Make assembly code */
+                this.finalCode.add(new asCommand("\t", "mov", "esi",  sizeOfVar + "PTR [ebp + " + variableStackIndex + "]"));
+                this.finalCode.add(new asCommand("\t", "mov", sizeOfVar + " PTR [esi]", reg));
+                return true;
+            }
+            else if (variableLocality[0] != 0 && (varInfo.getMethod().equals("val") || varInfo.getMethod().equals("non"))) {
+                /* Make assembly code */
+                getAR(data);
+                this.finalCode.add(new asCommand("\t", "mov",sizeOfVar + " PTR [esi + " + variableStackIndex + "]",reg));
+                return true;
+            }
+            else if (variableLocality[0] != 0 && varInfo.getMethod().equals("ref")) {
+                /* Make assembly code */
+                getAR(data);
+                this.finalCode.add(new asCommand("\t", "mov", "esi",  sizeOfVar + "PTR [esi + " + variableStackIndex + "]"));
+                this.finalCode.add(new asCommand("\t", "mov", sizeOfVar + " PTR [esi]", reg));
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /* Function that turns intermediate code to final code
-    * Parameters : The @quadList of intermediate code to transform to final code
-    */
+     * Parameters : The @quadList of intermediate code to transform to final code
+     */
     public void intermediateToFinalCode(LinkedList<Quads> quadsList){
 
         System.out.println();
@@ -339,8 +514,38 @@ public class FinalCode {
             if (opName.equals("+")) {
                 generateAddFinalCode(quad.getX(), quad.getY(), quad.getZ());
             }
+            else if (opName.equals("-")) {
+                generateSubFinalCode(quad.getX(), quad.getY(), quad.getZ());
+            }
+            else if (opName.equals("*")) {
+                generateMulFinalCode(quad.getX(), quad.getY(), quad.getZ());
+            }
             else if (opName.equals(":=")) {
-                //generateAssignFinalCode(quad.getX(), quad.getY(), quad.getZ());
+                generateAssignFinalCode(quad.getX(), quad.getZ());
+            }
+            else if (opName.equals("div")) {
+                generateDivFinalCode(quad.getX(), quad.getY(), quad.getZ());
+            }
+            else if (opName.equals("mod")) {
+                generateModFinalCode(quad.getX(), quad.getY(), quad.getZ());
+            }
+            else if (opName.equals("=")) {
+                generateEqFinalCode(quad.getX(), quad.getY(), quad.getZ());
+            }
+            else if (opName.equals(">=")) {
+                generateGeqFinalCode(quad.getX(), quad.getY(), quad.getZ());
+            }
+            else if (opName.equals(">")) {
+                generateGreaterFinalCode(quad.getX(), quad.getY(), quad.getZ());
+            }
+            else if (opName.equals("<=")) {
+                generateLeqFinalCode(quad.getX(), quad.getY(), quad.getZ());
+            }
+            else if (opName.equals("<")) {
+                generateLessFinalCode(quad.getX(), quad.getY(), quad.getZ());
+            }
+            else if (opName.equals("jump")) {
+                generateJumpFinalCode(quad.getZ());
             }
 
             System.out.println("");
@@ -358,7 +563,7 @@ public class FinalCode {
         load("eax", op1);
 
         /* Store to temp */
-        //store("eax", temp);
+        store("eax", temp);
     }
 
     /* Returns : nothing
@@ -367,11 +572,170 @@ public class FinalCode {
      */
     private void generateAddFinalCode(String op1, String op2, String temp) {
         /* Load operators */
-        if (load("eax", op1) && load("ebx", op2)) {
+        load("eax", op1);
+        load("ebx", op2);
 
-            /* Add it to the list */
-            this.finalCode.add(new asCommand("\t", "add", "eax", "ebx"));
-        }
+        /* Add it to the list */
+        this.finalCode.add(new asCommand("\t", "add", "eax", "ebx"));
+
+        /* store */
+        store("eax", temp);
+    }
+
+    /* Returns : nothing
+     * Parameters : @op1 The x of quad, @op2 the y of quad,
+     *              @temp the temp var to put the result
+     */
+    private void generateSubFinalCode(String op1, String op2, String temp) {
+        /* Load operators */
+        load("eax", op1);
+        load("ebx", op2);
+
+        /* Add it to the list */
+        this.finalCode.add(new asCommand("\t", "sub", "eax", "ebx"));
+
+        /* store */
+        store("eax", temp);
+
+    }
+
+    /* Returns : nothing
+     * Parameters : @op1 The x of quad, @op2 the y of quad,
+     *              @temp the temp var to put the result
+     */
+    private void generateMulFinalCode(String op1, String op2, String temp) {
+        /* Load operators */
+        load("eax", op1);
+        load("ecx", op2);
+
+        /* Add it to the list */
+        this.finalCode.add(new asCommand("\t", "imul", "eax", "ecx"));
+
+        /* store */
+        store("eax", temp);
+    }
+
+    /* Returns : nothing
+     * Parameters : @op1 The x of quad, @op2 the y of quad,
+     *              @temp the temp var to put the result
+     */
+    private void generateDivFinalCode(String op1, String op2, String temp) {
+        /* Load operators */
+        load("eax", op1);
+        this.finalCode.add(new asCommand("\t", "cdq", "", ""));
+        load("ebx", op2);
+
+        /* Add it to the list */
+        this.finalCode.add(new asCommand("\t", "idiv", "eax", "ebx"));
+
+        /* store the quotation from eax to temp */
+        store("eax", temp);
+    }
+
+    /* Returns : nothing
+     * Parameters : @op1 The x of quad, @op2 the y of quad,
+     *              @temp the temp var to put the result
+     */
+    private void generateModFinalCode(String op1, String op2, String temp) {
+        /* Load operators */
+        load("eax", op1);
+        this.finalCode.add(new asCommand("\t", "cdq", "", ""));
+        load("ebx", op2);
+
+        /* Add it to the list */
+        this.finalCode.add(new asCommand("\t", "idiv", "eax", "ebx"));
+
+        /* store the remaining from edx to temp */
+        store("edx", temp);
+    }
+
+    /* Returns : nothing
+     * Parameters : @op1 The x of quad, @op2 the y of quad,
+     *              @label the label to jump to
+     */
+    private void generateEqFinalCode(String op1, String op2, String label) {
+        /* Load operators */
+        load("eax", op1);
+        load("edx", op2);
+
+        /* Add it to the list */
+        this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
+
+        /* jump to label */
+        this.finalCode.add(new asCommand("\t", "jnz", label, ""));
+    }
+
+    /* Returns : nothing
+     * Parameters : @op1 The x of quad, @op2 the y of quad,
+     *              @label the label to jump to
+     */
+    private void generateGeqFinalCode(String op1, String op2, String label) {
+        /* Load operators */
+        load("eax", op1);
+        load("edx", op2);
+
+        /* Add it to the list */
+        this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
+
+        /* jump to label */
+        this.finalCode.add(new asCommand("\t", "jge", label, ""));
+    }
+
+    /* Returns : nothing
+     * Parameters : @op1 The x of quad, @op2 the y of quad,
+     *              @label the label to jump to
+     */
+    private void generateGreaterFinalCode(String op1, String op2, String label) {
+        /* Load operators */
+        load("eax", op1);
+        load("edx", op2);
+
+        /* Add it to the list */
+        this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
+
+        /* jump to label */
+        this.finalCode.add(new asCommand("\t", "jg", label, ""));
+    }
+
+    /* Returns : nothing
+     * Parameters : @op1 The x of quad, @op2 the y of quad,
+     *              @label the label to jump to
+     */
+    private void generateLeqFinalCode(String op1, String op2, String label) {
+        /* Load operators */
+        load("eax", op1);
+        load("edx", op2);
+
+        /* Add it to the list */
+        this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
+
+        /* jump to label */
+        this.finalCode.add(new asCommand("\t", "jle", label, ""));
+    }
+
+    /* Returns : nothing
+     * Parameters : @op1 The x of quad, @op2 the y of quad,
+     *              @label the label to jump to
+     */
+    private void generateLessFinalCode(String op1, String op2, String label) {
+        /* Load operators */
+        load("eax", op1);
+        load("edx", op2);
+
+        /* Add it to the list */
+        this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
+
+        /* jump to label */
+        this.finalCode.add(new asCommand("\t", "jl", label, ""));
+    }
+
+    /* Returns : nothing
+     * Parameters : @label the label to jump to
+     */
+    private void generateJumpFinalCode(String label) {
+
+        /* jump to label */
+        this.finalCode.add(new asCommand("\t", "jmp", label, ""));
     }
 
 }

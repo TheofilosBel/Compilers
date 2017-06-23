@@ -107,13 +107,15 @@ public class ComplexType extends Type {
 
     @Override
     public int isEquivWith(Type type) {
+
         /* Check the type names */
         if (this.getTypeName().equals(type.getTypeName())) {
             /* Recursive call to see the resemblance of the inner types */
             int ret = this.getType().isEquivWith(type.getType());
             if (ret == 1) {
 
-                if ((this.size != 0 && type.getSize() != 0) && this.size != type.getSize()) {
+                System.out.println(this.size + " size " + type.getSize());
+                if ((this.size != 0 && type.getSize() != 0) && this.size <= type.getSize()) {
                     return 2;  // size fails
                 }
                 return 1;

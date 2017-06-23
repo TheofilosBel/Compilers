@@ -37,6 +37,7 @@ public class VariableInfo extends Info {
      */
     public VariableInfo(TId name, AType type, String passMethod){
         this.name = (TId) name.clone();
+        this.passByMethod = passMethod;
         LinkedList<Integer> dimensionsList = new LinkedList<Integer>();
         
         /*

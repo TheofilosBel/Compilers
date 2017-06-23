@@ -19,6 +19,7 @@ import java.util.Stack;
 public class SemanticAnalysis extends DepthFirstAdapter {
 
     int indentation = 0;
+    int startIndex  = 0;
     SymbolTable symbolTable; /* The structure of the symbol table */
     private HashMap<Node, Attributes> exprTypes; /* A structure that maps every sablecc generated Node to a type */
     private Stack<TId> currentFunctionId;
@@ -432,7 +433,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
          * so we create a unit quad
          */
         if (blockDepth == 0) {
-            //System.out.println("Current Function is " + this.currentFunctionId.peek().toString());
+
+            this.startIndex = this.intermediateCode.getQuadsList().size();
             this.finalCode = new FinalCode(this.symbolTable,
                     (FunctionInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo(),
                     this.intermediateCode
@@ -466,8 +468,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             }
             this.intermediateCode.genQuad("endu", currentFunctionId.peek().toString(), "-", "-");
 
+            /* Get the sub list of the intermediate code list to convert to final code */
+            LinkedList<Quads> subList = new LinkedList<Quads>();
+            for (int i = this.startIndex; i < this.intermediateCode.getQuadsList().size() ; i++)
+                subList.add(this.intermediateCode.getQuadsList().get(i));
+
             /* Produce the Functions's final code */
-            this.finalCode.intermediateToFinalCode(this.intermediateCode.getQuadsList());
+            this.finalCode.intermediateToFinalCode(subList);
         }
     }
 
@@ -1069,13 +1076,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         String dimPlace = exprTypes.get(node.getExpr()).getPlace();
 
         /* Keep the place of each expression */
-        dimPlaces.add(dimPlace);
+        dimPlaces.addFirst(dimPlace);
 
         /* Add the size to the linked list and call again */
         if (node.getExpr() != null && node.getExpr() instanceof AIntExpr)
-            dimList.add(Integer.parseInt(((AIntExpr) node.getExpr()).getIntConst().getText()));
+            dimList.addFirst(Integer.parseInt(((AIntExpr) node.getExpr()).getIntConst().getText()));
         else
-            dimList.add(0);
+            dimList.addFirst(0);
 
         /* There is no case for a AStrLvalue because an exception would have already been thrown */
         if (node.getLvalue() instanceof AIdLvalue) {
@@ -1127,6 +1134,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             }
 
             /* Make a new type representing the array access (we need this to check the dimension number) */
+            System.out.println("List " + list);
+            /* Reverse the list cause its in the */
             Type arrayAccessType = new ComplexType("array", list, arrayType.getArrayType()); 
 
             int ret = arrayType.isEquivWith(arrayAccessType);
@@ -1169,7 +1178,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                     if (dim == 0) {
                         /* Only for the first time we need a new temp */
                         temp1 = this.intermediateCode.newTemp(BuiltInType.Int);
-                        this.intermediateCode.genQuad("*", placesList.get(placesList.size() - dim - 1),
+                        this.intermediateCode.genQuad("*", placesList.get(dim),
                                                     dimList.get(dim+1).toString(), temp1);
                     }
                     else {
@@ -1178,7 +1187,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
                     /* Make the quad for '+' */
                     temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
-                    this.intermediateCode.genQuad("+", temp1, placesList.get(placesList.size() - (dim+1) -1), temp2);
+                    this.intermediateCode.genQuad("+", temp1, placesList.get(dim + 1), temp2);
                 }
 
                 temp1 = temp2;

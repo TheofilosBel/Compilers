@@ -59,6 +59,11 @@ public class BuiltInType extends Type {
     public boolean isVoid() {
         return this.getTypeName().equals(Void.getTypeName());
     }
+
+    @Override
+    public boolean isAddress() {
+        return this.getTypeName().equals(Address.getTypeName());
+    }
     
     @Override
     public int isEquivWith(Type type) {

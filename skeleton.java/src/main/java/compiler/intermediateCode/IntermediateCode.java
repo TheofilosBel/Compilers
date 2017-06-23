@@ -17,6 +17,7 @@ public class IntermediateCode {
     public IntermediateCode() {
         this.tempTypes = new LinkedList<Type>();
         this.quadsList = new LinkedList<Quads>();
+        this.tempStackIdices = new LinkedList<Integer>();
     }
 
     /* Returns the current tempCount and increases the counter */
