@@ -17,8 +17,8 @@ public class FuncDefInfo extends FunctionInfo {
     public boolean isMatchedToReturnStmt;
     public LinkedList<VariableInfo> localVariables; /* A List to keep the local variables */
 
-    public FuncDefInfo(PDataType rettype, PFparList argList, TId name) {
-        super(rettype, argList, name);
+    public FuncDefInfo(PDataType rettype, PFparList argList, TId name, int nesting) {
+        super(rettype, argList, name, nesting);
         this.isMatchedToReturnStmt = false;
         this.localVariables = new LinkedList<VariableInfo>();
     }

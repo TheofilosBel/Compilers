@@ -27,6 +27,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     private FinalCode finalCode;
     private HashMap<String, List<Integer>> declaredFunctions = new HashMap<String, List<Integer>>();
     int blockDepth; /* This helps us distinguish function definition blocks for if/while blocks */
+    int nestingLevel = 0;
 
     /*
      * The semantic analysis phase starts here
@@ -56,7 +57,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Add the only argument to the list */
         argList.add(new VariableInfo("n", "int ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy, nestingLevel));
         this.symbolTable.insert("puti ", data);
         data    = null;
         argList = null;
@@ -68,7 +69,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Add the only argument to the list */
         argList.add(new VariableInfo("c", "char ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy, nestingLevel));
         this.symbolTable.insert("putc ", data);
         data    = null;
         argList = null;
@@ -80,7 +81,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Add the only argument to the list */
         argList.add(new VariableInfo("s", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy, nestingLevel));
         this.symbolTable.insert("puts ", data);
         data    = null;
         argList = null;
@@ -90,7 +91,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* No arguments to be added to the list */
-        data = new SymbolTableEntry(new FunctionInfo("int ", argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo("int ", argList, passBy, nestingLevel));
         this.symbolTable.insert("geti ", data);
         data    = null;
         argList = null;
@@ -100,7 +101,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         argList = new LinkedList<VariableInfo>();
         passBy  = new LinkedList<String>();
         /* No arguments to be added to the list */
-        data = new SymbolTableEntry(new FunctionInfo(new String("char "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo(new String("char "), argList, passBy, nestingLevel));
         this.symbolTable.insert("getc ", data);
         data    = null;
         argList = null;
@@ -114,7 +115,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         passBy.add("val");
         argList.add(new VariableInfo("s", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy, nestingLevel));
         this.symbolTable.insert("gets ", data);
         data    = null;
         argList = null;
@@ -126,7 +127,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Add the only argument to the list */
         argList.add(new VariableInfo("n", "int ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy, nestingLevel));
         this.symbolTable.insert("abs ", data);
         data    = null;
         argList = null;
@@ -138,7 +139,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Add the only argument to the list */
         argList.add(new VariableInfo("c", "char ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy, nestingLevel));
         this.symbolTable.insert("ord ", data);
         data    = null;
         argList = null;
@@ -150,7 +151,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Add the only argument to the list */
         argList.add(new VariableInfo("n", "int ", false));
         passBy.add("val");
-        data = new SymbolTableEntry(new FunctionInfo(new String("char "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo(new String("char "), argList, passBy, nestingLevel));
         this.symbolTable.insert("chr ", data);
         data    = null;
         argList = null;
@@ -162,7 +163,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Add the only argument to the list */
         argList.add(new VariableInfo("s", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy, nestingLevel));
         this.symbolTable.insert("strlen ", data);
         data    = null;
         argList = null;
@@ -176,7 +177,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         passBy.add("ref");
         argList.add(new VariableInfo("s2", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo(new String("int "), argList, passBy, nestingLevel));
         this.symbolTable.insert("strcmp ", data);
         data    = null;
         argList = null;
@@ -190,7 +191,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         passBy.add("ref");
         argList.add(new VariableInfo("src", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy, nestingLevel));
         this.symbolTable.insert("strcpy ", data);
         data    = null;
         argList = null;
@@ -204,7 +205,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         passBy.add("ref");
         argList.add(new VariableInfo("src", "char ", true));
         passBy.add("ref");
-        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy));
+        data = new SymbolTableEntry(new FunctionInfo(new String("nothing "), argList, passBy, nestingLevel));
         this.symbolTable.insert("strcat ", data);
         data    = null;
         argList = null;
@@ -248,7 +249,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Create a SymbolTableEntry object to pass to the insert function */
         FunctionInfo info = null;
         try {
-            info = new FuncDecInfo((PDataType) node.getRetType(), node.getFplist(), node.getId());
+            info = new FuncDecInfo((PDataType) node.getRetType(), node.getFplist(), node.getId(), nestingLevel);
         }
         catch (TypeCheckingException e){
             
@@ -302,7 +303,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
              */
             FuncDecInfo type = null;
             try {
-                type = new FuncDecInfo((PDataType) node.getRetType(), node.getFplist(), node.getId());
+                type = new FuncDecInfo((PDataType) node.getRetType(), node.getFplist(), node.getId(), nestingLevel);
             }
             catch (TypeCheckingException e) {
                 /* Add error to list an continue in the ast */
@@ -335,7 +336,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Create the info for the function definition*/
         FunctionInfo funcDefInfo = null;
         try {
-            funcDefInfo = new FuncDefInfo((PDataType) node.getRetType(), node.getFplist(), node.getId());
+            funcDefInfo = new FuncDefInfo((PDataType) node.getRetType(), node.getFplist(), node.getId(), nestingLevel);
         }
         catch (TypeCheckingException e) {
             /* Add error to list an continue */
@@ -360,6 +361,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
         /* In every new func_def we create a new scope */
         this.symbolTable.enter();
+        nestingLevel++;
 
         /* Create a SymbolTableEntry object to pass to the insert function */
         SymbolTableEntry data = new SymbolTableEntry(funcDefInfo);
@@ -392,6 +394,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
         /* When exiting from a function exit from the current scope too */
         this.symbolTable.exit();
+        nestingLevel--;
 
         /* We don't need the function's id anymore */
         currentFunctionId.pop();

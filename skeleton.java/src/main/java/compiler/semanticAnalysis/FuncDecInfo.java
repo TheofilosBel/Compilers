@@ -12,8 +12,8 @@ public class FuncDecInfo extends FunctionInfo {
     
     private boolean funcDefined; /* A flag that indicates if the declaration has been matched with a function definition */
 
-    public FuncDecInfo(PDataType rettype, PFparList argList, TId name) {
-        super(rettype, argList, name);
+    public FuncDecInfo(PDataType rettype, PFparList argList, TId name, int nesting) {
+        super(rettype, argList, name, nesting);
         this.funcDefined = false;
     }
     

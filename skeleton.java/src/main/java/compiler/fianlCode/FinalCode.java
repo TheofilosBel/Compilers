@@ -171,6 +171,35 @@ public class FinalCode {
         }
     }
 
+    /* Returns: Nothing
+     * Parameters: @calleeFunction named of the function that was called by the current function
+     */
+    public void updateAL(String calleeFunction) {
+        int[] locality = new int[1];
+        
+        /* Get the nesting level of the two functions */
+        int callerLevel = ((FunctionInfo) copyOfST.lookup(currentFunctionInfo.getName().toString(), locality)
+                            .getInfo()).getNestingLevel();
+        int calleeLevel = ((FunctionInfo) copyOfST.lookup(calleeFunction, locality).getInfo()).getNestingLevel();
+
+        /* Produce final code */
+        if (callerLevel < calleeLevel) {
+            this.finalCode.add(new asCommand("\t", "push", "ebp", ""));
+        }
+        else if (callerLevel == calleeLevel) {
+            this.finalCode.add(new asCommand("\t", "push", "DWORD PTR [ebp + 8]", ""));
+        }
+        else {
+            this.finalCode.add(new asCommand("\t", "mov", "esi", "DWORD PTR [ebp + 8]"));
+
+            for (int i = 0; i < callerLevel - calleeLevel + 1; i++) {
+                this.finalCode.add(new asCommand("\t", "mov", "esi", "DWORD PTR [esi + 8]"));
+            }
+
+            this.finalCode.add(new asCommand("\t", "push", "", "DWORD PTR [esi + 8]"));
+        }
+    }
+
     /* Returns : True or false in case of error
      * Parameters : @reg is the register to put @data
      */
