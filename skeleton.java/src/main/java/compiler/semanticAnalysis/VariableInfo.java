@@ -17,6 +17,7 @@ public class VariableInfo extends Info {
     private TId  name; /* Name of the variable */
     private Type type; /* Type of the variable */
     private int  stackIndex;  /* For final code , its the index of the var in the activation record */
+    private String passByMethod; /* To store with what method the var was passed in case of parameter */
 
     public VariableInfo() {}
     
@@ -25,6 +26,7 @@ public class VariableInfo extends Info {
         this.name = (TId) var.getName().clone();
         this.type = var.getType().makeCopy();
         this.stackIndex = 0;
+        this.passByMethod = var.getMethod();
     }
 
     /*
@@ -33,7 +35,7 @@ public class VariableInfo extends Info {
      * @name Name of the variable
      * @type Type of the variable
      */
-    public VariableInfo(TId name, AType type){
+    public VariableInfo(TId name, AType type, String passMethod){
         this.name = (TId) name.clone();
         LinkedList<Integer> dimensionsList = new LinkedList<Integer>();
         
@@ -129,6 +131,11 @@ public class VariableInfo extends Info {
     /* Returns the type of the variable */
     public Type getType() {
         return this.type;
+    }
+
+    /* Returns the passed by method of the variable */
+    public String getMethod() {
+        return this.passByMethod;
     }
 
     /* set the stackIndex */

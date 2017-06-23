@@ -11,6 +11,7 @@ public class IntermediateCode {
 
     private Integer tempCount = 1;       /* Counter of temporary registers we need */
     private LinkedList<Type>  tempTypes; /* Type of each temporary register */
+    private LinkedList<Integer>  tempStackIdices; /* Indices of temp vars in Activation records */
     private LinkedList<Quads> quadsList; /* A list that keeps all the quads generated */
 
     public IntermediateCode() {
@@ -21,6 +22,7 @@ public class IntermediateCode {
     /* Returns the current tempCount and increases the counter */
     public String newTemp(Type type) {
         this.tempTypes.add(type);
+        this.tempStackIdices.add(0);
         String str = new String();
         str = "$" + this.tempCount.toString();
         this.tempCount++;
@@ -35,6 +37,21 @@ public class IntermediateCode {
     /* Get the quadList */
     public LinkedList<Quads> getQuadsList() {
         return this.quadsList;
+    }
+
+    /* Get the tempType */
+    public Type getTempType(int tempVarNum) {
+        return this.tempTypes.get(tempVarNum - 1);
+    }
+
+    /* Get the temp indices to stack */
+    public Integer getTempIndex(int tempVarNum) {
+        return this.tempStackIdices.get(tempVarNum -1);
+    }
+
+    public void putTempIndex(int tempVarNum, Integer st_index) {
+        this.tempStackIdices.remove(tempVarNum -1);
+        this.tempStackIdices.add(tempVarNum - 1, st_index);
     }
 
     public void backPatch(LinkedList<Integer> list, Integer patchingLabel) {

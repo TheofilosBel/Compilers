@@ -409,7 +409,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Extract every variable from a multi-variable definition and save their types */
         for (int varnum = 0; varnum < node.getIdList().size(); varnum++) {
             /* Add all the variables in the symbol table */
-            VariableInfo v = new VariableInfo(node.getIdList().get(varnum), (AType) type);
+            VariableInfo v = new VariableInfo(node.getIdList().get(varnum), (AType) type, "non");
             SymbolTableEntry data = new SymbolTableEntry(v);
 
             if (this.symbolTable.insert(node.getIdList().get(varnum).toString(), data) == false) {
@@ -429,9 +429,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
          * so we create a unit quad
          */
         if (blockDepth == 0) {
-            System.out.println("Current Function is " + this.currentFunctionId.peek().toString());
+            //System.out.println("Current Function is " + this.currentFunctionId.peek().toString());
             this.finalCode = new FinalCode(this.symbolTable,
-                    (FunctionInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo());
+                    (FunctionInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo(),
+                    this.intermediateCode
+                    );
 
             this.intermediateCode.genQuad("unit", currentFunctionId.peek().toString(), "-", "-");
         }
@@ -960,7 +962,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Create a Quad for the function's return value */
         if ((((FunctionInfo) funcDec.getInfo()).getType()).isEquivWith(BuiltInType.Nothing) == 1) {
             String w = this.intermediateCode.newTemp(((FunctionInfo) funcDec.getInfo()).getType());
-            System.out.println(w);
             this.intermediateCode.genQuad("par", w, "RET", "-");
 
             nodeAttributes.setPlace(w);
@@ -1054,8 +1055,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             int column = node.getId().getPos();
             throw new TypeCheckingException(line, column, "Undefined indentifier: " + node.getId().toString());
         }
-
-        System.out.println(anId.getInfo().getType().toString());
 
         exprTypes.put(node, new Attributes(anId.getInfo().getType(), node.getId().toString()));
     }

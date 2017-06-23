@@ -115,14 +115,15 @@ public class FunctionInfo extends Info {
         for (int var = 0; var < list.size(); var++) {
             System.out.println(list.get(var).toString() + type);
 
-            /* Add the arguments */
-            this.arguments.add(new VariableInfo(list.get(var), type));
-
-            /* Add the pass by method */
-            if (byRef == true)            
+             /* Add the pass by method and the arguments */
+            if (byRef == true) {
                 this.passedBy.add("ref");
-            else
+                this.arguments.add(new VariableInfo(list.get(var), type, "ref"));
+            }
+            else {
                 this.passedBy.add("val");
+                this.arguments.add(new VariableInfo(list.get(var), type, "val"));
+            }
         }
     }
 
