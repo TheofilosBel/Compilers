@@ -22,7 +22,7 @@ public class SymbolTable {
     }
 
     public void enter() {
-        System.out.println("Entered new Scope");
+        //System.out.println("Entered new Scope");
 
         /* Create an empty TreeMap */
         TreeMap<String, SymbolTableEntry> emptyMap = new TreeMap<String, SymbolTableEntry>();
@@ -31,7 +31,7 @@ public class SymbolTable {
     
     public boolean insert(String symbolName, SymbolTableEntry data) {
         boolean found = false;
-        System.out.println("Inserting Id: " + symbolName + " to symbol table");
+        //System.out.println("Inserting Id: " + symbolName + " to symbol table");
         
         /* First search if the name exists in this scope only */
         found = this.scope_st.peek().containsKey(symbolName);
@@ -66,10 +66,8 @@ public class SymbolTable {
                 return null;
             }
 
-            System.out.println();
-
-            if (found == true) {
-                System.out.println("Found id:" + key + " scope " + (this.scope_st.size() - 1 - scope_n));
+            if (found) {
+                //System.out.println("Found id:" + key + " scope " + (this.scope_st.size() - 1 - scope_n));
 
                 /* Determine locality */
                 if (locality != null && scope_n == this.scope_st.size() - 1)
@@ -83,12 +81,12 @@ public class SymbolTable {
         }
 
         /* Return false in case the search failed */
-        System.out.println("Id " + key + " not found :");
+        //System.out.println("Id " + key + " not found :");
         return null;
     }
 
     public void exit() {
-        System.out.println("Leaving Scope");
+        //System.out.println("Leaving Scope");
 
         /* Pop the last used scope if its stack is not empty */
         if (!this.scope_st.isEmpty()) {

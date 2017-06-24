@@ -78,7 +78,7 @@ public class ComplexType extends Type {
             return;
         }
         else { 
-            return ;
+            return;
         }
     }
 
@@ -110,6 +110,7 @@ public class ComplexType extends Type {
 
         /* Check the type names */
         if (this.getTypeName().equals(type.getTypeName())) {
+
             /* Recursive call to see the resemblance of the inner types */
             int ret = this.getType().isEquivWith(type.getType());
             if (ret == 1) {

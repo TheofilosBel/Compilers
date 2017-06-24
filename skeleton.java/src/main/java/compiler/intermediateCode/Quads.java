@@ -37,6 +37,11 @@ public class Quads {
         return this.opName;
     }
 
+    /* Returns the label */
+    public int getlabel(){
+        return this.label;
+    }
+
     /* Returns the x String */
     public String getX(){
         return this.x;

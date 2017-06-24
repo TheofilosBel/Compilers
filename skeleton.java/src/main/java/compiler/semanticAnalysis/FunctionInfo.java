@@ -73,7 +73,7 @@ public class FunctionInfo extends Info {
             } 
         }
 
-        /* Print the 2 lists */        
+        /* Print the 2 lists
         System.out.println("Arguments list in Function Info ");
         for (int vars = 0; vars < this.arguments.size(); vars++) {
             System.out.println("-->Name "   + this.arguments.get(vars).getName());
@@ -83,6 +83,7 @@ public class FunctionInfo extends Info {
         }
 
         System.out.println();
+        */
     }
 
     /*
@@ -114,9 +115,9 @@ public class FunctionInfo extends Info {
      */
     public void addAlltoList(LinkedList<TId> list, AType type, Boolean byRef){
         /* Create a new VariableInfo object out of every variable in the list */
-        System.out.println("Making the Argument list with types " + type.toString());
+        //System.out.println("Making the Argument list with types " + type.toString());
         for (int var = 0; var < list.size(); var++) {
-            System.out.println(list.get(var).toString() + type);
+            //System.out.println(list.get(var).toString() + type);
 
              /* Add the pass by method and the arguments */
             if (byRef == true) {

@@ -410,6 +410,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Get the type of the variables in the current definition */
         PType type = (PType) ((AType) node.getType()).clone();
 
+        /* For the update of local var indicies */
+        this.startIndex = this.intermediateCode.getQuadsList().size();
+
         /* Extract every variable from a multi-variable definition and save their types */
         for (int varnum = 0; varnum < node.getIdList().size(); varnum++) {
             /* Add all the variables in the symbol table */
@@ -423,7 +426,24 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
             /* Add the variable to the function's definition list that holds local variables */
             currentFuncDef.addLocalVariable(v);
+
+            /* Make Intermediate code for var def */
+            this.intermediateCode.genQuad("vdef", node.getIdList().get(varnum).toString(), "", "");
         }
+
+        /* "Produce" final code for the vdef quads */
+        this.finalCode = new FinalCode(this.symbolTable,
+                (FunctionInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo(),
+                this.intermediateCode
+                );
+
+        /* Get the sub list of the intermediate code list to convert to final code */
+        LinkedList<Quads> subList = new LinkedList<Quads>();
+        for (int i = this.startIndex; i < this.intermediateCode.getQuadsList().size() ; i++)
+            subList.add(this.intermediateCode.getQuadsList().get(i));
+
+        /* Produce the Functions's final code */
+        this.finalCode.intermediateToFinalCode(subList);
     }
 
     @Override
@@ -970,8 +990,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         nodeAttributes.makeEmptyList("Next");
 
         /* Create a Quad for the function's return value */
-        if ((((FunctionInfo) funcDec.getInfo()).getType()).isEquivWith(BuiltInType.Nothing) == 1) {
-            String w = this.intermediateCode.newTemp(((FunctionInfo) funcDec.getInfo()).getType());
+        if ( !(funcDec.getInfo().getType().isEquivWith(BuiltInType.Nothing) == 1) ) {
+            String w = this.intermediateCode.newTemp(funcDec.getInfo().getType());
             this.intermediateCode.genQuad("par", w, "RET", "-");
 
             nodeAttributes.setPlace(w);

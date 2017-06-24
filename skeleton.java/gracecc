@@ -1,4 +1,17 @@
 #! /bin/bash
+outFile="out.s"
+
+if [ $# -ne 2 ]
+then
+  echo "Usage: gracecc <sourceCode> <outFile>"
+  exit -2;
+fi
 
 # Run the javac on the argument given
 java -cp target/compiler-1.0-SNAPSHOT.jar compiler.Compiler $1 
+
+# Pass the assembly file through the gnu assembler
+gcc -m32 src/main/c/builtInFunctions.o $outFile -o $2
+
+# Delete the outFile
+#rm $outFile

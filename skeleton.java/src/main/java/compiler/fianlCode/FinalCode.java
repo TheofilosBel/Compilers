@@ -1,12 +1,14 @@
 package compiler.fianlCode;
 
 import compiler.intermediateCode.*;
-import compiler.semanticAnalysis.SymbolTable;
-import compiler.semanticAnalysis.SymbolTableEntry;
-import compiler.semanticAnalysis.FunctionInfo;
-import compiler.semanticAnalysis.VariableInfo;
+import compiler.semanticAnalysis.*;
 import compiler.types.*;
-import compiler.semanticAnalysis.Info;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.BufferedWriter;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 
 /**
@@ -32,17 +34,23 @@ public class FinalCode {
 
         @Override
         public String toString() {
-            return this.label + "" + this.operation + "," + this.operand1 + "," +
-                    this.operand2;
+
+            if (operation.equals(""))  // For labels only
+                return this.label;
+            else if (operand2.equals(""))  // For sort commands
+                return this.label + " " + this.operation + " " + this.operand1;
+            else  // for sort full
+                return this.label + " " + this.operation + " " + this.operand1 + ", " + this.operand2;
         }
     }
 
     /* Needed data for final code production */
-    SymbolTable copyOfST;                    // Needed
-    LinkedList<asCommand> finalCode;
-    FunctionInfo currentFunctionInfo;
-    IntermediateCode interCodeObj;
-    int localVarStackIndex;
+    private static String filename = "out.s";
+    private SymbolTable copyOfST;              // A copy of the symbol table
+    private LinkedList<asCommand> finalCode;   // The assembly commands in a list
+    private FunctionInfo currentFunctionInfo;  // The info for the current function
+    private IntermediateCode interCodeObj;     // The intermediate code object to convert to final code
+    private int localVarStackIndex;            // An index that holds the first available index in the activation record
 
 
     public FinalCode (SymbolTable st, FunctionInfo currentFn, IntermediateCode copyOfIdObj){
@@ -53,11 +61,51 @@ public class FinalCode {
         this.interCodeObj = copyOfIdObj;
     }
 
+    public  void writeToFile() {
+        boolean firstWrite = true;
+
+        /* If its the first time to write to file then up a flag */
+        File f = new File(this.filename);
+        if(f.exists()) {
+            firstWrite = false;
+        }
+
+        try(FileWriter fw = new FileWriter(this.filename, true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            PrintWriter out = new PrintWriter(bw))
+        {
+            /* If its the first time then we have to write some things */
+            if (firstWrite) {
+                out.println(".intel_syntax noprefix # Use Intel syntax");
+                out.println(".text");
+                out.println("\t.global main");
+                out.println("main:");
+                out.println("push ebp\nmov ebp, esp");
+                out.println("sub esp, 4\nmov eax, 0\npush eax");
+                out.println("call grc_" + currentFunctionInfo.getName());
+                out.println("add esp, 8");
+                out.println("mov esp, ebp\npop ebp\nret\n");
+
+            }
+
+            for (asCommand item : this.finalCode){
+                out.println(item.toString());
+            }
+
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+
+    }
+
     public void printCommands() {
         System.out.println("Printing blocks final code");
         for (asCommand item : this.finalCode){
             System.out.println(item);
         }
+
+        /* Write to file */
+
     }
 
     /* +----------------------------------------------+
@@ -65,7 +113,152 @@ public class FinalCode {
      * |            code to Final code                |
      * +----------------------------------------------+ */
 
-    /* Returns : The an int with the stack Index of the temp var
+    private boolean isBuiltInFunc(String funcName) {
+        return funcName.equals("puti ") ||
+                funcName.equals("putc ");
+    }
+
+    private int getParametersSize(String calleefunction) {
+        int parametersSize = 0;
+
+        /* The func we want to get it's parameters size */
+        SymbolTableEntry funcDefEntry =  this.copyOfST.lookup(calleefunction, null);
+
+        if (funcDefEntry == null) {
+            throw new RuntimeException("Function " + calleefunction + " cannot be found when creating finalCode");
+        }
+
+        /* If not null get it's info */
+        FunctionInfo funcInfo = (FunctionInfo) funcDefEntry.getInfo();
+
+        System.out.println("Function's " + funcInfo.getName() + " params: ");
+
+        /* Get it's parameters type's */
+        for (VariableInfo varInfo : funcInfo.getArguments()) {
+            System.out.println("\tParameter :" + varInfo.getName());
+
+            /* Update the parametersSize depending on var's type */
+            if (varInfo.getType().isInt() || varInfo.getType().isArray())
+                parametersSize += 4;
+            else if (varInfo.getType().isChar())
+                parametersSize += 1;
+        }
+
+
+        return parametersSize;
+    }
+
+    /* Returns : The total size of the temp variables in the func
+     * Parameters : @funcName is the name of the func
+     */
+    private int getLocalVarSize(LinkedList<Quads> interCodeList) {
+        int totalSize = 0;
+
+        /* The func we want to get it's local var size is the current func */
+        FuncDefInfo curDefInfo = (FuncDefInfo) this.currentFunctionInfo;
+        System.out.println("Function " + this.currentFunctionInfo.getName() + "local vars:");
+
+        /* For each var get the size depending on type of var */
+        for (VariableInfo varInfo : curDefInfo.getLocalVariables()){
+
+            System.out.println("\tLocal var " + varInfo.getName());
+
+            /* Update the total size depending on var's type */
+            if (varInfo.getType().isInt())
+                totalSize += 4;
+            else if (varInfo.getType().isChar())
+                totalSize += 1;
+            else if (varInfo.getType().isArray()){
+
+                /* Get the array's dimensions */
+                int prod = 1;
+                LinkedList<Integer> list = new LinkedList<Integer>();
+                varInfo.getType().getDimentions(list);
+
+                /* Get the production of all its dims */
+                for(Integer dim : list) {
+                    prod *= dim;
+                }
+
+                /* Update the index depending on array type */
+                if (varInfo.getType().getArrayType().equals("int "))
+                    totalSize += 4*prod;
+                else
+                    totalSize += prod;
+            }
+        }
+
+        /* Now we have to get the size of all the temp variables */
+        LinkedList<String> tempVarsRecognized = new LinkedList<String>();
+        for (Quads quad : interCodeList) {
+
+            /* Get the Z part and get the type of the temp var , if already recognized , continue */
+            if (!isTempVariable(quad.getZ()) || tempVarsRecognized.indexOf(quad.getZ()) != -1)
+                continue;
+
+            System.out.println("\tTemp var " + quad.getZ());
+
+            /* Get temp vars type */
+            Type tempType = this.interCodeObj.getTempType(Integer.parseInt(quad.getZ().substring(1)));
+
+            /* Else add it's size to totalSize depending on type */
+            if (tempType.isInt() || tempType.isAddress())
+                totalSize += 4;
+            else if (tempType.isChar())
+                totalSize += 1;
+
+            /* Update temVarsRecognized */
+            tempVarsRecognized.add(quad.getZ());
+        }
+
+        return totalSize;
+    }
+
+    private void assignLocalVarStackIndex(String variable) {
+        int[] variableLocality = new int[1];
+        VariableInfo varInfo;
+
+        /* Search the var name in the symbol table */
+        SymbolTableEntry varEntry = this.copyOfST.lookup(variable, variableLocality);
+
+        /* If the var entry exists update its stackIndex */
+        if (varEntry != null) {
+            varInfo = (VariableInfo) varEntry.getInfo();
+
+            varInfo.setStackIndex(localVarStackIndex);
+
+            /* Update local var stack index depending on var type */
+            if (varInfo.getType().isInt())
+                this.localVarStackIndex -= 4;
+            else if (varInfo.getType().isChar())
+                this.localVarStackIndex -= 1;
+            else if (varInfo.getType().isArray()){
+
+                /* Get the array's dimensions */
+                int prod = 1;
+                LinkedList<Integer> list = new LinkedList<Integer>();
+                varInfo.getType().getDimentions(list);
+
+                /* Get the production of all its dims */
+                for(Integer dim : list) {
+                    prod *= dim;
+                }
+
+                System.out.println("Product " + prod + " st " + localVarStackIndex);
+
+                /* Update the index depending on array type */
+                if (varInfo.getType().getArrayType().equals("int "))
+                    this.localVarStackIndex -= 4*prod;
+                else
+                    this.localVarStackIndex -= prod;
+
+                System.out.println("Stack index " + localVarStackIndex);
+            }
+
+        }
+    }
+
+    /* Returns : An int with the stack Index of the temp var
      * Parameters : The temp var @tempVar to put on the Activation record (stack)
      */
     private int assignTempStackInd(String tempVar) {
@@ -225,7 +418,7 @@ public class FinalCode {
         }
         else if (isCharConst(data)) {
 
-            char c = data.charAt(0);
+            char c = data.charAt(1);
             this.finalCode.add(new asCommand("\t", "mov", reg, Integer.toString((int) c)));
             return true;
         }
@@ -332,6 +525,7 @@ public class FinalCode {
 
             /* Its the { } case */
             loadAddress(reg, data.substring(2, data.length() - 1));
+            return true;
 
         }
 
@@ -508,6 +702,16 @@ public class FinalCode {
 
             System.out.println("Quad " + quad  + " to :");
 
+            /* There is a quad named vdef , that it doesn't need final code to
+             * be produced. We need it to assign a stack index to all the local
+             * variables defined (even if not used) */
+            if (quad.getOpName().equals("vdef")) {
+                assignLocalVarStackIndex(quad.getX());
+                continue;
+            }
+
+            this.finalCode.add(new asCommand("_" + quad.getlabel() + ":", "", "", ""));
+
             /* Get quads operation name*/
             String opName = quad.getOpName();
 
@@ -544,13 +748,33 @@ public class FinalCode {
             else if (opName.equals("<")) {
                 generateLessFinalCode(quad.getX(), quad.getY(), quad.getZ());
             }
+            else if (opName.equals("array")) {
+                generateArrayFinalCode(quad.getX(), quad.getY(), quad.getZ());
+            }
+            else if (opName.equals("par")) {
+                generateParFinalCode(quad.getX(), quad.getY());
+            }
             else if (opName.equals("jump")) {
                 generateJumpFinalCode(quad.getZ());
             }
-
-            System.out.println("");
+            else if (opName.equals("call")) {
+                generateCallFinalCode(quad.getZ());
+            }
+            else if (opName.equals("ret")) {
+                generateRetFinalCode();
+            }
+            else if (opName.equals("unit")) {
+                generateUnitFinalCode(quad.getX(), quadsList);
+            }
+            else if (opName.equals("endu")) {
+                generateEnduFinalCode(quad.getX());
+            }
         }
 
+        System.out.println("--------------------------------");
+
+        /* write to file */
+        writeToFile();
     }
 
     /* Returns : nothing
@@ -563,6 +787,25 @@ public class FinalCode {
         load("eax", op1);
 
         /* Store to temp */
+        store("eax", temp);
+    }
+
+    /* Returns : nothing
+     * Parameters : @op1 The x of quad, @op2 the y of quad,
+     *              @temp the temp var to put the result
+     */
+    private void generateArrayFinalCode(String op1, String op2, String temp) {
+
+        /* Load operator 1 which is the num of bytes for the array */
+        load("eax", op2);
+
+        /* Get the address of the array */
+        loadAddress("ecx", op1);
+
+        /* Add the address and the offset */
+        this.finalCode.add(new asCommand("\t", "add", "eax", "ecx"));
+
+        /* Store the result to the temp var */
         store("eax", temp);
     }
 
@@ -662,7 +905,7 @@ public class FinalCode {
         this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jnz", label, ""));
+        this.finalCode.add(new asCommand("\t", "jnz", "_"+label, ""));
     }
 
     /* Returns : nothing
@@ -678,7 +921,7 @@ public class FinalCode {
         this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jge", label, ""));
+        this.finalCode.add(new asCommand("\t", "jge", "_"+label, ""));
     }
 
     /* Returns : nothing
@@ -694,7 +937,7 @@ public class FinalCode {
         this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jg", label, ""));
+        this.finalCode.add(new asCommand("\t", "jg", "_"+label, ""));
     }
 
     /* Returns : nothing
@@ -710,7 +953,7 @@ public class FinalCode {
         this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jle", label, ""));
+        this.finalCode.add(new asCommand("\t", "jle", "_"+label, ""));
     }
 
     /* Returns : nothing
@@ -726,7 +969,7 @@ public class FinalCode {
         this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jl", label, ""));
+        this.finalCode.add(new asCommand("\t", "jl", "_"+label, ""));
     }
 
     /* Returns : nothing
@@ -735,7 +978,90 @@ public class FinalCode {
     private void generateJumpFinalCode(String label) {
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jmp", label, ""));
+        this.finalCode.add(new asCommand("\t", "jmp", "_"+label, ""));
+    }
+
+    /* Returns : nothing
+     * Parameters : nothing
+     * Returns to the end of the current function
+     */
+    private void generateRetFinalCode() {
+
+        /* jump to label */
+        this.finalCode.add(new asCommand("\t", "jmp", "_grc" + this.currentFunctionInfo.getName(), ""));
+    }
+
+    /* Returns : nothing
+     * Parameters : @label to call
+     */
+    private void generateCallFinalCode(String calleefunction) {
+
+        /* Get function's parameters size */
+        int parameterSize = getParametersSize(calleefunction) + 8;
+
+        /* create access link */
+        updateAL(calleefunction);
+        /* call the function */
+        if (isBuiltInFunc(calleefunction))
+            this.finalCode.add(new asCommand("\t", "call", "grc_" + calleefunction, ""));
+        else
+            this.finalCode.add(new asCommand("\t", "call", "grc_" + calleefunction, ""));
+        /* Clear the used space (calling convention) */
+        this.finalCode.add(new asCommand("\t", "add", "esp", Integer.toString(parameterSize)));
+    }
+
+    /* Returns : nothing
+     * Parameters : @op1 is the place of the variable to be passed to
+     *              a func by @method.
+     */
+    private void generateParFinalCode(String op1, String method) {
+
+        if (method.equals("V")) {
+            /* Load op1 to parameter */
+            load("eax", op1);
+
+            /* Push to stack */
+            this.finalCode.add(new asCommand("\t", "push", "eax", ""));
+        }
+        else {
+
+            /* Load op1 address cause it's by ref pass, or a return address */
+            loadAddress("esi", op1);
+
+            /* Push to stack */
+            this.finalCode.add(new asCommand("\t", "push", "esi", ""));
+        }
+    }
+
+    /* Returns : nothing
+     * Parameters : @unitName the label of the unit to
+     */
+    private void generateUnitFinalCode(String unitName, LinkedList<Quads> interCodelist) {
+
+        /* Look up for the function name and decide the local var size */
+        int local_var_size = getLocalVarSize(interCodelist);
+
+        System.out.println("Local size " + local_var_size);
+
+        this.finalCode.add(new asCommand("grc_" + unitName + ":", "", "", ""));
+        this.finalCode.add(new asCommand("\t", "push", "ebp", ""));
+        this.finalCode.add(new asCommand("\t", "mov", "ebp", "esp"));
+        if (local_var_size != 0)
+            this.finalCode.add(new asCommand("\t", "sub", "esp", Integer.toString(local_var_size)));
+    }
+
+    /* Returns : nothing
+     * Parameters : @unitName the label of the unit to
+     */
+    private void generateEnduFinalCode(String unitName) {
+
+        this.finalCode.add(new asCommand("_grc" + unitName + ":", "mov", "esp", "ebp"));
+        /* Pop ebp from stack */
+        this.finalCode.add(new asCommand("\t", "pop", "ebp", ""));
+        /* Return */
+        this.finalCode.add(new asCommand("\t", "ret", "", ""));
+        /* Define end of process */
+        //this.finalCode.add(new asCommand("grc_" + unitName, "endp", "", ""));
     }
 
 }
