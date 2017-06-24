@@ -628,7 +628,7 @@ public class FinalCode {
             Type tempType = this.interCodeObj.getTempType(tempNum);
 
             /* Determine size */
-            if (tempType.isArray() && tempType.getArrayType().equals("int "))
+            if (tempType.isAddress())
                 sizeOfVar = "DWORD";
             else if (tempType.isArray() && tempType.getArrayType().equals("char "))
                 sizeOfVar = "BYTE";
