@@ -261,8 +261,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         
         SymbolTableEntry data = new SymbolTableEntry(info);
         this.symbolTable.insert(node.getId().toString(), data);
-
-        addIndentationLevel();
     }
 
     @Override
@@ -378,6 +376,18 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         
         /* Initialize current Function so we can use in on the lower levels of the AST */
         currentFunctionId.push(node.getId());
+
+        /* "Produce" final code :
+         * We need this because the parameters must get an index
+         * in case of a child func using them */
+        this.finalCode = new FinalCode(this.symbolTable,
+                (FunctionInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo(),
+                this.intermediateCode,
+                this.currentFunctionId.get(0).toString()
+        );
+
+        /* Update func func's parameters variables */
+        this.finalCode.updateParamsStackIndex();
     }
 
     @Override
@@ -426,24 +436,18 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
             /* Add the variable to the function's definition list that holds local variables */
             currentFuncDef.addLocalVariable(v);
-
-            /* Make Intermediate code for var def */
-            this.intermediateCode.genQuad("vdef", node.getIdList().get(varnum).toString(), "", "");
         }
 
         /* "Produce" final code for the vdef quads */
         this.finalCode = new FinalCode(this.symbolTable,
                 (FunctionInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo(),
-                this.intermediateCode
+                this.intermediateCode,
+                this.currentFunctionId.get(0).toString()
                 );
 
-        /* Get the sub list of the intermediate code list to convert to final code */
-        LinkedList<Quads> subList = new LinkedList<Quads>();
-        for (int i = this.startIndex; i < this.intermediateCode.getQuadsList().size() ; i++)
-            subList.add(this.intermediateCode.getQuadsList().get(i));
-
-        /* Produce the Functions's final code */
-        this.finalCode.intermediateToFinalCode(subList);
+        /* Update func local variables */
+        LinkedList<Quads> empty = new LinkedList<Quads>();
+        this.finalCode.updateLTVarsStackIndex(empty);
     }
 
     @Override
@@ -457,7 +461,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             this.startIndex = this.intermediateCode.getQuadsList().size();
             this.finalCode = new FinalCode(this.symbolTable,
                     (FunctionInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo(),
-                    this.intermediateCode
+                    this.intermediateCode,
+                    this.currentFunctionId.get(0).toString()
                     );
 
             this.intermediateCode.genQuad("unit", currentFunctionId.peek().toString(), "-", "-");
@@ -969,8 +974,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
         {
             List<PExpr> copy = new ArrayList<PExpr>(node.getExprList());
-
-            for(PExpr e : copy) {
+            PExpr e;
+            int listSize = copy.size();
+            for (int i = listSize -1; i >= 0; i--) {
+                e = copy.get(i);
                 e.apply(this);
 
                 /* Create a "par" Quad for every argument */
@@ -1104,6 +1111,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         else
             dimList.addFirst(0);
 
+        System.out.println("PLACES " + dimPlaces.get(0) + " " + dimList.get(0));
+
         /* There is no case for a AStrLvalue because an exception would have already been thrown */
         if (node.getLvalue() instanceof AIdLvalue) {
             return ((AIdLvalue) node.getLvalue()).getId();
@@ -1135,9 +1144,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Use recursive function to get the idName (at the highest lvalueArray node on the AST) */
         if (!(node.parent() instanceof AArrayLvalue)) {
             TId arrayName = null;
-            LinkedList<Integer> list = new LinkedList<Integer>();
+            LinkedList<Integer> accessList = new LinkedList<Integer>();
             LinkedList<String> placesList = new LinkedList<String>();
-            arrayName = recArrayIdFinder(node, list, placesList);
+            arrayName = recArrayIdFinder(node, accessList, placesList);
 
             /* Lookup in the symbol table for the array */
             SymbolTableEntry array = this.symbolTable.lookup(arrayName.toString(), null);
@@ -1154,17 +1163,21 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             }
 
             /* Make a new type representing the array access (we need this to check the dimension number) */
-            System.out.println("List " + list);
-            /* Reverse the list cause its in the */
-            Type arrayAccessType = new ComplexType("array", list, arrayType.getArrayType()); 
+            Type arrayAccessType = new ComplexType("array", accessList, arrayType.getArrayType());
+
+            System.out.println("Type " + arrayAccessType);
 
             int ret = arrayType.isEquivWith(arrayAccessType);
-            if ( ret == 0) {
+            if (ret == 0) {
+
+                /* Don't throw exception in this case
                 int line = arrayName.getLine();
                 int column = arrayName.getPos();
                 throw new TypeCheckingException(line, column, "Invalid action: array with id \""
                                     + arrayName.getText()+"\" was defined with " + arrayType.getArrayDims() +
                                     " dimension(s) but is used with " + arrayAccessType.getArrayDims() + " dimension(s)");
+                */
+
             }
             else if(ret == 2) {
                 int line = arrayName.getLine();
@@ -1184,16 +1197,19 @@ public class SemanticAnalysis extends DepthFirstAdapter {
              */
 
             /* Code for arrays with 1 dimension */
-            if (dimList.size() == 1) {
+            arrayAccessType.getDimentions(accessList);
+            if (accessList.size() == 1) {
                 /* Create the quad for '*' */
+
+                System.out.println("pl" + placesList.get(0));
                 temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
-                if (arrayType.getArrayType().equals("int "))
+                if (arrayAccessType.getArrayType().equals("int "))
                     this.intermediateCode.genQuad("*", placesList.get(0), "4", temp2);
                 else 
                     this.intermediateCode.genQuad("*", placesList.get(0), "1", temp2);
             }
             else {
-                for (int dim = 0; dim < dimList.size() - 1; dim++) {
+                for (int dim = 0; dim < accessList.size() - 1; dim++) {
                     /* Create the quad for '*' */
                     if (dim == 0) {
                         /* Only for the first time we need a new temp */
@@ -1212,7 +1228,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
                 temp1 = temp2;
                 temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
-                if (arrayType.getArrayType().equals("int "))
+                if (arrayAccessType.getArrayType().equals("int "))
                     this.intermediateCode.genQuad("*", temp1, "4", temp2);
                 else 
                     this.intermediateCode.genQuad("*", temp1, "1", temp2);
@@ -1223,7 +1239,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             this.intermediateCode.genQuad("array", arrayName.toString(), temp2 , temp1);
 
             /* Put the AArrayLvalue parent (which is an expression) in the hashMap */
-            exprTypes.put(node, new Attributes(new BuiltInType(arrayType.getArrayType()), "[" + temp1 + "]"));
+            if (accessList.size() == dimList.size())
+                exprTypes.put(node, new Attributes(new BuiltInType(arrayAccessType.getArrayType()), "[" + temp1 + "]"));
+            else
+                exprTypes.put(node, new Attributes(arrayAccessType, "[" + temp1 + "]"));
         }
     }
 

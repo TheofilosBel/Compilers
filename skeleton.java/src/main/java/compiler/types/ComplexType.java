@@ -116,7 +116,7 @@ public class ComplexType extends Type {
             if (ret == 1) {
 
                 System.out.println(this.size + " size " + type.getSize());
-                if ((this.size != 0 && type.getSize() != 0) && this.size <= type.getSize()) {
+                if ((this.size != 0 && type.getSize() != 0) && this.size < type.getSize()) {
                     return 2;  // size fails
                 }
                 return 1;
