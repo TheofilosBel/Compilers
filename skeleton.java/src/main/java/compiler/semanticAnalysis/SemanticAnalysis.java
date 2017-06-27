@@ -519,7 +519,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                     PrintWriter out = new PrintWriter(bw))
                 {
                     /* If its the first time then we have to write some things */
-                    out.println(".include \"src/main/c/fun.s\"");
+                    out.println(".include \"src/main/BuiltInFunctions/builtInFunctions.s\"");
                     out.println(".intel_syntax noprefix # Use Intel syntax");
                     out.println(".text");
                     out.println("\t.global main");
@@ -1111,34 +1111,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                             "In function \"" + name.getText() + "\": calling with array: \"" +
                             expr.toString() + "\" with incompatible size");
                 }
-
-                /* Back patch final code */
-                for (FinalCode fc: this.finalCodeList) {
-
-                    System.out.println("BACKPATCHING...." + fc.getFuncsName() + " s " + funcCallExprType.getSize() + fc.needsBackPatch());
-                    /* If the calling function matches the function's final code */
-                    if (fc.getFuncsName().equals(node.getId().toString()) && fc.needsBackPatch() &&
-                            funcCallExprType.getSize() != -1){
-
-                        System.out.println("CAlling it");
-                        fc.backPatchSizes(funcInfo.getArguments().get(arg).getName().toString(),
-                                          Integer.toString(funcCallExprType.getSize()));
-                    }
-                    else if (fc.getFuncsName().equals(node.getId().toString()) && fc.needsBackPatch() &&
-                            funcCallExprType.getSize() == -1){
-
-                        /* First back patch with the name of the variable we use to call the
-                         * funtion that needs patching , so when our father comes back to
-                         * patch us , he will patch also the function that we call
-                         */
-                        fc.backPatchSizes(funcInfo.getArguments().get(arg).getName().toString(),
-                                          "*" + node.getExprList().get(arg).toString());
-
-                        /* In case that it must back patch but it size is also unknown */
-                        this.finalCode.mergePBlists(fc.getPBlists());
-                    }
-                }
-
             }
         }
         else if (funcInfo.getArguments().size() != node.getExprList().size()){
@@ -1146,8 +1118,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             throw new TypeCheckingException(name.getLine(), name.getPos(),
                 "Calling function \"" + name.getText() + "\": wrong number of arguments provided");
         }
-
-        //exprTypes.put(node.parent(), new Attributes(funcInfo.getType()));
     }
 
     @Override
@@ -1212,7 +1182,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (node.getExpr() != null && node.getExpr() instanceof AIntExpr)
             dimList.addFirst(Integer.parseInt(((AIntExpr) node.getExpr()).getIntConst().getText()));
         else
-            dimList.addFirst(0);
+            dimList.addFirst(-1);
 
         System.out.println("PLACES " + dimPlaces.get(0) + " " + dimList.get(0));
 

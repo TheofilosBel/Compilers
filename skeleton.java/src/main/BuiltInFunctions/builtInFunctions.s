@@ -99,7 +99,7 @@ _grcstrlen: mov eax, ebx  # Load the strlen to eax (convention)
 	ret
 
 
-### fun strcmp (ref str1, str2 : char[]) : int; ###
+### fun strcmp (ref str1, str2 : char[]) : int ###
 
 grc_strcmp :
 	push ebp
@@ -151,8 +151,70 @@ _grcstrcmp:
 	ret
 
 
+### fun strcpy (ref trg, src : char[]) : nothing ###
 
+grc_strcpy :
+	push ebp
+	mov ebp, esp
+    sub esp, 4      # we need 1 var to push to grc_putc
 
+    mov  esi, DWORD PTR [ebp + 8]  # the address of the trg
+    mov  ebx, DWORD PTR [ebp + 12]  # the address of the src
+    mov  edi, 0                     # the offset of the array's
 
+    # Looop the src string and store it's chars to trg (no worries about trg's size :P)
+cpyloops:
+	mov ecx, DWORD PTR [ebx + edi]  # load the src char in ecx
+    cmp ecx, 0                      # check if it's the end of the src
+	je cpynullTerminate
+	mov DWORD PTR [esi + edi], ecx  # assing the char of src to trg
+	sub edi, 4                      # - the offset
+    jmp cpyloops
 
+cpynullTerminate:
+    mov DWORD PTR [esi + edi], 0    # assing the null terminate char to trg
+    jmp _grcstrcpy                  # and return
 
+_grcstrcpy: 
+	mov esp, ebp
+	pop ebp
+	ret
+
+### fun strcat (ref trg, src : char[]) : nothing ###
+
+grc_strcat :
+	push ebp
+	mov ebp, esp
+    sub esp, 4      # we need 1 var to push to grc_putc
+
+    mov  esi, DWORD PTR [ebp + 8]   # the address of the trg
+    mov  ebx, DWORD PTR [ebp + 12]  # the address of the src
+    mov  edi, 0                     # the offset of the src str
+    mov  eax, 0                     # the offset of the trg str
+
+    # First loop the trg to find the null terminated char 
+cat1loops:
+	mov ecx, DWORD PTR [esi + edi]  # load the src char in ecx
+    cmp ecx, 0                      # check if it's the end of the src
+	je cat2loops
+	sub edi, 4                      # - the offset
+    jmp cat1loops
+
+    # Looop the src string and store it's chars to trg (no worries about trg's size :P)
+cat2loops:
+	mov ecx, DWORD PTR [ebx + eax]  # load the src char in ecx
+    cmp ecx, 0                      # check if it's the end of the src
+	je catnullTerminate
+	mov DWORD PTR [esi + edi], ecx  # assing the char of src to trg
+	sub eax, 4                      # - the offset of src
+	sub edi, 4                      # - the offset of trg
+    jmp cat2loops
+
+catnullTerminate:
+    mov DWORD PTR [esi + edi], 0    # assing the null terminate char to trg
+    jmp _grcstrcat                  # and return
+
+_grcstrcat: 
+	mov esp, ebp
+	pop ebp
+	ret

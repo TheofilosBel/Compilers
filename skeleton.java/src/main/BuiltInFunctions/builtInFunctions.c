@@ -67,25 +67,3 @@ char grc_chr(int* np, int n)
 	return casted;
 }
 /*######################################*/
-
-
-/*######### STRING FUNCTIONS ##########*/
-
-/* fun strcpy (ref trg, src : char[]) : nothing; */
-void grc_strcpy(char *trg, char *src)
-{
-	strcpy(trg, src);
-}
-
-
-/* fun strcat (ref trg, src : char[]) : nothing; */
-void grc_strcat(char *trg, char *src)
-{
-	strcat(trg, src);
-}
-
-/*######################################*/
-
-
-
-

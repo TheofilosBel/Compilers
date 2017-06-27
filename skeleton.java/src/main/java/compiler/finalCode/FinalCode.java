@@ -828,10 +828,10 @@ public class FinalCode {
             else if (opName.equals(":=")) {
                 generateAssignFinalCode(quad.getX(), quad.getZ());
             }
-            else if (opName.equals("div")) {
+            else if (opName.equals("/")) {
                 generateDivFinalCode(quad.getX(), quad.getY(), quad.getZ());
             }
-            else if (opName.equals("mod")) {
+            else if (opName.equals("%")) {
                 generateModFinalCode(quad.getX(), quad.getY(), quad.getZ());
             }
             else if (opName.equals("=")) {
@@ -1023,7 +1023,7 @@ public class FinalCode {
         load("ebx", op2);
 
         /* Add it to the list */
-        finalCode.add(new asCommand("\t", "idiv", "eax", "ebx"));
+        finalCode.add(new asCommand("\t", "idiv", "ebx", ""));
 
         /* store the quotation from eax to temp */
         store("eax", temp, 0);
@@ -1040,7 +1040,7 @@ public class FinalCode {
         load("ebx", op2);
 
         /* Add it to the list */
-        finalCode.add(new asCommand("\t", "idiv", "eax", "ebx"));
+        finalCode.add(new asCommand("\t", "idiv", "ebx", ""));
 
         /* store the remaining from edx to temp */
         store("edx", temp, 0);
