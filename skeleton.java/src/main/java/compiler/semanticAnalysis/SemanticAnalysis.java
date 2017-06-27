@@ -5,10 +5,9 @@ import compiler.node.*;
 import compiler.types.*;
 import compiler.exceptions.*;
 import compiler.intermediateCode.*;
-import compiler.fianlCode.*;
-import compiler.semanticAnalysis.VariableInfo;
-import compiler.semanticAnalysis.SymbolTableEntry;
+import compiler.finalCode.*;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -18,17 +17,19 @@ import java.util.Stack;
 
 public class SemanticAnalysis extends DepthFirstAdapter {
 
-    int indentation = 0;
-    int startIndex  = 0;
-    SymbolTable symbolTable; /* The structure of the symbol table */
+    private int indentation = 0;
+    private int startIndex  = 0;
+    private static String outfilename = "out.s";  /* The name of the assembly file */
+    private SymbolTable symbolTable; /* The structure of the symbol table */
     private HashMap<Node, Attributes> exprTypes; /* A structure that maps every sablecc generated Node to a type */
     private Stack<TId> currentFunctionId;
     private CompilerErrorList errorList;
     private IntermediateCode intermediateCode;
+    private LinkedList<FinalCode> finalCodeList;
     private FinalCode finalCode;
     private HashMap<String, List<Integer>> declaredFunctions = new HashMap<String, List<Integer>>();
-    int blockDepth; /* This helps us distinguish function definition blocks for if/while blocks */
-    int nestingLevel = 0;
+    private int blockDepth; /* This helps us distinguish function definition blocks for if/while blocks */
+    private int nestingLevel = 0;
 
     /*
      * The semantic analysis phase starts here
@@ -43,7 +44,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         
         /* Add the first scope that will hold the built in library functions */
         this.symbolTable.enter();
-        this.intermediateCode = new IntermediateCode();
+        this.intermediateCode = new IntermediateCode();   /* Here is the intermediate code list */
+        this.finalCodeList = new LinkedList<FinalCode>(); /* Here is the final code list , it keeps all the final code from each func */
         
         LinkedList<VariableInfo> argList; /* A list containing the arguments to each function */
         LinkedList<String> passBy;        /* A list containing the pass method (by reference / by value) of each argument */
@@ -379,7 +381,9 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
         /* "Produce" final code :
          * We need this because the parameters must get an index
-         * in case of a child func using them */
+         * on the activation record , before a child wishes to ues
+         * them .
+         */
         this.finalCode = new FinalCode(this.symbolTable,
                 (FunctionInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo(),
                 this.intermediateCode,
@@ -488,7 +492,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
              * If the function definition has not been matched to a return statement
              * we have to generate a ret Quad manually
              */
-            if (((FuncDefInfo) currentFunctionEntry.getInfo()).getIsMatchedToReturnStmt() == false) {
+            if ( !((FuncDefInfo) currentFunctionEntry.getInfo()).getIsMatchedToReturnStmt()) {
                 this.intermediateCode.genQuad("ret", "-", "-", "-");
             }
             this.intermediateCode.genQuad("endu", currentFunctionId.peek().toString(), "-", "-");
@@ -500,14 +504,49 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
             /* Produce the Functions's final code */
             this.finalCode.intermediateToFinalCode(subList);
+
+            /* Keep it on the list */
+            this.finalCodeList.add(this.finalCode);
+
+            /* In case we are in the Last closure of a block in the program , write the final code */
+            if (this.currentFunctionId.size() == 1) {
+
+                File f = new File(outfilename);
+
+                /* write the first stuff */
+                try(FileWriter fw = new FileWriter(outfilename, true);
+                    BufferedWriter bw = new BufferedWriter(fw);
+                    PrintWriter out = new PrintWriter(bw))
+                {
+                    /* If its the first time then we have to write some things */
+                    out.println(".include \"src/main/c/fun.s\"");
+                    out.println(".intel_syntax noprefix # Use Intel syntax");
+                    out.println(".text");
+                    out.println("\t.global main");
+                    out.println("main:");
+                    out.println("push ebp\nmov ebp, esp");
+                    out.println("sub esp, 4\nmov eax, 0\npush eax");
+                    out.println("call grc_" + this.currentFunctionId.peek().toString());
+                    out.println("add esp, 8");
+                    out.println("mov esp, ebp\npop ebp\nret\n");
+
+                    /* For each funcs final code write it to file */
+                    for (FinalCode.asCommand item : FinalCode.getAssemblyCmds()){
+                        out.println(item.toString());
+                    }
+
+                }
+                catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
         }
     }
 
     @Override
     public void caseABlockStmt(ABlockStmt node) {
         /* For intermediate code */
-        LinkedList<Integer> nextList = null;
-        int loopTimes = 0;
+        LinkedList<Integer> nextList = new LinkedList<Integer>();
 
         /* Check that every local function declaration has been matched to a definition */
         if (blockDepth == 0) {
@@ -525,16 +564,15 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         {
             List<PStmt> copy = new ArrayList<PStmt>(node.getBody());
             for (PStmt e : copy) {
-                /* BackPatch */
-                if (loopTimes != 0) /* Don't backpatch in the first loop, there is no first stmt code */
-                    this.intermediateCode.backPatch(nextList, Quads.nextQuad());
-                
+
                 e.apply(this);
-                
+
                 /* Get e's next list to back patch it */
                 nextList = exprTypes.get(e).getNext();
-                
-                loopTimes++;
+                if (nextList == null)
+                    nextList = new LinkedList<Integer>();
+
+                this.intermediateCode.backPatch(nextList, Quads.nextQuad());
             }
         }
         outABlockStmt(node);
@@ -678,17 +716,28 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         Attributes assignRhsExpr = exprTypes.get(node.getExpr());
         Type assignRhsType = assignRhsExpr.getType();
 
-        if (!(assignLhsType.isEquivWith(assignRhsType) == 1)) {
+        int ret = assignLhsType.isEquivWith(assignRhsType);
+        if (ret == 0) {
             int line = node.getAssign().getLine();
             int column = node.getAssign().getPos();
-            throw new TypeCheckingException(line, column, "Both sides of an assignment should have the same type");
+            throw new TypeCheckingException(line, column,
+                    "Both sides of an assignment should have the same type\n" +
+                    "assigning " + assignRhsType + " to " + assignLhsType);
         }
+        if (ret == 2) {
+            int line = node.getAssign().getLine();
+            int column = node.getAssign().getPos();
+            throw new TypeCheckingException(line, column,
+                    "Both sides of an array assignment should have the same sizes\n"+
+                    "assigning " + assignRhsType + " of size " + assignRhsType.getSize() +
+                    " to " +  assignLhsType + " of size " + assignLhsType.getSize());
+        }
+
         
         /* Intermediate Code */
         Attributes nodeAttributes = new Attributes(BuiltInType.Void);
         this.intermediateCode.genQuad(":=", assignRhsExpr.getPlace(), "-", assignLhsLval.getPlace());
         nodeAttributes.makeEmptyList("Next");
-        
         exprTypes.put(node, nodeAttributes);
     }
 
@@ -723,6 +772,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             /* Intermediate Code */
             this.intermediateCode.genQuad(":=", exprTypes.get(node.getExpr()).getPlace(), "-", "$$");
         }
+
+        /* Back patch the */
 
         this.intermediateCode.genQuad("ret", "-", "-", "-");
 
@@ -980,10 +1031,10 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                 e = copy.get(i);
                 e.apply(this);
 
-                /* Create a "par" Quad for every argument */
+                /* Create a "par" Quad for every argument in the reverse order */
                 if (funcDec != null) {
                     this.intermediateCode.genQuad("par", exprTypes.get(e).getPlace(),
-                                                ((FunctionInfo) funcDec.getInfo()).paramMode(n), "-");
+                                                ((FunctionInfo) funcDec.getInfo()).paramMode(listSize - n + 1), "-");
                 }
                 n++;
             }
@@ -1022,8 +1073,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         /* Equivalence check with declaration */
         FunctionInfo funcInfo = (FunctionInfo) funcDec.getInfo();
 
-        //System.out.println(node.getExprList().size());
-
         /* First check for equal number of arguments */
         Type funcDecExprType  = null;
         Type funcCallExprType = null;
@@ -1032,7 +1081,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             for (int arg = 0; arg < node.getExprList().size(); arg++) {
 
                 /* Check if a by ref arg is passed but its not an lvalue */
-                if ( !(node.getExprList().get(arg) instanceof ALvalExpr) && ((FunctionInfo) funcDec.getInfo()).getPassByMethods().get(arg).equals("ref")) {
+                if ( !(node.getExprList().get(arg) instanceof ALvalExpr) && funcInfo.getPassByMethods().get(arg).equals("ref")) {
 
                     /* Throw exception */
                     TId name  = node.getId();
@@ -1042,11 +1091,11 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                     expr.toString() + "\" is not an lvalue.");
                 }
 
-                /* Get the function declaration's arguments type and function call's expressions' type */
-                funcDecExprType = ((FunctionInfo) funcDec.getInfo()).getArguments().get(arg).getType();
+                /* Get the function declaration's arguments type and function call's expression type */
+                funcDecExprType = funcInfo.getArguments().get(arg).getType();
                 funcCallExprType = exprTypes.get(node.getExprList().get(arg)).getType();
 
-                int ret = funcDecExprType.isEquivWith(funcCallExprType);
+                int ret = funcCallExprType.isEquivWith(funcDecExprType);
                 if (ret == 0) {
                     TId name  = node.getId();
                     Node expr = node.getExprList().get(arg);
@@ -1062,6 +1111,34 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                             "In function \"" + name.getText() + "\": calling with array: \"" +
                             expr.toString() + "\" with incompatible size");
                 }
+
+                /* Back patch final code */
+                for (FinalCode fc: this.finalCodeList) {
+
+                    System.out.println("BACKPATCHING...." + fc.getFuncsName() + " s " + funcCallExprType.getSize() + fc.needsBackPatch());
+                    /* If the calling function matches the function's final code */
+                    if (fc.getFuncsName().equals(node.getId().toString()) && fc.needsBackPatch() &&
+                            funcCallExprType.getSize() != -1){
+
+                        System.out.println("CAlling it");
+                        fc.backPatchSizes(funcInfo.getArguments().get(arg).getName().toString(),
+                                          Integer.toString(funcCallExprType.getSize()));
+                    }
+                    else if (fc.getFuncsName().equals(node.getId().toString()) && fc.needsBackPatch() &&
+                            funcCallExprType.getSize() == -1){
+
+                        /* First back patch with the name of the variable we use to call the
+                         * funtion that needs patching , so when our father comes back to
+                         * patch us , he will patch also the function that we call
+                         */
+                        fc.backPatchSizes(funcInfo.getArguments().get(arg).getName().toString(),
+                                          "*" + node.getExprList().get(arg).toString());
+
+                        /* In case that it must back patch but it size is also unknown */
+                        this.finalCode.mergePBlists(fc.getPBlists());
+                    }
+                }
+
             }
         }
         else if (funcInfo.getArguments().size() != node.getExprList().size()){
@@ -1076,10 +1153,36 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     @Override
     public void outAStrLvalue(AStrLvalue node) {
         LinkedList<Integer> strLength = new LinkedList<Integer>();
-        /* We subtract 3 from the length to account for the "" and the space at the end */
-        strLength.add(node.getStringLiteral().toString().length() - 3);
+        int len = 0;
+        /* We subtract 3 from the length to account for the "" and the space at the end
+         * we also check for \ , in case of that just remove onw from length */
 
-        exprTypes.put(node, new Attributes(new ComplexType("array", strLength, "char "), node.getStringLiteral().getText()));
+        for(int i = 0; i < node.getStringLiteral().getText().length(); i++) {
+
+            if (node.getStringLiteral().getText().charAt(i) == '\\' ||
+                    node.getStringLiteral().getText().charAt(i) == '\"')
+                continue;
+
+            len++;
+        }
+        len++;  /* For the /0 at the end */
+        strLength.add(len);
+
+        Type type = new ComplexType("array", strLength, "char ");
+        VariableInfo varInfo = new VariableInfo(new TId(node.getStringLiteral().getText(),
+                                                        node.getStringLiteral().getLine(),
+                                                        node.getStringLiteral().getPos()),
+                                                type
+                                               );
+
+        exprTypes.put(node, new Attributes(type, node.getStringLiteral().toString()));
+
+        /* Also insert to symbol table cause it's string litteral will be a local var of a func */
+        this.symbolTable.insert(node.getStringLiteral().toString(), new SymbolTableEntry(varInfo));
+
+        /* add it also on functions local vars */
+        FuncDefInfo defInfo = (FuncDefInfo) this.symbolTable.lookup(this.currentFunctionId.peek().toString(), null).getInfo();
+        defInfo.addLocalVariable(varInfo);
     }
 
     @Override
@@ -1203,10 +1306,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
                 System.out.println("pl" + placesList.get(0));
                 temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
-                if (arrayAccessType.getArrayType().equals("int "))
-                    this.intermediateCode.genQuad("*", placesList.get(0), "4", temp2);
-                else 
-                    this.intermediateCode.genQuad("*", placesList.get(0), "1", temp2);
+                this.intermediateCode.genQuad("*", placesList.get(0), "4", temp2);
             }
             else {
                 for (int dim = 0; dim < accessList.size() - 1; dim++) {
@@ -1228,10 +1328,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
                 temp1 = temp2;
                 temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
-                if (arrayAccessType.getArrayType().equals("int "))
-                    this.intermediateCode.genQuad("*", temp1, "4", temp2);
-                else 
-                    this.intermediateCode.genQuad("*", temp1, "1", temp2);
+                this.intermediateCode.genQuad("*", temp1, "4", temp2);  /* All arrays have 4 bytes width */
             }
             
             /* Make the array quad */

@@ -1,14 +1,9 @@
-package compiler.fianlCode;
+package compiler.finalCode;
 
 import compiler.intermediateCode.*;
 import compiler.semanticAnalysis.*;
 import compiler.types.*;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.BufferedWriter;
-import java.io.PrintWriter;
 import java.util.LinkedList;
 
 /**
@@ -18,7 +13,7 @@ import java.util.LinkedList;
  */
 public class FinalCode {
 
-    private class asCommand {
+    public class asCommand {
         String label;
         String operation;
         String operand1;
@@ -45,87 +40,63 @@ public class FinalCode {
     }
 
     /* Needed data for final code production */
-    private static int counter = 0;
-    private static String filename = "out.s";
-    private static LinkedList<String> dataPartOfAssembly = new LinkedList<String>();
-    private static LinkedList<String> labelsOfData = new LinkedList<String>();
-    private String mainFuncName;
+    private LinkedList<Integer> sizeBackPatchList;  // Holds indexes of final code list , that need backpatching
+    private String returnTempVar;
+    private String lastVarPassed;
     private SymbolTable copyOfST;              // A copy of the symbol table
-    private LinkedList<asCommand> finalCode;   // The assembly commands in a list
+    private static LinkedList<asCommand> finalCode = new LinkedList<asCommand>(); // The assembly commands in a list
     private FunctionInfo currentFunctionInfo;  // The info for the current function
     private IntermediateCode interCodeObj;     // The intermediate code object to convert to final code
 
     public FinalCode (SymbolTable st, FunctionInfo currentFn, IntermediateCode copyOfIdObj, String mainFunc){
         this.copyOfST = st;
-        this.finalCode = new LinkedList<asCommand>();
+        this.sizeBackPatchList = new LinkedList<Integer>();
         this.currentFunctionInfo = currentFn;
         this.interCodeObj = copyOfIdObj;
-        this.mainFuncName = mainFunc;
+        this.returnTempVar = null;
     }
 
-    public static int addData(String str) {
-        dataPartOfAssembly.add(str);
-        labelsOfData.add("grc_str" + counter);
-        counter++;
-        return counter;
+    public boolean needsBackPatch() {
+        return this.sizeBackPatchList.size() != 0;
     }
 
-
-    public  void writeToFile() {
-        boolean firstWrite = true;
-
-        /* If its the first time to write to file then up a flag */
-        File f = new File(this.filename);
-        if(f.exists()) {
-            firstWrite = false;
-        }
-
-        try(FileWriter fw = new FileWriter(this.filename, true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            PrintWriter out = new PrintWriter(bw))
-        {
-            /* If its the first time then we have to write some things */
-            if (firstWrite) {
-                out.println(".intel_syntax noprefix # Use Intel syntax");
-                out.println(".text");
-                out.println("\t.global main");
-                out.println("main:");
-                out.println("push ebp\nmov ebp, esp");
-                out.println("sub esp, 4\nmov eax, 0\npush eax");
-                out.println("call grc_" + this.mainFuncName);
-                out.println("add esp, 8");
-                out.println("mov esp, ebp\npop ebp\nret\n");
-
-            }
-
-            for (asCommand item : this.finalCode){
-                out.println(item.toString());
-            }
-
-        } catch (IOException e) {
-            System.out.println(e);
-        }
-
+    public String getFuncsName() {
+        return this.currentFunctionInfo.getName().toString();
     }
 
-    private void writeDataPartToFile() {
+    public static LinkedList<asCommand> getAssemblyCmds() {
+        return finalCode;
+    }
 
-        /* Try to write to file */
-        try(FileWriter fw = new FileWriter(this.filename, true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            PrintWriter out = new PrintWriter(bw))
-        {
+    /* Returns the back patching list */
+    public LinkedList<Integer> getPBlists() {
+        return sizeBackPatchList;
+    }
 
-            /* write the data part */
-            out.println(".data");
-            for (int i= 0; i < dataPartOfAssembly.size(); i++) {
-                out.println(labelsOfData.get(i)+": .asciz " + dataPartOfAssembly.get(i));
+    public void mergePBlists(LinkedList<Integer> list) {
+        this.sizeBackPatchList.addAll(list);
+    }
+
+    public void backPatchSizes(String var2bp, String sizeOfarray) {
+
+        /* Create the backPatch symbol */
+        String bpSymbol = "*" + var2bp;
+
+        System.out.println("Back patch :" + bpSymbol + " with " + sizeOfarray);
+
+        for (Integer idx: this.sizeBackPatchList) {
+            /* Get the assembly command */
+            asCommand bpCommand = finalCode.get(idx);
+
+            /* back patch it */
+            if (bpCommand.operand1.equals(bpSymbol)) {
+                bpCommand.operand1 = sizeOfarray;
             }
-
-
-        } catch (IOException e) {
-            System.out.println(e);
+            else if (bpCommand.operand2.equals(bpSymbol)) {
+                bpCommand.operand2 = sizeOfarray;
+            }
         }
+
     }
 
 
@@ -133,6 +104,69 @@ public class FinalCode {
      * | Helping functions for String of intermediate |
      * |            code to Final code                |
      * +----------------------------------------------+ */
+
+    /* Returns : Nothing
+     * Parameters : Nothing
+     * Searches if one of the local Vars of the function is a string literal
+     * and creates it like a char array.
+     */
+    private void createStringConst() {
+
+        System.out.println("In create String const");
+
+        /* Loop through local vars */
+        for (VariableInfo varInfo: ((FuncDefInfo) currentFunctionInfo).getLocalVariables()) {
+
+            /* If you find a string Const create it */
+            String varName = varInfo.getName().toString();
+            if (isStringConst(varName)) {
+
+                /* Add a comment */
+                finalCode.add(new asCommand("\t#creating string literal" + varName, "", "", ""));
+                int additionalStackIndex = 0;
+                boolean previusBackSlash = false;
+
+                /* get the string */
+                String strliteral = varName.substring(1, varName.length()-2);
+                for (int i=0; i<strliteral.length(); i++){
+
+                    if (strliteral.charAt(i) == '\\' && !previusBackSlash) {
+                        previusBackSlash = true;
+                        continue;
+                    }
+
+                    /* then load line feed or tab , depending on '\n' or '\t' */
+                    if (previusBackSlash && (strliteral.charAt(i) == 'n' || strliteral.charAt(i) == 't')) {
+                        if (strliteral.charAt(i) == 'n')
+                            finalCode.add(new asCommand("\t", "mov", "eax", "10"));
+                        else
+                            finalCode.add(new asCommand("\t", "mov", "eax", "9"));
+                    }
+                    else{
+                        /* Create char const */
+                        String charConst = "\'" + strliteral.charAt(i) + "\'";
+
+                        System.out.println("Const " + charConst);
+
+                        /* Load operator 1 */
+                        load("eax", charConst);
+                    }
+
+                    /* Store to temp */
+                    store("eax", varName, additionalStackIndex);
+
+                    /* go to the next array place */
+                    additionalStackIndex += 4;
+                    previusBackSlash = false;
+                }
+
+                /* At the end load a 0 to sign the end of the string */
+                load("eax", "0");
+                store("eax", varName, additionalStackIndex);
+            }
+        }
+
+    }
 
     /* Returns : True in case its a built in func , else false
      * Parameters : @funcName is the name of the func we want to check
@@ -196,7 +230,7 @@ public class FinalCode {
 
             varInfo = (VariableInfo) this.copyOfST.lookup(varInfo.getName().toString(), null).getInfo();
 
-            System.out.print("\tLocal var " + varInfo.getName());
+            System.out.print("\tLocal var " + varInfo.getName().toString());
 
             /* Update the each var's stack index depending on var's type */
             if (varInfo.getType().isInt() || varInfo.getType().isChar()) {
@@ -276,10 +310,7 @@ public class FinalCode {
             System.out.println("\tParameter :" + varInfo.getName());
 
             /* Update the parametersSize depending on var's type */
-            if (varInfo.getType().isInt() || varInfo.getType().isArray())
-                parametersSize += 4;
-            else if (varInfo.getType().isChar())
-                parametersSize += 1;
+            parametersSize += 4;
         }
 
 
@@ -317,10 +348,7 @@ public class FinalCode {
                 }
 
                 /* Update the index depending on array type */
-                if (varInfo.getType().getArrayType().equals("int "))
-                    totalSize += 4*prod;
-                else
-                    totalSize += prod;
+                totalSize += 4*prod;
             }
         }
 
@@ -441,11 +469,11 @@ public class FinalCode {
         copyOfST.lookup(nonLocal, nestingsBack);
 
         /* We are going to get the access link of the current AR to esi register */
-        this.finalCode.add(new asCommand("\t", "mov", "esi", "DWORD PTR [ebp + 8]" ));
+        finalCode.add(new asCommand("\t", "mov", "esi", "DWORD PTR [ebp + 8]" ));
 
         /* Then go back to the asked AR */
         for (int i=0; i < nestingsBack[0] - 1; i++) {
-            this.finalCode.add(new asCommand("\t", "mov", "esi", "DWORD PTR [esi + 8]" ));
+            finalCode.add(new asCommand("\t", "mov", "esi", "DWORD PTR [esi + 8]" ));
         }
     }
 
@@ -462,19 +490,19 @@ public class FinalCode {
 
         /* Produce final code */
         if (callerLevel < calleeLevel) {
-            this.finalCode.add(new asCommand("\t", "push", "ebp", ""));
+            finalCode.add(new asCommand("\t", "push", "ebp", ""));
         }
         else if (callerLevel == calleeLevel) {
-            this.finalCode.add(new asCommand("\t", "push", "DWORD PTR [ebp + 8]", ""));
+            finalCode.add(new asCommand("\t", "push", "DWORD PTR [ebp + 8]", ""));
         }
         else {
-            this.finalCode.add(new asCommand("\t", "mov", "esi", "DWORD PTR [ebp + 8]"));
+            finalCode.add(new asCommand("\t", "mov", "esi", "DWORD PTR [ebp + 8]"));
 
             for (int i = 0; i < callerLevel - calleeLevel + 1; i++) {
-                this.finalCode.add(new asCommand("\t", "mov", "esi", "DWORD PTR [esi + 8]"));
+                finalCode.add(new asCommand("\t", "mov", "esi", "DWORD PTR [esi + 8]"));
             }
 
-            this.finalCode.add(new asCommand("\t", "push", "DWORD PTR [esi + 8]", ""));
+            finalCode.add(new asCommand("\t", "push", "DWORD PTR [esi + 8]", ""));
         }
     }
 
@@ -489,13 +517,24 @@ public class FinalCode {
 
         /* In case of data's type produce code */
         if (isIntConst(data)) {
-            this.finalCode.add(new asCommand("\t", "mov", reg, data));
+            finalCode.add(new asCommand("\t", "mov", reg, data));
             return true;
         }
         else if (isCharConst(data)) {
 
             char c = data.charAt(1);
-            this.finalCode.add(new asCommand("\t", "mov", reg, Integer.toString((int) c)));
+            /* Make the special chars */
+            if (c == '\\') {
+                if (data.charAt(2) == 'n')
+                    c = 10;  /* ascii of new line */
+                else if(data.charAt(2) == 't')
+                    c = 9;  /* ascii of tab */
+                else if (data.charAt(2) == '0')
+                    c = 0;  /* ascii of null */
+                else
+                    c = data.charAt(2);  /* all escaping chars */
+            }
+            finalCode.add(new asCommand("\t", "mov", reg, Integer.toString((int) c)));
             return true;
         }
         else if (isTempVariable(data)) {
@@ -513,7 +552,7 @@ public class FinalCode {
                 sizeOfVar = "BYTE";
 
             /* Make assembly code */
-            this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
+            finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
             return true;
 
         }
@@ -534,7 +573,7 @@ public class FinalCode {
                 if (variableLocality[0] == 0) {
 
                     /* Make assembly code */
-                    this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
+                    finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
                     return true;
                 } else {
 
@@ -542,7 +581,7 @@ public class FinalCode {
                     getAR(data);
 
                     /* Make assembly code */
-                    this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
+                    finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
                     return true;
 
                 }
@@ -552,8 +591,8 @@ public class FinalCode {
                 if (variableLocality[0] == 0) {
 
                     /* Make assembly code */
-                    this.finalCode.add(new asCommand("\t", "mov", "esi", sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
-                    this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [esi]"));
+                    finalCode.add(new asCommand("\t", "mov", "esi", sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
+                    finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [esi]"));
                     return true;
                 } else {
 
@@ -561,8 +600,8 @@ public class FinalCode {
                     getAR(data);
 
                     /* Make assembly code */
-                    this.finalCode.add(new asCommand("\t", "mov", "esi", sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
-                    this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [esi]"));
+                    finalCode.add(new asCommand("\t", "mov", "esi", sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
+                    finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [esi]"));
                     return true;
 
                 }
@@ -580,7 +619,7 @@ public class FinalCode {
                 sizeOfVar = "BYTE";
 
             load("edi", data.substring(1, data.length() - 1));
-            this.finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [edi]"));
+            finalCode.add(new asCommand("\t", "mov", reg, sizeOfVar + " PTR [edi]"));
             return true;
         }
         else {
@@ -600,15 +639,10 @@ public class FinalCode {
         int variableStackIndex = 0;   // If data is variable the stackIndex that it resides
         int[] variableLocality = new int[1];  // For the locality of the variable
 
+        System.out.println("In load");
 
         /* Based on data type produce final code */
-        if (isStringConst(data)) {
-
-            int counter = addData(data);
-            this.finalCode.add(new asCommand("\t", "mov", reg, "OFFSET FLAT:grc_str" + Integer.toString(counter - 1)));
-            return true;
-        }
-        else if (isPointerAccess(data)) {
+        if (isPointerAccess(data)) {
             load(reg, data.substring(1, data.length() - 1));
         }
         else if (isTempVariable(data)) {
@@ -625,7 +659,7 @@ public class FinalCode {
             else if (tempType.isChar())
                 sizeOfVar = "BYTE";
 
-            this.finalCode.add(new asCommand("\t", "lea", reg, sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
+            finalCode.add(new asCommand("\t", "lea", reg, sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
             return true;
         }
         else if ((varInfo = isVariable(data, variableLocality)) != null) {
@@ -642,24 +676,24 @@ public class FinalCode {
             /* Check if it's parameter , and locality */
             if (variableLocality[0] == 0 && (varInfo.getMethod().equals("val") || varInfo.getMethod().equals("non"))) {
                 /* Make assembly code */
-                this.finalCode.add(new asCommand("\t", "lea", reg, sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
+                finalCode.add(new asCommand("\t", "lea", reg, sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
                 return true;
             }
             else if (variableLocality[0] == 0 && varInfo.getMethod().equals("ref")) {
                 /* Make assembly code */
-                this.finalCode.add(new asCommand("\t", "mov", reg,  "DWORD PTR [ebp + " + variableStackIndex + "]"));
+                finalCode.add(new asCommand("\t", "mov", reg,  "DWORD PTR [ebp + " + variableStackIndex + "]"));
                 return true;
             }
             else if (variableLocality[0] != 0 && (varInfo.getMethod().equals("val") || varInfo.getMethod().equals("non"))) {
                 /* Make assembly code */
                 getAR(data);
-                this.finalCode.add(new asCommand("\t", "lea", reg,  sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
+                finalCode.add(new asCommand("\t", "lea", reg,  sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
                 return true;
             }
             else if (variableLocality[0] != 0 && varInfo.getMethod().equals("ref")) {
                 /* Make assembly code */
                 getAR(data);
-                this.finalCode.add(new asCommand("\t", "mov", reg,  sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
+                finalCode.add(new asCommand("\t", "mov", reg,  sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
                 return true;
             }
         }
@@ -667,7 +701,7 @@ public class FinalCode {
         return false;
     }
 
-    public boolean store(String reg, String data) {
+    public boolean store(String reg, String data, int additionalStackIndex) {
 
         VariableInfo varInfo = null;  // If data is variable keep its info
         String  sizeOfVar = null;     // If data is variable the string to put on assembly move
@@ -679,8 +713,8 @@ public class FinalCode {
         if (isDoubleDollar(data)) {
 
             /* Replace $$ with the ret pass by variable in index ebp + 12 */
-            this.finalCode.add(new asCommand("\t","mov","esi", "DWORD PTR [ebp + 12]"));
-            this.finalCode.add(new asCommand("\t","mov","DWORD PTR [esi]", reg));
+            finalCode.add(new asCommand("\t","mov","esi", "DWORD PTR [ebp + 12]"));
+            finalCode.add(new asCommand("\t","mov","DWORD PTR [esi]", reg));
             return true;
         }
         else if (isTempVariable(data)) {
@@ -698,7 +732,7 @@ public class FinalCode {
                 sizeOfVar = "BYTE";
 
             /* Make assembly code */
-            this.finalCode.add(new asCommand("\t", "mov",sizeOfVar + " PTR [ebp + " + variableStackIndex + "]", reg));
+            finalCode.add(new asCommand("\t", "mov",sizeOfVar + " PTR [ebp + " + variableStackIndex + "]", reg));
             return true;
         }
         else if (isPointerAccess(data)) {
@@ -714,7 +748,7 @@ public class FinalCode {
                 sizeOfVar = "BYTE";
 
             load("edi", data.substring(1, data.length() - 1));
-            this.finalCode.add(new asCommand("\t", "mov", sizeOfVar + " PTR [edi]", reg));
+            finalCode.add(new asCommand("\t", "mov", sizeOfVar + " PTR [edi]", reg));
             return true;
         }
         else if ((varInfo = isVariable(data, variableLocality)) != null) {
@@ -722,9 +756,10 @@ public class FinalCode {
             /* Determine the stack index */
             variableStackIndex = varInfo.getStackIndex();
             System.out.println("Stack index " + variableStackIndex);
+            variableStackIndex -= additionalStackIndex;
 
             /* Determine size */
-            if (varInfo.getType().isInt())
+            if (varInfo.getType().isInt() || varInfo.getType().isArray())
                 sizeOfVar = "DWORD";
             else if (varInfo.getType().isChar())
                 sizeOfVar = "BYTE";
@@ -732,26 +767,26 @@ public class FinalCode {
             /* Check if it's parameter , and locality */
             if (variableLocality[0] == 0 && (varInfo.getMethod().equals("val") || varInfo.getMethod().equals("non"))) {
                 /* Make assembly code */
-                this.finalCode.add(new asCommand("\t", "mov",sizeOfVar + " PTR [ebp + " + variableStackIndex + "]", reg));
+                finalCode.add(new asCommand("\t", "mov",sizeOfVar + " PTR [ebp + " + variableStackIndex + "]", reg));
                 return true;
             }
             else if (variableLocality[0] == 0 && varInfo.getMethod().equals("ref")) {
                 /* Make assembly code */
-                this.finalCode.add(new asCommand("\t", "mov", "esi",  sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
-                this.finalCode.add(new asCommand("\t", "mov", sizeOfVar + " PTR [esi]", reg));
+                finalCode.add(new asCommand("\t", "mov", "esi",  sizeOfVar + " PTR [ebp + " + variableStackIndex + "]"));
+                finalCode.add(new asCommand("\t", "mov", sizeOfVar + " PTR [esi]", reg));
                 return true;
             }
             else if (variableLocality[0] != 0 && (varInfo.getMethod().equals("val") || varInfo.getMethod().equals("non"))) {
                 /* Make assembly code */
                 getAR(data);
-                this.finalCode.add(new asCommand("\t", "mov",sizeOfVar + " PTR [esi + " + variableStackIndex + "]",reg));
+                finalCode.add(new asCommand("\t", "mov",sizeOfVar + " PTR [esi + " + variableStackIndex + "]",reg));
                 return true;
             }
             else if (variableLocality[0] != 0 && varInfo.getMethod().equals("ref")) {
                 /* Make assembly code */
                 getAR(data);
-                this.finalCode.add(new asCommand("\t", "mov", "esi",  sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
-                this.finalCode.add(new asCommand("\t", "mov", sizeOfVar + " PTR [esi]", reg));
+                finalCode.add(new asCommand("\t", "mov", "esi",  sizeOfVar + " PTR [esi + " + variableStackIndex + "]"));
+                finalCode.add(new asCommand("\t", "mov", sizeOfVar + " PTR [esi]", reg));
                 return true;
             }
         }
@@ -771,13 +806,12 @@ public class FinalCode {
         updateParamsStackIndex();
         updateLTVarsStackIndex(quadsList);
 
-
         /* For each quad generate final code */
         for (Quads quad : quadsList) {
 
             System.out.println("Quad " + quad  + " to :");
 
-            this.finalCode.add(new asCommand("_" + quad.getlabel() + ":", "", "", ""));
+            finalCode.add(new asCommand("_" + quad.getlabel() + ":", "", "", ""));
 
             /* Get quads operation name*/
             String opName = quad.getOpName();
@@ -802,6 +836,9 @@ public class FinalCode {
             }
             else if (opName.equals("=")) {
                 generateEqFinalCode(quad.getX(), quad.getY(), quad.getZ());
+            }
+            else if (opName.equals("#")) {
+                generateNeqFinalCode(quad.getX(), quad.getY(), quad.getZ());
             }
             else if (opName.equals(">=")) {
                 generateGeqFinalCode(quad.getX(), quad.getY(), quad.getZ());
@@ -832,6 +869,9 @@ public class FinalCode {
             }
             else if (opName.equals("unit")) {
                 generateUnitFinalCode(quad.getX(), quadsList);
+
+                /* If we have a string const as a local variable we must create it like a char[] */
+                createStringConst();
             }
             else if (opName.equals("endu")) {
                 generateEnduFinalCode(quad.getX());
@@ -839,14 +879,6 @@ public class FinalCode {
         }
 
         System.out.println("--------------------------------");
-
-        /* write to file */
-        writeToFile();
-
-        /* If we are in main ( the last func ) write tha data part */
-        if (this.currentFunctionInfo.getName().toString().equals(this.mainFuncName)) {
-            writeDataPartToFile();
-        }
     }
 
     /* Returns : nothing
@@ -855,11 +887,61 @@ public class FinalCode {
      */
     private void generateAssignFinalCode(String op1, String temp) {
 
-        /* Load operator 1 */
-        load("eax", op1);
+        /* Use each string assign like many const char assigns */
+        if (isStringConst(op1)) {
 
-        /* Store to temp */
-        store("eax", temp);
+            int additionalStackIndex = 0;
+            boolean previusBackSlash = false;
+
+            /* get the string */
+            String strliteral = op1.substring(1, op1.length()-2);
+            System.out.println("Str const is " + strliteral);
+            for (int i=0; i<strliteral.length(); i++){
+
+
+                if (strliteral.charAt(i) == '\\' && !previusBackSlash) {
+                    previusBackSlash = true;
+                    continue;
+                }
+
+                    /* then load line feed or tab , depending on '\n' or '\t' */
+                if (previusBackSlash && (strliteral.charAt(i) == 'n' || strliteral.charAt(i) == 't')) {
+                    if (strliteral.charAt(i) == 'n')
+                        finalCode.add(new asCommand("\t", "mov", "eax", "10"));
+                    else
+                        finalCode.add(new asCommand("\t", "mov", "eax", "9"));
+                }
+                else {
+
+                    /* Create char const */
+                    String charConst = "\'" + strliteral.charAt(i) + "\'";
+
+                    System.out.println("Const " + charConst);
+
+                    /* Load operator 1 */
+                    load("eax", charConst);
+                }
+
+                /* Store to temp */
+                store("eax", temp, additionalStackIndex);
+
+                /* go to the next array place */
+                additionalStackIndex += 4;
+                previusBackSlash = false;
+            }
+
+            /* At the end load a 0 to sign the end of the string */
+            load("eax", "0");
+            store("eax", temp, additionalStackIndex);
+
+        } else {
+
+            /* Load operator 1 */
+            load("eax", op1);
+
+            /* Store to temp */
+            store("eax", temp, 0);
+        }
     }
 
     /* Returns : nothing
@@ -875,10 +957,10 @@ public class FinalCode {
         loadAddress("ecx", op1);
 
         /* Add the address and the offset (sub because it goes downwards */
-        this.finalCode.add(new asCommand("\t", "sub", "ecx", "eax"));
+        finalCode.add(new asCommand("\t", "sub", "ecx", "eax"));
 
         /* Store the result to the temp var */
-        store("ecx", temp);
+        store("ecx", temp, 0);
     }
 
     /* Returns : nothing
@@ -891,10 +973,10 @@ public class FinalCode {
         load("ebx", op2);
 
         /* Add it to the list */
-        this.finalCode.add(new asCommand("\t", "add", "eax", "ebx"));
+        finalCode.add(new asCommand("\t", "add", "eax", "ebx"));
 
         /* store */
-        store("eax", temp);
+        store("eax", temp, 0);
     }
 
     /* Returns : nothing
@@ -907,10 +989,10 @@ public class FinalCode {
         load("ebx", op2);
 
         /* Add it to the list */
-        this.finalCode.add(new asCommand("\t", "sub", "eax", "ebx"));
+        finalCode.add(new asCommand("\t", "sub", "eax", "ebx"));
 
         /* store */
-        store("eax", temp);
+        store("eax", temp, 0);
 
     }
 
@@ -924,10 +1006,10 @@ public class FinalCode {
         load("ecx", op2);
 
         /* Add it to the list */
-        this.finalCode.add(new asCommand("\t", "imul", "eax", "ecx"));
+        finalCode.add(new asCommand("\t", "imul", "eax", "ecx"));
 
         /* store */
-        store("eax", temp);
+        store("eax", temp, 0);
     }
 
     /* Returns : nothing
@@ -937,14 +1019,14 @@ public class FinalCode {
     private void generateDivFinalCode(String op1, String op2, String temp) {
         /* Load operators */
         load("eax", op1);
-        this.finalCode.add(new asCommand("\t", "cdq", "", ""));
+        finalCode.add(new asCommand("\t", "cdq", "", ""));
         load("ebx", op2);
 
         /* Add it to the list */
-        this.finalCode.add(new asCommand("\t", "idiv", "eax", "ebx"));
+        finalCode.add(new asCommand("\t", "idiv", "eax", "ebx"));
 
         /* store the quotation from eax to temp */
-        store("eax", temp);
+        store("eax", temp, 0);
     }
 
     /* Returns : nothing
@@ -954,14 +1036,14 @@ public class FinalCode {
     private void generateModFinalCode(String op1, String op2, String temp) {
         /* Load operators */
         load("eax", op1);
-        this.finalCode.add(new asCommand("\t", "cdq", "", ""));
+        finalCode.add(new asCommand("\t", "cdq", "", ""));
         load("ebx", op2);
 
         /* Add it to the list */
-        this.finalCode.add(new asCommand("\t", "idiv", "eax", "ebx"));
+        finalCode.add(new asCommand("\t", "idiv", "eax", "ebx"));
 
         /* store the remaining from edx to temp */
-        store("edx", temp);
+        store("edx", temp, 0);
     }
 
     /* Returns : nothing
@@ -974,10 +1056,26 @@ public class FinalCode {
         load("edx", op2);
 
         /* Add it to the list */
-        this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
+        finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jnz", "_"+label, ""));
+        finalCode.add(new asCommand("\t", "je", "_"+label, ""));
+    }
+
+    /* Returns : nothing
+     * Parameters : @op1 The x of quad, @op2 the y of quad,
+     *              @label the label to jump to
+     */
+    private void generateNeqFinalCode(String op1, String op2, String label) {
+        /* Load operators */
+        load("eax", op1);
+        load("edx", op2);
+
+        /* Add it to the list */
+        finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
+
+        /* jump to label */
+        finalCode.add(new asCommand("\t", "jne", "_"+label, ""));
     }
 
     /* Returns : nothing
@@ -990,10 +1088,10 @@ public class FinalCode {
         load("edx", op2);
 
         /* Add it to the list */
-        this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
+        finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jge", "_"+label, ""));
+        finalCode.add(new asCommand("\t", "jge", "_"+label, ""));
     }
 
     /* Returns : nothing
@@ -1006,10 +1104,10 @@ public class FinalCode {
         load("edx", op2);
 
         /* Add it to the list */
-        this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
+        finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jg", "_"+label, ""));
+        finalCode.add(new asCommand("\t", "jg", "_"+label, ""));
     }
 
     /* Returns : nothing
@@ -1022,10 +1120,10 @@ public class FinalCode {
         load("edx", op2);
 
         /* Add it to the list */
-        this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
+        finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jle", "_"+label, ""));
+        finalCode.add(new asCommand("\t", "jle", "_"+label, ""));
     }
 
     /* Returns : nothing
@@ -1038,10 +1136,10 @@ public class FinalCode {
         load("edx", op2);
 
         /* Add it to the list */
-        this.finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
+        finalCode.add(new asCommand("\t", "cmp", "eax", "edx"));
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jl", "_"+label, ""));
+        finalCode.add(new asCommand("\t", "jl", "_"+label, ""));
     }
 
     /* Returns : nothing
@@ -1050,7 +1148,7 @@ public class FinalCode {
     private void generateJumpFinalCode(String label) {
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jmp", "_"+label, ""));
+        finalCode.add(new asCommand("\t", "jmp", "_"+label, ""));
     }
 
     /* Returns : nothing
@@ -1060,7 +1158,7 @@ public class FinalCode {
     private void generateRetFinalCode() {
 
         /* jump to label */
-        this.finalCode.add(new asCommand("\t", "jmp", "_grc" + this.currentFunctionInfo.getName(), ""));
+        finalCode.add(new asCommand("\t", "jmp", "_grc" + this.currentFunctionInfo.getName(), ""));
     }
 
     /* Returns : nothing
@@ -1069,16 +1167,40 @@ public class FinalCode {
     private void generateCallFinalCode(String calleefunction) {
 
         /* Get function's parameters size */
-        int parameterSize = getParametersSize(calleefunction) + 4;
+        int parameterSize = 0;
+
+        /* In case of built in fun there is no access link */
+        if (isBuiltInFunc(calleefunction))
+            parameterSize = getParametersSize(calleefunction);
+        else
+            parameterSize = getParametersSize(calleefunction) + 4;
 
         /* create access link , if func is not built in */
         if (!isBuiltInFunc(calleefunction))
             updateAL(calleefunction);
 
         /* call the function */
-        this.finalCode.add(new asCommand("\t", "call", "grc_" + calleefunction, ""));
+        finalCode.add(new asCommand("\t", "call", "grc_" + calleefunction, ""));
         /* Clear the used space (calling convention) */
-        this.finalCode.add(new asCommand("\t", "add", "esp", Integer.toString(parameterSize)));
+        finalCode.add(new asCommand("\t", "add", "esp", Integer.toString(parameterSize)));
+
+        /* Built in func are from .c files , and the convantion says that they return
+         * their result in $eax */
+        FunctionInfo fInfo = (FunctionInfo) copyOfST.lookup(calleefunction, null).getInfo();
+        if (isBuiltInFunc(calleefunction) && !fInfo.getType().isNothing() ) {
+
+            /* Get the temp's stack index that was used in "par $x, RET" */
+            int tempIndex = this.interCodeObj.getTempIndex(Integer.parseInt(this.returnTempVar.substring(1)));
+
+            /* Determine size */
+            String sizeOfVar;
+            if (fInfo.getType().isInt())
+                sizeOfVar = "DWORD";
+            else
+                sizeOfVar = "BYTE";
+
+            finalCode.add(new asCommand("\t", "mov", sizeOfVar + " PTR [ebp + "+tempIndex+"]", "eax"));
+        }
     }
 
     /* Returns : nothing
@@ -1092,16 +1214,20 @@ public class FinalCode {
             load("eax", op1);
 
             /* Push to stack */
-            this.finalCode.add(new asCommand("\t", "push", "eax", ""));
+            finalCode.add(new asCommand("\t", "push", "eax", ""));
         }
         else {
+            if ( method.equals("RET"))
+                this.returnTempVar = op1;
 
-            System.out.println("Here with " + op1);
+            this.lastVarPassed = op1;
+            System.out.println("-----------" + op1);
+
             /* Load op1 address cause it's by ref pass, or a return address */
             loadAddress("esi", op1);
 
             /* Push to stack */
-            this.finalCode.add(new asCommand("\t", "push", "esi", ""));
+            finalCode.add(new asCommand("\t", "push", "esi", ""));
         }
     }
 
@@ -1115,11 +1241,11 @@ public class FinalCode {
 
         System.out.println("Local size " + local_var_size);
 
-        this.finalCode.add(new asCommand("grc_" + unitName + ":", "", "", ""));
-        this.finalCode.add(new asCommand("\t", "push", "ebp", ""));
-        this.finalCode.add(new asCommand("\t", "mov", "ebp", "esp"));
+        finalCode.add(new asCommand("grc_" + unitName + ":", "", "", ""));
+        finalCode.add(new asCommand("\t", "push", "ebp", ""));
+        finalCode.add(new asCommand("\t", "mov", "ebp", "esp"));
         if (local_var_size != 0)
-            this.finalCode.add(new asCommand("\t", "sub", "esp", Integer.toString(local_var_size)));
+            finalCode.add(new asCommand("\t", "sub", "esp", Integer.toString(local_var_size)));
     }
 
     /* Returns : nothing
@@ -1127,13 +1253,13 @@ public class FinalCode {
      */
     private void generateEnduFinalCode(String unitName) {
 
-        this.finalCode.add(new asCommand("_grc" + unitName + ":", "mov", "esp", "ebp"));
+        finalCode.add(new asCommand("_grc" + unitName + ":", "mov", "esp", "ebp"));
         /* Pop ebp from stack */
-        this.finalCode.add(new asCommand("\t", "pop", "ebp", ""));
+        finalCode.add(new asCommand("\t", "pop", "ebp", ""));
         /* Return */
-        this.finalCode.add(new asCommand("\t", "ret", "", ""));
+        finalCode.add(new asCommand("\t", "ret", "", ""));
         /* Define end of process */
-        //this.finalCode.add(new asCommand("grc_" + unitName, "endp", "", ""));
+        //finalCode.add(new asCommand("grc_" + unitName, "endp", "", ""));
     }
 
 }

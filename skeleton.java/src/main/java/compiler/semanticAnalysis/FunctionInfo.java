@@ -72,18 +72,6 @@ public class FunctionInfo extends Info {
                 }
             } 
         }
-
-        /* Print the 2 lists
-        System.out.println("Arguments list in Function Info ");
-        for (int vars = 0; vars < this.arguments.size(); vars++) {
-            System.out.println("-->Name "   + this.arguments.get(vars).getName());
-            System.out.println("   Type "   + this.arguments.get(vars).getType());
-            System.out.println("   PassBy " + this.passedBy.get(vars));
-            
-        }
-
-        System.out.println();
-        */
     }
 
     /*

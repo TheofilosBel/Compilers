@@ -53,17 +53,14 @@ public class VariableInfo extends Info {
             }
             
             /* Pass the list to create the complex (array) type */
+            System.out.print("Array created " + this.name);
             this.type = new ComplexType("array", dimensionsList, type.getDataType().toString());
-
-            /* Print the list */
-            for (int dim = 0; dim < dimensionsList.size(); dim++){
-                System.out.println(dimensionsList.get(dim));
-            }
+            System.out.println();
         }
         else if (type.getArrayDec() instanceof AFirstEmptyArrayDec) {
             
-            /* Add the first dimension with 0 */
-            dimensionsList.add(0);
+            /* Add the first dimension with -1 : unknown size */
+            dimensionsList.add(-1);
             
             /* Add the rest dims */
             for (int dim = 0; dim < ((AFirstEmptyArrayDec) type.getArrayDec()).getIntConst().size(); dim++){
@@ -73,25 +70,17 @@ public class VariableInfo extends Info {
             }
             
             /* Pass the list to create the complex (array) type */
+            System.out.print("Array created " + this.name);
             this.type = new ComplexType("array", dimensionsList, type.getDataType().toString());
-
-            /* Print the list */
-            for (int dim = 0; dim < dimensionsList.size(); dim++){
-                System.out.println(dimensionsList.get(dim));
-            }
+            System.out.println();
         }
         else if (type.getArrayDec() instanceof AEmptyArrayDec) {
             
-            /* Add the first dimension with 0 , which is the only one*/
-            dimensionsList.add(0);
+            /* Add the first dimension with 0 : unknown size */
+            dimensionsList.add(-1);
             
             /* Pass the list to create the complex (array) type */
             this.type = new ComplexType("array", dimensionsList, type.getDataType().toString());
-
-            /* Print the list */
-            for (int dim = 0; dim < dimensionsList.size(); dim++){
-                System.out.println(dimensionsList.get(dim));
-            }
         }
         else {
 
@@ -99,6 +88,21 @@ public class VariableInfo extends Info {
             this.type = new BuiltInType(type.getDataType().toString());
         }
     }
+
+    /*
+     * This constructor is used for the arguments of the built in functions only
+     *
+     * @name Name of the argument
+     * @type Type of the argument
+     * @isComplex Indicates whether the variable has a complex type or not
+     */
+    public VariableInfo(TId tid, Type type) {
+        this.name = tid;//new TId(name, 0, 0);
+        this.passByMethod = "non";  /* it's local */
+        this.stackIndex = 0;
+        this.type = type;
+    }
+
 
     /*
      * This constructor is used for the arguments of the built in functions only
@@ -116,7 +120,7 @@ public class VariableInfo extends Info {
          */
         if (isComplex == true) {
             LinkedList<Integer> dimensionsList = new LinkedList<Integer>();
-            dimensionsList.add(0); /* 0 indicates unknown length */
+            dimensionsList.add(-1); /* -1 indicates unknown length */
             this.type = new ComplexType("array", dimensionsList, type);
         }
         else {

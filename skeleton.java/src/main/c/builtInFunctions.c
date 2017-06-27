@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+/*########### IO FUNCTIONS ################*/
 
 /* fun puti (n : int) : nothing; */
 void grc_puti(int n)
@@ -15,13 +16,13 @@ void grc_putc(char c)
 }
 
 /* fun puts (ref s : char[]) : nothing; */
-void grc_puts(char *c) 
+void grc_staticPuts(char *c) 
 {
 	printf("%s", c);
 }
 
 /* fun geti() : int; */
-int grc_geti()
+int grc_geti(int *np)
 {
 	int n;
 	scanf("%d", &n);
@@ -36,56 +37,39 @@ char grc_getc()
 	return n;
 }
 
-/* fun gets() : char[]; */
-char *grc_gets()
-{
-	char n[256];
-	scanf("%s", n);
-	return n;
-}
+/*######################################*/
 
+/*######### Other Functions ############*/
 
-/* fun acs(n :int) : int; */
+/* fun abs(n :int) : int; */
 int grc_abs(int* np, int n)
 {
-	printf("N is:%d\n", n);
 	if (n > 0) {
-		*np = n;
 		return n;
 	}
 	else {
-		*np = n*(-1);
 		return n*(-1);
 	}
 }
 
 /* fun ord(c :char) : int; */
-int grc_ord(char c)
+int grc_ord(int* np, char c)
 {
 	int casted = (int) c;
 	return casted;
 }
 
 /* fun chr(n :int) : char; */
-char grc_chr(int n)
+char grc_chr(int* np, int n)
 {
-	char casted = '0' + n;
+
+	char casted = (char)n;
 	return casted;
 }
+/*######################################*/
 
-/* STRING FUNCTIONS */
 
-/* fun strlen (ref s : char[]) : int; */
-int grc_strlen(char *s)
-{
-	return strlen(s);
-}
-
-/* fun strcmp (ref s1, s2 : char[]) : int; */
-int grc_strcmp(char *s1, char *s2)
-{
-	strcmp(s1, s2);
-}
+/*######### STRING FUNCTIONS ##########*/
 
 /* fun strcpy (ref trg, src : char[]) : nothing; */
 void grc_strcpy(char *trg, char *src)
@@ -100,6 +84,7 @@ void grc_strcat(char *trg, char *src)
 	strcat(trg, src);
 }
 
+/*######################################*/
 
 
 

@@ -7,9 +7,9 @@ import java.util.LinkedList;
  */
 public class ComplexType extends Type {
     
-    private final String  typeName; /* Name of the complex type */
-    private final Integer size;     /* Size of the current dimension of the complex type */
-    private final Type    type;     /* Represents the built in type of the complex type at the last level */
+    private String  typeName; /* Name of the complex type */
+    private Integer size;     /* Size of the current dimension of the complex type */
+    private Type    type;     /* Represents the built in type of the complex type at the last level */
 
     /*
      * Constructs a complex type
@@ -22,6 +22,7 @@ public class ComplexType extends Type {
         this.typeName = name;
         this.size     = remainingTypes.removeFirst();
 
+        System.out.print(this.size + " ");
         /* If there are further complex types */
         if (remainingTypes.size() > 0) {
             /* Recursively evaluate the inner complex types */
@@ -45,6 +46,11 @@ public class ComplexType extends Type {
     @Override
     public Integer getSize(){
         return this.size;
+    }
+
+    @Override
+    public void setSize(int newSize){
+        this.size = newSize;
     }
 
     public Type getType() {
@@ -105,27 +111,39 @@ public class ComplexType extends Type {
         return true;
     }
 
+
+    /* Returns : 1 in case of equality
+     *           2 in case of size error
+     *           0 in case of type error
+     * Parameters : The @type is the type of an the variable in the definition
+     *              of a function (can be unknown size) , and the object that
+     *              we call it on is the type used in call when we call that func
+     *              which has the real sizes of the array. (that's a convention)
+     * */
     @Override
     public int isEquivWith(Type type) {
 
         /* Check the type names */
         if (this.getTypeName().equals(type.getTypeName())) {
 
-            /* Recursive call to see the resemblance of the inner types */
-            int ret = this.getType().isEquivWith(type.getType());
-            if (ret == 1) {
+            System.out.println("Calling with " + this.getSize() + " from func def " + type.getSize());
 
-                System.out.println(this.size + " size " + type.getSize());
-                if ((this.size != 0 && type.getSize() != 0) && this.size < type.getSize()) {
-                    return 2;  // size fails
-                }
-                return 1;
+            /* if type has size -1 this means that it must be patched with its
+             * defined size, with the size of this object */
+            //if (type.getSize() == -1)
+            //    type.setSize(this.getSize());
+
+            /* If type (calling expr) size is greater then this obj's (defined size)
+             * return error */
+            if (this.size < type.getSize()) {
+                return 2;
             }
-            else {
-                return ret;
-            }
+
+            /* Recursive call to see the resemblance of the inner types */
+            return this.getType().isEquivWith(type.getType());
         }
 
+        /* Return type error */
         return 0;
     }
 

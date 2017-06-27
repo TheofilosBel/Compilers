@@ -74,8 +74,10 @@ public abstract class Type {
     }
 
     public Integer getSize() {
-        return 0;
+        return -2;
     }
+
+    public void setSize(int newSize) { }
 
     public void getDimentions(LinkedList<Integer> list) {
         
