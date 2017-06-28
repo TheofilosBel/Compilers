@@ -1199,8 +1199,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         if (!aExprType.isInt()) {
             int line = node.getLBracket().getLine();
             int column = node.getLBracket().getPos() + 1; /* The error occurs after the [ token but we use it to help us get column */
-            throw new TypeCheckingException(line, column, "Invalid action: using string literal \""
-                                            + node.getExpr().toString() + "\" to dereference array. Expression should be integer");
+            throw new TypeCheckingException(line, column, "Invalid action: using expression: \""
+                                            + node.getExpr().toString() + "\" with type: " + aExprType + " to dereference array. Expression should be integer");
         }
 
         /* Use recursive function to get the idName (at the highest lvalueArray node on the AST) */
