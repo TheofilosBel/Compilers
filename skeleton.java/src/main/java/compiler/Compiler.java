@@ -33,7 +33,7 @@ public class Compiler {
             /* Apply the semantic analysis */
             SemanticAnalysis sa = new SemanticAnalysis();
             tree.apply(sa);
-            
+
             sa.getErrors().printList();
 
         }
