@@ -220,17 +220,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
     }
 
     /* For debugging reasons */
-    private void addIndentationLevel() {
-        indentation++;
-    }
-
     private void printIndentation() {
         System.out.print(String.join("", Collections.nCopies(indentation, "   ")));
-    }
-
-    private void indentNprint(String msg) {
-        printIndentation();
-        System.out.println(msg);
     }
     /*-----------------------*/
 
@@ -1184,8 +1175,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
         else
             dimList.addFirst(-1);
 
-        System.out.println("PLACES " + dimPlaces.get(0) + " " + dimList.get(0));
-
         /* There is no case for a AStrLvalue because an exception would have already been thrown */
         if (node.getLvalue() instanceof AIdLvalue) {
             return ((AIdLvalue) node.getLvalue()).getId();
@@ -1238,8 +1227,6 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             /* Make a new type representing the array access (we need this to check the dimension number) */
             Type arrayAccessType = new ComplexType("array", accessList, arrayType.getArrayType());
 
-            System.out.println("Type " + arrayAccessType);
-
             int ret = arrayType.isEquivWith(arrayAccessType);
             if (ret == 0) {
 
@@ -1272,9 +1259,8 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             /* Code for arrays with 1 dimension */
             arrayAccessType.getDimentions(accessList);
             if (accessList.size() == 1) {
-                /* Create the quad for '*' */
 
-                System.out.println("pl" + placesList.get(0));
+                /* Create the quad for '*' */
                 temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
                 this.intermediateCode.genQuad("*", placesList.get(0), "4", temp2);
             }

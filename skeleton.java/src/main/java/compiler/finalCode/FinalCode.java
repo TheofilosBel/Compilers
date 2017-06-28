@@ -24,7 +24,6 @@ public class FinalCode {
             this.operation = opname;
             this.operand1 = op1;
             this.operand2 = op2;
-            System.out.println(this);
         }
 
         @Override
@@ -68,38 +67,6 @@ public class FinalCode {
         return finalCode;
     }
 
-    /* Returns the back patching list */
-    public LinkedList<Integer> getPBlists() {
-        return sizeBackPatchList;
-    }
-
-    public void mergePBlists(LinkedList<Integer> list) {
-        this.sizeBackPatchList.addAll(list);
-    }
-
-    public void backPatchSizes(String var2bp, String sizeOfarray) {
-
-        /* Create the backPatch symbol */
-        String bpSymbol = "*" + var2bp;
-
-        System.out.println("Back patch :" + bpSymbol + " with " + sizeOfarray);
-
-        for (Integer idx: this.sizeBackPatchList) {
-            /* Get the assembly command */
-            asCommand bpCommand = finalCode.get(idx);
-
-            /* back patch it */
-            if (bpCommand.operand1.equals(bpSymbol)) {
-                bpCommand.operand1 = sizeOfarray;
-            }
-            else if (bpCommand.operand2.equals(bpSymbol)) {
-                bpCommand.operand2 = sizeOfarray;
-            }
-        }
-
-    }
-
-
     /* +----------------------------------------------+
      * | Helping functions for String of intermediate |
      * |            code to Final code                |
@@ -111,8 +78,6 @@ public class FinalCode {
      * and creates it like a char array.
      */
     private void createStringConst() {
-
-        System.out.println("In create String const");
 
         /* Loop through local vars */
         for (VariableInfo varInfo: ((FuncDefInfo) currentFunctionInfo).getLocalVariables()) {
@@ -145,8 +110,6 @@ public class FinalCode {
                     else{
                         /* Create char const */
                         String charConst = "\'" + strliteral.charAt(i) + "\'";
-
-                        System.out.println("Const " + charConst);
 
                         /* Load operator 1 */
                         load("eax", charConst);
@@ -190,8 +153,6 @@ public class FinalCode {
         /* The func we want to get it's local var size is the current func */
         FuncDefInfo curDefInfo = (FuncDefInfo) this.currentFunctionInfo;
 
-        System.out.println("Function " + this.currentFunctionInfo.getName() + " params :");
-
         /* In case function has a return stmt the first available stack index goes to RET
          * par that it was passed to that function */
         if (!this.currentFunctionInfo.getType().isNothing()) {
@@ -203,14 +164,9 @@ public class FinalCode {
 
             varInfo = (VariableInfo) this.copyOfST.lookup(varInfo.getName().toString(), null).getInfo();
 
-            System.out.print("\tparam " + varInfo.getName());
-
-            System.out.println(" idx " + parametersStackIndex);
             varInfo.setStackIndex(parametersStackIndex);
             parametersStackIndex += 4;
         }
-
-        System.out.println("Function " + this.currentFunctionInfo.getName() + "local vars:");
     }
 
     /* Returns : Nothing
@@ -223,18 +179,13 @@ public class FinalCode {
         /* The func we want to get it's local var size is the current func */
         FuncDefInfo curDefInfo = (FuncDefInfo) this.currentFunctionInfo;
 
-        System.out.println("Function " + this.currentFunctionInfo.getName() + "local vars:");
-
         /* For each var get the size depending on type of var */
         for (VariableInfo varInfo : curDefInfo.getLocalVariables()){
 
             varInfo = (VariableInfo) this.copyOfST.lookup(varInfo.getName().toString(), null).getInfo();
 
-            System.out.print("\tLocal var " + varInfo.getName().toString());
-
             /* Update the each var's stack index depending on var's type */
             if (varInfo.getType().isInt() || varInfo.getType().isChar()) {
-                System.out.println(" idx " + localVarStackIndex);
                 varInfo.setStackIndex(localVarStackIndex);
                 localVarStackIndex -= 4;
             }
@@ -251,7 +202,6 @@ public class FinalCode {
                 }
 
                 /* Update the index */
-                System.out.println(" idx " + localVarStackIndex);
                 varInfo.setStackIndex(localVarStackIndex);
                 localVarStackIndex -= 4*prod;
             }
@@ -264,9 +214,6 @@ public class FinalCode {
 
             if (quad.getOpName().equals("par") && quad.getY().equals("RET")) {
 
-                System.out.print("\tTemp var " + quad.getX());
-                System.out.println(" idx " + localVarStackIndex);
-
                 /* Update stack index */
                 this.interCodeObj.putTempIndex(Integer.parseInt(quad.getX().substring(1)), localVarStackIndex);
                 localVarStackIndex -= 4;
@@ -277,9 +224,6 @@ public class FinalCode {
                     !isTempVariable(quad.getZ()) || tempVarsRecognized.indexOf(quad.getZ()) != -1
                     )
                 continue;
-
-            System.out.print("\tTemp var " + quad.getZ());
-            System.out.println(" idx " + localVarStackIndex);
 
             /* Update stack index */
             this.interCodeObj.putTempIndex(Integer.parseInt(quad.getZ().substring(1)), localVarStackIndex);
@@ -303,11 +247,8 @@ public class FinalCode {
         /* If not null get it's info */
         FunctionInfo funcInfo = (FunctionInfo) funcDefEntry.getInfo();
 
-        System.out.println("Function's " + funcInfo.getName() + " params: ");
-
         /* Get it's parameters type's */
         for (VariableInfo varInfo : funcInfo.getArguments()) {
-            System.out.println("\tParameter :" + varInfo.getName());
 
             /* Update the parametersSize depending on var's type */
             parametersSize += 4;
@@ -325,12 +266,9 @@ public class FinalCode {
 
         /* The func we want to get it's local var size is the current func */
         FuncDefInfo curDefInfo = (FuncDefInfo) this.currentFunctionInfo;
-        System.out.println("Function " + this.currentFunctionInfo.getName() + "local vars:");
 
         /* For each var get the size depending on type of var */
         for (VariableInfo varInfo : curDefInfo.getLocalVariables()){
-
-            System.out.println("\tLocal var " + varInfo.getName());
 
             /* Update the total size depending on var's type */
             if (varInfo.getType().isInt() || varInfo.getType().isChar())
@@ -368,8 +306,6 @@ public class FinalCode {
                     )
                 continue;
 
-
-            System.out.println("\tTemp var " + quad.getZ());
 
             /* update total size*/
             totalSize += 4;
@@ -639,8 +575,6 @@ public class FinalCode {
         int variableStackIndex = 0;   // If data is variable the stackIndex that it resides
         int[] variableLocality = new int[1];  // For the locality of the variable
 
-        System.out.println("In load");
-
         /* Based on data type produce final code */
         if (isPointerAccess(data)) {
             load(reg, data.substring(1, data.length() - 1));
@@ -755,7 +689,6 @@ public class FinalCode {
 
             /* Determine the stack index */
             variableStackIndex = varInfo.getStackIndex();
-            System.out.println("Stack index " + variableStackIndex);
             variableStackIndex -= additionalStackIndex;
 
             /* Determine size */
@@ -799,17 +732,12 @@ public class FinalCode {
      */
     public void intermediateToFinalCode(LinkedList<Quads> quadsList){
 
-        System.out.println();
-        System.out.println("------------Intermediate to assembly-------------");
-
         /* Assign stack indices to local variables before producing the final code */
         updateParamsStackIndex();
         updateLTVarsStackIndex(quadsList);
 
         /* For each quad generate final code */
         for (Quads quad : quadsList) {
-
-            System.out.println("Quad " + quad  + " to :");
 
             finalCode.add(new asCommand("_" + quad.getlabel() + ":", "", "", ""));
 
@@ -877,8 +805,6 @@ public class FinalCode {
                 generateEnduFinalCode(quad.getX());
             }
         }
-
-        System.out.println("--------------------------------");
     }
 
     /* Returns : nothing
@@ -895,9 +821,7 @@ public class FinalCode {
 
             /* get the string */
             String strliteral = op1.substring(1, op1.length()-2);
-            System.out.println("Str const is " + strliteral);
             for (int i=0; i<strliteral.length(); i++){
-
 
                 if (strliteral.charAt(i) == '\\' && !previusBackSlash) {
                     previusBackSlash = true;
@@ -915,8 +839,6 @@ public class FinalCode {
 
                     /* Create char const */
                     String charConst = "\'" + strliteral.charAt(i) + "\'";
-
-                    System.out.println("Const " + charConst);
 
                     /* Load operator 1 */
                     load("eax", charConst);
@@ -1221,7 +1143,6 @@ public class FinalCode {
                 this.returnTempVar = op1;
 
             this.lastVarPassed = op1;
-            System.out.println("-----------" + op1);
 
             /* Load op1 address cause it's by ref pass, or a return address */
             loadAddress("esi", op1);
@@ -1238,8 +1159,6 @@ public class FinalCode {
 
         /* Look up for the function name and decide the local var size */
         int local_var_size = getLocalVarSize(interCodelist);
-
-        System.out.println("Local size " + local_var_size);
 
         finalCode.add(new asCommand("grc_" + unitName + ":", "", "", ""));
         finalCode.add(new asCommand("\t", "push", "ebp", ""));

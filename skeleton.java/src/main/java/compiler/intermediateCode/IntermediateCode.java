@@ -58,8 +58,8 @@ public class IntermediateCode {
     public void backPatch(LinkedList<Integer> list, Integer patchingLabel) {
         Quads quad = null;
 
-        System.out.println("Patched quads:");
-        System.out.println("List " + list);
+        //System.out.println("Patched quads:");
+        //System.out.println("List " + list);
 
         /* Loop all the quads */
         for (int quad_n = 0; quad_n < list.size(); quad_n++) {
@@ -70,7 +70,7 @@ public class IntermediateCode {
             quad.setZ(patchingLabel.toString());
 
             /* Print the quads patched */
-            System.out.println(this.quadsList.get(list.get(quad_n) - 1));
+            //System.out.println(this.quadsList.get(list.get(quad_n) - 1));
         }
     }
 
@@ -87,7 +87,7 @@ public class IntermediateCode {
     public void genQuad(String op, String x, String y, String z) {
         Quads quad = new Quads(op, x, y, z);
         this.quadsList.add(quad);
-        System.out.println("Quad : "+ quad);
+        //System.out.println("Quad : "+ quad);
     }
 
     /* Generates code for a relational operation */
@@ -97,7 +97,7 @@ public class IntermediateCode {
         node.makeList("False", Quads.nextQuad()); /* Initialize false list with the next quad */
         this.genQuad("jump", "-", "-", "*");
         
-        System.out.println("True :" + node.getTrue() + "\nFalse :" + node.getFalse());
+        //System.out.println("True :" + node.getTrue() + "\nFalse :" + node.getFalse());
     }
 
     /* Generate code for a not operation */

@@ -53,9 +53,7 @@ public class VariableInfo extends Info {
             }
             
             /* Pass the list to create the complex (array) type */
-            System.out.print("Array created " + this.name);
             this.type = new ComplexType("array", dimensionsList, type.getDataType().toString());
-            System.out.println();
         }
         else if (type.getArrayDec() instanceof AFirstEmptyArrayDec) {
             
@@ -70,9 +68,7 @@ public class VariableInfo extends Info {
             }
             
             /* Pass the list to create the complex (array) type */
-            System.out.print("Array created " + this.name);
             this.type = new ComplexType("array", dimensionsList, type.getDataType().toString());
-            System.out.println();
         }
         else if (type.getArrayDec() instanceof AEmptyArrayDec) {
             

@@ -22,7 +22,7 @@ public class ComplexType extends Type {
         this.typeName = name;
         this.size     = remainingTypes.removeFirst();
 
-        System.out.print(this.size + " ");
+        //System.out.print(this.size + " ");
         /* If there are further complex types */
         if (remainingTypes.size() > 0) {
             /* Recursively evaluate the inner complex types */
@@ -126,12 +126,7 @@ public class ComplexType extends Type {
         /* Check the type names */
         if (this.getTypeName().equals(type.getTypeName())) {
 
-            System.out.println("Calling with " + this.getSize() + " from func def " + type.getSize());
-
-            /* if type has size -1 this means that it must be patched with its
-             * defined size, with the size of this object */
-            //if (type.getSize() == -1)
-            //    type.setSize(this.getSize());
+            //System.out.println("Calling with " + this.getSize() + " from func def " + type.getSize());
 
             /* If type (calling expr) size is greater then this obj's (defined size)
              * return error */
