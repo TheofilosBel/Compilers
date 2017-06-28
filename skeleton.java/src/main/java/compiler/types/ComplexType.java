@@ -126,11 +126,11 @@ public class ComplexType extends Type {
         /* Check the type names */
         if (this.getTypeName().equals(type.getTypeName())) {
 
-            //System.out.println("Calling with " + this.getSize() + " from func def " + type.getSize());
+            System.out.println("Calling with " + this.getSize() + " from func def " + type.getSize());
 
             /* If type (calling expr) size is greater then this obj's (defined size)
              * return error */
-            if (this.size < type.getSize()) {
+            if (type.getSize() != -1 && this.size > type.getSize()) {
                 return 2;
             }
 

@@ -1227,7 +1227,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             /* Make a new type representing the array access (we need this to check the dimension number) */
             Type arrayAccessType = new ComplexType("array", accessList, arrayType.getArrayType());
 
-            int ret = arrayType.isEquivWith(arrayAccessType);
+            int ret = arrayAccessType.isEquivWith(arrayType);
             if (ret == 0) {
 
                 /* Don't throw exception in this case
@@ -1237,6 +1237,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
                                     + arrayName.getText()+"\" was defined with " + arrayType.getArrayDims() +
                                     " dimension(s) but is used with " + arrayAccessType.getArrayDims() + " dimension(s)");
                 */
+
 
             }
             else if(ret == 2) {
