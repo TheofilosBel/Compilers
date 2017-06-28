@@ -34,7 +34,6 @@ public class Compiler {
             SemanticAnalysis sa = new SemanticAnalysis();
             tree.apply(sa);
             
-            System.out.println("Errors : " + sa.getErrors().getErrorList().size());
             sa.getErrors().printList();
 
         }
