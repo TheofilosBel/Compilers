@@ -43,14 +43,17 @@ grc_gets :
     mov  edi , 0                   # the offset of the array
 
     # Looop the array
-gloops:  cmp ebx, 0
+gloops:  cmp ebx, 1                # If the size reaches one that means that we have one more char for \0
     jg gloop
-    jmp _grcgets
+    jmp getsnullTerminate
 gloop:
 	# Call grc_getc
- 	call grc_getc
+ 	call grc_getc               # result of grc_puts is stored in $eax
 
- 	# result stored in $eax
+ 	cmp eax, 10                 # compare the read char from getc with the ascii of \n
+ 	je  getsnullTerminate       # end reading when we get the \n char
+
+ 	# Else store the char to the string
  	mov DWORD PTR [esi + edi], eax
 
 	# - the size 
@@ -61,11 +64,13 @@ gloop:
 
 	jmp gloops
 
-_grcgets: mov esp, ebp
+getsnullTerminate :
+	mov DWORD PTR [esi + edi], 0  # null terminate the strin 
+
+_grcgets:
+    mov esp, ebp
 	pop ebp
 	ret
-
-.data
 
 #### fun strlen (ref s:char[]) : int ###
 grc_strlen :
