@@ -77,6 +77,8 @@ public abstract class Type {
         return -2;
     }
 
+    public Type getSubType(int[] index){ return null;}
+
     public void setSize(int newSize) { }
 
     public void getDimentions(LinkedList<Integer> list) {

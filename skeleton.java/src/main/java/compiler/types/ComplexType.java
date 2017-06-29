@@ -89,6 +89,17 @@ public class ComplexType extends Type {
     }
 
     @Override
+    public Type getSubType(int[] index){
+
+        if (index[0] == 1)
+            return this.type;
+        else {
+            index[0]--;
+            return this.type.getSubType(index);
+        }
+    }
+
+    @Override
     public int getArrayDims() {
         /* If our Type is Complex call recursively */
         if (this.getType() instanceof ComplexType) 
@@ -126,7 +137,7 @@ public class ComplexType extends Type {
         /* Check the type names */
         if (this.getTypeName().equals(type.getTypeName())) {
 
-            System.out.println("Calling with " + this.getSize() + " from func def " + type.getSize());
+            //System.out.println("Calling with " + this.getSize() + " from func def " + type.getSize());
 
             /* If type (calling expr) size is greater then this obj's (defined size)
              * return error */

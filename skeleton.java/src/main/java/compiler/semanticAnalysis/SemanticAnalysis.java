@@ -1249,7 +1249,7 @@ public class SemanticAnalysis extends DepthFirstAdapter {
 
             /* Intermediate code */
             LinkedList<Integer> dimList = new LinkedList<Integer>();
-            String temp1 = null, temp2 = null;
+            String temp1 = null, temp2 = null, temp3 = null;
             arrayType.getDimentions(dimList);
             
             /*
@@ -1261,9 +1261,20 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             arrayAccessType.getDimentions(accessList);
             if (accessList.size() == 1) {
 
-                /* Create the quad for '*' */
-                temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
-                this.intermediateCode.genQuad("*", placesList.get(0), "4", temp2);
+                if (dimList.size() > 1) {
+                    temp3 = this.intermediateCode.newTemp(BuiltInType.Int);
+                    this.intermediateCode.genQuad("*", placesList.get(0), dimList.get(1).toString(), temp3);
+
+                    /* Create the quad for '*' */
+                    temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
+                    this.intermediateCode.genQuad("*", temp3, "4", temp2);
+                }
+                else {
+
+                    /* Create the quad for '*' */
+                    temp2 = this.intermediateCode.newTemp(BuiltInType.Int);
+                    this.intermediateCode.genQuad("*", placesList.get(0), "4", temp2);
+                }
             }
             else {
                 for (int dim = 0; dim < accessList.size() - 1; dim++) {
@@ -1295,8 +1306,13 @@ public class SemanticAnalysis extends DepthFirstAdapter {
             /* Put the AArrayLvalue parent (which is an expression) in the hashMap */
             if (accessList.size() == dimList.size())
                 exprTypes.put(node, new Attributes(new BuiltInType(arrayAccessType.getArrayType()), "[" + temp1 + "]"));
-            else
+            else {
+                /* Else access type is what is left from the sub of definition Dim size - calling dim size */
+                int[] index = new int[1];
+                index[0] = accessList.size();
+                arrayAccessType = arrayType.getSubType(index);
                 exprTypes.put(node, new Attributes(arrayAccessType, "[" + temp1 + "]"));
+            }
         }
     }
 
