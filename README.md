@@ -5,4 +5,4 @@ that we developed for the perpose of an undergratute subject
 called Compilers.
 
 
-For more Information about how to install and run go inside skeleton/java
+For more Information about how to compile and run go inside /skeleton.java
