@@ -3,3 +3,6 @@
 This is a fully working compiler for the language "GRACE"
 that we developed for the perpose of an undergratute subject
 called Compilers.
+
+
+For more Information about how to install and run go inside skeleton/java
